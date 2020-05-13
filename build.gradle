@@ -67,6 +67,9 @@ test {
 task functional(type: Test) {
   description = "Runs functional tests"
   group = "Verification"
+
+  systemProperty "scenario", System.getProperty('scenario')
+
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 }
