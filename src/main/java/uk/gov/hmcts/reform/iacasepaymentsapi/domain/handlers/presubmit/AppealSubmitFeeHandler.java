@@ -62,7 +62,9 @@ public class AppealSubmitFeeHandler implements PreSubmitCallbackHandler<AsylumCa
         AppealType appealType = asylumCase.read(APPEAL_TYPE, AppealType.class)
             .orElseThrow(() -> new IllegalStateException("AppealType is not present"));
 
-        if (appealType.equals(AppealType.EA) || appealType.equals(AppealType.HU)) {
+        if (appealType.equals(AppealType.EA)
+            || appealType.equals(AppealType.HU)
+            || appealType.equals(AppealType.PA)) {
             if (!isFeeExists(FeeType.ORAL_FEE)) {
                 PreSubmitCallbackResponse<AsylumCase> response =
                     new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
