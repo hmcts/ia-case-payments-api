@@ -15,5 +15,4 @@ java:
         - idam-secret
         - s2s-secret
         - s2s-microservice
-        - fees-register-api-url
         - AppInsightsInstrumentationKey
