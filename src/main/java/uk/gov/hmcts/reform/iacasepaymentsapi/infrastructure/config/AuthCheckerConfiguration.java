@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
-import com.google.common.collect.ImmutableSet;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

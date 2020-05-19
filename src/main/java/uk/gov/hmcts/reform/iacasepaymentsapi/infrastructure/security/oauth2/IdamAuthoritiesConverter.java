@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.oauth2;
 
-import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.*;
+import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.ACCESS_TOKEN;
 
+import feign.FeignException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import feign.FeignException;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,8 +17,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.U
 
 @Component
 public class IdamAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-
-    public static final String REGISTRATION_ID = "oidc";
 
     static final String TOKEN_NAME = "tokenName";
 
