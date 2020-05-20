@@ -7,8 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.CallbackForTest;
-import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.PreSubmitCallbackResponseForTest;
 
 @Slf4j
 public class IaCasePaymentsApiClient {
