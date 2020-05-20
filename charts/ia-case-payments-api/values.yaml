@@ -13,6 +13,7 @@ java:
       secrets:
         - idam-client-id
         - idam-secret
+        - idam-redirect-uri
         - s2s-secret
         - s2s-microservice
         - AppInsightsInstrumentationKey
