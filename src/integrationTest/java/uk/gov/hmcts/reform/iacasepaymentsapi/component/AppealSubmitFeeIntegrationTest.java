@@ -6,9 +6,9 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.ORAL_FEE_AMOUNT_FOR_DISPLAY;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.AsylumCaseForTest.anAsylumCase;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.CallbackForTest.CallbackForTestBuilder.callback;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.CaseDetailsForTest.CaseDetailsForTestBuilder.someCaseDetailsWith;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.AsylumCaseForTest.anAsylumCase;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.CallbackForTest.CallbackForTestBuilder.callback;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.CaseDetailsForTest.CaseDetailsForTestBuilder.someCaseDetailsWith;
 
 import groovy.util.logging.Slf4j;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
-import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.fixtures.PreSubmitCallbackResponseForTest;
+import uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.PreSubmitCallbackResponseForTest;
 
 @Slf4j
 public class AppealSubmitFeeIntegrationTest extends SpringBootIntegrationTest {
