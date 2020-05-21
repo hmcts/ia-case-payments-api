@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.U
 @Component
 public class IdamAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
+    public static final String REGISTRATION_ID = "oidc";
+
     static final String TOKEN_NAME = "tokenName";
 
     private final IdamApi idamApi;
