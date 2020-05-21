@@ -40,11 +40,6 @@ idam:
     microservice: ${IA_S2S_MICROSERVICE:ia}
     url: ${S2S_URL:http://127.0.0.1:4502}
 
-
-ccd:
-  case-data-api:
-    url: ${CCD_URL:http://127.0.0.1:4452}
-
 fees-register:
   api:
     url: ${FEES_REGISTER_API_URL:http://localhost:8991}
