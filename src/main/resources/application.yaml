@@ -42,11 +42,6 @@ idam:
   s2s-authorised:
     services: ${IA_S2S_AUTHORIZED_SERVICES:iac}
 
-
-ccd:
-  case-data-api:
-    url: ${CCD_URL:http://127.0.0.1:4452}
-
 fees-register:
   api:
     url: ${FEES_REGISTER_API_URL:http://localhost:8991}
