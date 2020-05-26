@@ -27,8 +27,7 @@ public class EndpointSecurityTest {
     private final List<String> callbackEndpoints =
         Arrays.asList(
             "/asylum/ccdAboutToStart",
-            "/asylum/ccdAboutToSubmit",
-            "/asylum/ccdSubmitted"
+            "/asylum/ccdAboutToSubmit"
         );
 
     @Autowired private AuthorizationHeadersProvider authorizationHeadersProvider;
@@ -52,7 +51,7 @@ public class EndpointSecurityTest {
                 .extract().body().asString();
 
         assertThat(response)
-            .contains("Welcome");
+            .contains("Immigration & Asylum case payments API");
     }
 
     @Test
@@ -81,7 +80,7 @@ public class EndpointSecurityTest {
                 .when()
                 .get(callbackEndpoint)
                 .then()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
         );
     }
 
@@ -104,7 +103,7 @@ public class EndpointSecurityTest {
                 .when()
                 .get(callbackEndpoint)
                 .then()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
         );
     }
 
@@ -127,7 +126,7 @@ public class EndpointSecurityTest {
                 .when()
                 .get(callbackEndpoint)
                 .then()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
         );
     }
 }
