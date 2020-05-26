@@ -238,6 +238,7 @@ dependencies {
   functionalTestImplementation sourceSets.test.runtimeClasspath
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
+  smokeTestCompile sourceSets.test.runtimeClasspath
 }
 
 mainClassName = 'uk.gov.hmcts.reform.iacasepaymentsapi.Application'
