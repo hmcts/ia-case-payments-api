@@ -30,6 +30,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSub
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -39,12 +40,13 @@ public class AppealSubmitFeeHandlerTest {
     @Mock private CaseDetails<AsylumCase> caseDetails;
     @Mock private AsylumCase asylumCase;
     @Mock private FeeService feeService;
+    @Mock private PaymentService paymentService;
 
     private AppealSubmitFeeHandler appealSubmitFeeHandler;
 
     @BeforeEach
     public void setUp() {
-        appealSubmitFeeHandler = new AppealSubmitFeeHandler(feeService);
+        appealSubmitFeeHandler = new AppealSubmitFeeHandler(feeService, paymentService);
     }
 
     @Test

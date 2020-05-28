@@ -54,6 +54,13 @@ fees-register:
       keyword: ABC
       service: other
 
+payment:
+  api:
+    url: ${PAYMENT_API_URL:http://payment-api-aat.service.core-compute-aat.internal}
+  params:
+    organisationUrn: immigration and asylum chamber
+    siteId: ABA3
+
 security:
   anonymousPaths:
     - "/"
