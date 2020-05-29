@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
@@ -37,22 +39,27 @@ public class PaymentResponse {
     }
 
     public String getReference() {
+        requireNonNull(reference);
         return reference;
     }
 
     public Date getDateCreated() {
+        requireNonNull(dateCreated);
         return dateCreated;
     }
 
     public String getStatus() {
+        requireNonNull(status);
         return status;
     }
 
     public String getPaymentGroupReference() {
+        requireNonNull(paymentGroupReference);
         return paymentGroupReference;
     }
 
     public List<StatusHistories> getStatusHistories() {
+        requireNonNull(statusHistories);
         return statusHistories;
     }
 }

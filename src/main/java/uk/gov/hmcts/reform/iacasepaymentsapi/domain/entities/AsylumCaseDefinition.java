@@ -34,8 +34,8 @@ public enum AsylumCaseDefinition {
     ERROR_MESSAGE(
         "errorMessage", new TypeReference<String>(){}),
 
-    PAY_FOR_THE_APPEAL
-        ("payForTheAppeal", new TypeReference<String>(){}),
+    PAY_FOR_THE_APPEAL(
+        "payForTheAppeal", new TypeReference<String>(){}),
 
     APPEAL_TYPE(
         "appealType", new TypeReference<AppealType>(){});

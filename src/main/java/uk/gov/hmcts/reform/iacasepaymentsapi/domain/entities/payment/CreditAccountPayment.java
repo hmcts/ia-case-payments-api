@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.math.BigDecimal;
@@ -43,30 +45,37 @@ public class CreditAccountPayment {
     }
 
     public String getAccountNumber() {
+        requireNonNull(accountNumber);
         return accountNumber;
     }
 
     public BigDecimal getAmount() {
+        requireNonNull(amount);
         return amount;
     }
 
     public String getCaseReference() {
+        requireNonNull(caseReference);
         return caseReference;
     }
 
     public String getCcdCaseNumber() {
+        requireNonNull(ccdCaseNumber);
         return ccdCaseNumber;
     }
 
     public Currency getCurrency() {
+        requireNonNull(currency);
         return currency;
     }
 
     public String getCustomerReference() {
+        requireNonNull(customerReference);
         return customerReference;
     }
 
     public String getDescription() {
+        requireNonNull(description);
         return description;
     }
 
@@ -83,6 +92,7 @@ public class CreditAccountPayment {
     }
 
     public List<Fee> getFees() {
+        requireNonNull(fees);
         return fees;
     }
 

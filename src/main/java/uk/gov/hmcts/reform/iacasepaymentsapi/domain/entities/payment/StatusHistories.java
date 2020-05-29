@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,6 +28,7 @@ public class StatusHistories {
     }
 
     public String getStatus() {
+        requireNonNull(status);
         return status;
     }
 
