@@ -5,11 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode
 public class PaymentResponse {
 
     private String reference;

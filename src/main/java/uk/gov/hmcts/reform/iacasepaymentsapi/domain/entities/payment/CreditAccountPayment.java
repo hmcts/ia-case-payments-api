@@ -55,12 +55,10 @@ public class CreditAccountPayment {
     }
 
     public String getCaseReference() {
-        requireNonNull(caseReference);
         return caseReference;
     }
 
     public String getCcdCaseNumber() {
-        requireNonNull(ccdCaseNumber);
         return ccdCaseNumber;
     }
 

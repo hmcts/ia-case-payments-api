@@ -61,17 +61,4 @@ public class PaymentResponseTest {
         assertThatThrownBy(paymentResponse::getStatusHistories)
             .isExactlyInstanceOf(NullPointerException.class);
     }
-
-    @Test
-    public void should_test_to_string_and_hash_code() {
-
-        PaymentResponse expectedPaymentResponse = new PaymentResponse(
-            reference,
-            dateCreated,
-            status,
-            paymentGroupReference,
-            statusHistories);
-        assertEquals(paymentResponse, expectedPaymentResponse);
-        assertEquals(paymentResponse.hashCode(), expectedPaymentResponse.hashCode());
-    }
 }

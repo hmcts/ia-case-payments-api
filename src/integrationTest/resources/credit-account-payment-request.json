@@ -1,0 +1,19 @@
+{
+  "account_number": "PBA0066906",
+  "amount": 140.00,
+  "ccd_case_number": "0",
+  "currency": "GBP",
+  "customer_reference": "CustRef123",
+  "description": "A test pba payment",
+  "fees": [
+    {
+      "code" : "FEE0239",
+      "description": "Appeal determined with a hearing",
+      "version": 1,
+      "calculated_amount": 140.00
+    }
+  ],
+  "organisation_name": "immigration and asylum chamber",
+  "service": "IAC",
+  "site_id": "ABA3"
+}

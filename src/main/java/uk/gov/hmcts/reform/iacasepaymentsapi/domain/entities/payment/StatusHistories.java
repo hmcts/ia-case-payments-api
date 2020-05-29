@@ -3,11 +3,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode
 public class StatusHistories {
 
     private String status;

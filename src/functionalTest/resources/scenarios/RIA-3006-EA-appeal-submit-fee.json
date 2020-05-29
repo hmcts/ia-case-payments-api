@@ -9,6 +9,7 @@
       "caseData": {
         "template": "minimal-appeal-started.json",
         "replacements": {
+          "payForTheAppeal": "payLater",
           "appealType": "refusalOfEu",
           "homeOfficeDecisionDate": "{$TODAY-14}"
         }

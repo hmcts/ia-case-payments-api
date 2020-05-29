@@ -67,12 +67,6 @@ public class CreditAccountPaymentTest {
         assertThatThrownBy(creditAccountPayment::getAmount)
             .isExactlyInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(creditAccountPayment::getCaseReference)
-            .isExactlyInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(creditAccountPayment::getCcdCaseNumber)
-            .isExactlyInstanceOf(NullPointerException.class);
-
         assertThatThrownBy(creditAccountPayment::getCurrency)
             .isExactlyInstanceOf(NullPointerException.class);
 

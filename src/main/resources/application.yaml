@@ -56,7 +56,7 @@ fees-register:
 
 payment:
   api:
-    url: ${PAYMENT_API_URL:http://payment-api-aat.service.core-compute-aat.internal}
+    url: ${PAYMENT_API_URL:http://localhost:8991}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: ABA3
