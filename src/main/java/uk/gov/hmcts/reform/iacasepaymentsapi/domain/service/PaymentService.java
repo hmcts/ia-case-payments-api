@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.service;
 
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Service.IAC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Service.FPL;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class PaymentService {
     public PaymentResponse creditAccountPayment(CreditAccountPayment creditAccountPaymentRequest) {
 
         creditAccountPaymentRequest.setOrganisationName(paymentConfiguration.getOrganisationUrn());
-        creditAccountPaymentRequest.setService(IAC);
+        creditAccountPaymentRequest.setService(FPL);
         creditAccountPaymentRequest.setSiteId(paymentConfiguration.getSiteId());
 
         return paymentApi.creditAccountPaymentRequest(
