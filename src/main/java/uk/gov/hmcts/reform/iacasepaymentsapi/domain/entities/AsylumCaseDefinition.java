@@ -7,14 +7,23 @@ public enum AsylumCaseDefinition {
     APPEAL_REFERENCE_NUMBER(
         "appealReferenceNumber", new TypeReference<String>(){}),
 
-    APPEAL_FEE_DESC(
-        "appealFeeDesc", new TypeReference<String>(){}),
+    APPEAL_FEE_HEARING_DESC(
+        "appealFeeHearingDesc", new TypeReference<String>(){}),
 
-    ORAL_FEE_AMOUNT_FOR_DISPLAY(
-        "oralFeeAmountForDisplay", new TypeReference<String>(){}),
+    FEE_HEARING_AMOUNT_FOR_DISPLAY(
+        "feeHearingAmountForDisplay", new TypeReference<String>(){}),
+
+    APPEAL_FEE_WITHOUT_HEARING_DESC(
+        "appealFeeWithoutHearingDesc", new TypeReference<String>(){}),
+
+    FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY(
+        "feeWithoutHearingAmountForDisplay", new TypeReference<String>(){}),
 
     PAYMENT_STATUS(
         "paymentStatus", new TypeReference<String>(){}),
+
+    FEE_PAYMENT_APPEAL_TYPE(
+        "feePaymentAppealType", new TypeReference<String>(){}),
 
     APPEAL_TYPE(
         "appealType", new TypeReference<AppealType>(){});

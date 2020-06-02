@@ -60,6 +60,9 @@ public abstract class SpringBootIntegrationTest {
     @Value("classpath:fees-register-api-response.json")
     private Resource resourceFile;
 
+    @Value("classpath:fees-without-register-api-response.json")
+    private Resource resourceFileWithoutHearing;
+
     @LocalServerPort
     protected int port;
 
@@ -83,19 +86,33 @@ public abstract class SpringBootIntegrationTest {
         String feeResponseJson =
             new String(Files.readAllBytes(Paths.get(resourceFile.getURI())));
 
-        assertNotNull(feeResponseJson);
+        String feeWithoutResponseJson =
+            new String(Files.readAllBytes(Paths.get(resourceFileWithoutHearing.getURI())));
 
-        Map<String, StringValuePattern> queryParams = getOralFeeRequestParams();
+        assertNotNull(feeResponseJson);
+        assertNotNull(feeWithoutResponseJson);
+
+        Map<String, StringValuePattern> queryParamsFee = getFeeHearingRequestParams();
+        Map<String, StringValuePattern> queryParamsWithoutFee = getWithoutFeeHearingRequestParams();
+
         stubFor(get(urlPathEqualTo(feeRegisterApiUri))
-            .withQueryParams(queryParams)
+            .withQueryParams(queryParamsFee)
             .willReturn(
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-type", "Application/json")
                     .withBody(feeResponseJson)));
+
+        stubFor(get(urlPathEqualTo(feeRegisterApiUri))
+            .withQueryParams(queryParamsWithoutFee)
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-type", "Application/json")
+                    .withBody(feeWithoutResponseJson)));
     }
 
-    private Map<String, StringValuePattern> getOralFeeRequestParams() {
+    private Map<String, StringValuePattern> getFeeHearingRequestParams() {
 
         Map<String, StringValuePattern> queryParams = new HashMap<>();
         queryParams.put("channel", equalTo("default"));
@@ -103,6 +120,19 @@ public abstract class SpringBootIntegrationTest {
         queryParams.put("jurisdiction1", equalTo("tribunal"));
         queryParams.put("jurisdiction2", containing("immigration and asylum chamber"));
         queryParams.put("keyword", equalTo("ABC"));
+        queryParams.put("service", equalTo("other"));
+
+        return queryParams;
+    }
+
+    private Map<String, StringValuePattern> getWithoutFeeHearingRequestParams() {
+
+        Map<String, StringValuePattern> queryParams = new HashMap<>();
+        queryParams.put("channel", equalTo("default"));
+        queryParams.put("event", equalTo("issue"));
+        queryParams.put("jurisdiction1", equalTo("tribunal"));
+        queryParams.put("jurisdiction2", containing("immigration and asylum chamber"));
+        queryParams.put("keyword", equalTo("DEF"));
         queryParams.put("service", equalTo("other"));
 
         return queryParams;

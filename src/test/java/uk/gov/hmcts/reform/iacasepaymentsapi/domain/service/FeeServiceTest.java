@@ -35,13 +35,13 @@ public class FeeServiceTest {
     }
 
     @Test
-    public void should_return_oral_hearing_fee() {
+    public void should_return_fee_with_hearing() {
 
         when(feesConfiguration.getFees()).thenReturn(getFeeTypes());
 
         LookupReferenceData lookupReferenceData = feesConfiguration
             .getFees()
-            .get(FeeType.ORAL_FEE.getValue());
+            .get(FeeType.FEE_WITH_HEARING.getValue());
 
         when(feesRegisterApi.findFee(
             lookupReferenceData.getChannel(),
@@ -50,9 +50,9 @@ public class FeeServiceTest {
             lookupReferenceData.getJurisdiction2(),
             lookupReferenceData.getKeyword(),
             lookupReferenceData.getService()
-        )).thenReturn(getFeeResponse());
+        )).thenReturn(getFeeHearingResponse());
 
-        Fee fee = feeService.getFee(FeeType.ORAL_FEE);
+        Fee fee = feeService.getFee(FeeType.FEE_WITH_HEARING);
 
         assertThat(fee.getCode()).isEqualTo("FEE0123");
         assertThat(fee.getDescription()).isEqualTo("Appeal determined with a hearing");
@@ -61,9 +61,38 @@ public class FeeServiceTest {
     }
 
     @Test
+    public void should_return_fee_without_hearing() {
+
+        when(feesConfiguration.getFees()).thenReturn(getFeeTypes());
+
+        LookupReferenceData lookupReferenceData = feesConfiguration
+            .getFees()
+            .get(FeeType.FEE_WITHOUT_HEARING.getValue());
+
+        when(feesRegisterApi.findFee(
+            lookupReferenceData.getChannel(),
+            lookupReferenceData.getEvent(),
+            lookupReferenceData.getJurisdiction1(),
+            lookupReferenceData.getJurisdiction2(),
+            lookupReferenceData.getKeyword(),
+            lookupReferenceData.getService()
+        )).thenReturn(getFeeWithoutHearingResponse());
+
+        Fee fee = feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
+
+        assertThat(fee.getCode()).isEqualTo("FEE0456");
+        assertThat(fee.getDescription()).isEqualTo("Appeal determined without a hearing");
+        assertThat(fee.getVersion()).isEqualTo(1);
+        assertThat(fee.getCalculatedAmount()).isEqualTo(new BigDecimal("80.00"));
+    }
+
+    @Test
     public void should_throw_for_null_fee_type() {
 
-        assertThatThrownBy(() -> feeService.getFee(FeeType.ORAL_FEE))
+        assertThatThrownBy(() -> feeService.getFee(FeeType.FEE_WITH_HEARING))
+            .isExactlyInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> feeService.getFee(FeeType.FEE_WITHOUT_HEARING))
             .isExactlyInstanceOf(NullPointerException.class);
     }
 
@@ -78,17 +107,35 @@ public class FeeServiceTest {
         lookupReferenceData.setJurisdiction2("immigration and asylum chamber");
         lookupReferenceData.setKeyword("ABC");
         lookupReferenceData.setService("other");
-        feeTypeMap.put("oralFee", lookupReferenceData);
+        feeTypeMap.put("feeWithHearing", lookupReferenceData);
+
+        LookupReferenceData lookupReferenceWithoutFeeData = new LookupReferenceData();
+        lookupReferenceWithoutFeeData.setChannel("default");
+        lookupReferenceWithoutFeeData.setEvent("issue");
+        lookupReferenceWithoutFeeData.setJurisdiction1("tribunal");
+        lookupReferenceWithoutFeeData.setJurisdiction2("immigration and asylum chamber");
+        lookupReferenceWithoutFeeData.setKeyword("DEF");
+        lookupReferenceWithoutFeeData.setService("other");
+        feeTypeMap.put("feeWithoutHearing", lookupReferenceWithoutFeeData);
 
         return feeTypeMap;
     }
 
-    private FeeResponse getFeeResponse() {
+    private FeeResponse getFeeHearingResponse() {
 
         return new FeeResponse(
             "FEE0123",
             "Appeal determined with a hearing",
             1,
             new BigDecimal("140.00"));
+    }
+
+    private FeeResponse getFeeWithoutHearingResponse() {
+
+        return new FeeResponse(
+            "FEE0456",
+            "Appeal determined without a hearing",
+            1,
+            new BigDecimal("80.00"));
     }
 }

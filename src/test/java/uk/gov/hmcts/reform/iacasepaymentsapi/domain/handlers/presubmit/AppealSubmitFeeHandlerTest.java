@@ -8,9 +8,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_HEARING_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_WITHOUT_HEARING_DESC;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.ORAL_FEE_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_HEARING_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 
 import java.math.BigDecimal;
@@ -48,17 +51,23 @@ public class AppealSubmitFeeHandlerTest {
     }
 
     @Test
-    public void should_retrieve_the_oral_fee_for_appeal_type_EA() {
+    public void should_retrieve_the_fee_with_hearing_for_appeal_type_EA() {
 
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
-        when(feeService.getFee(FeeType.ORAL_FEE))
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING))
             .thenReturn(new Fee("FEE0238",
                 "Appeal determined with a hearing",
                 2,
                 new BigDecimal("140.00")));
+
+        when(feeService.getFee(FeeType.FEE_WITHOUT_HEARING))
+            .thenReturn(new Fee("FEE0238",
+                                "Appeal determined without a hearing",
+                                2,
+                                new BigDecimal("80.00")));
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = appealSubmitFeeHandler
             .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
@@ -66,11 +75,17 @@ public class AppealSubmitFeeHandlerTest {
         assertNotNull(callbackResponse);
 
         verify(asylumCase, times(1))
-            .write(ORAL_FEE_AMOUNT_FOR_DISPLAY, "£140.00");
+            .write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£140.00");
         verify(asylumCase, times(1))
-            .write(APPEAL_FEE_DESC, "The fee for this type of appeal with a hearing is £140.00");
+            .write(APPEAL_FEE_HEARING_DESC, "The fee for this type of appeal with a hearing is £140.00");
+        verify(asylumCase, times(1))
+            .write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, "£80.00");
+        verify(asylumCase, times(1))
+            .write(APPEAL_FEE_WITHOUT_HEARING_DESC, "The fee for this type of appeal with a hearing is £80.00");
         verify(asylumCase, times(1))
             .write(PAYMENT_STATUS, "Payment due");
+        verify(asylumCase, times(1))
+            .write(FEE_PAYMENT_APPEAL_TYPE, "Yes");
     }
 
     @Test
@@ -93,7 +108,6 @@ public class AppealSubmitFeeHandlerTest {
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
-        when(feeService.getFee(FeeType.ORAL_FEE)).thenReturn(null);
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = appealSubmitFeeHandler
             .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
@@ -101,6 +115,7 @@ public class AppealSubmitFeeHandlerTest {
         assertNotNull(callbackResponse);
         assertEquals(asylumCase, callbackResponse.getData());
         assertTrue(callbackResponse.getErrors().contains("Cannot retrieve the fee from fees-register."));
+
     }
 
     @Test

@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
 import static java.util.Objects.requireNonNull;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_HEARING_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_WITHOUT_HEARING_DESC;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.ORAL_FEE_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_HEARING_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 
 import java.util.Collections;
@@ -23,7 +26,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 public class AppealSubmitFeeHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
     private final FeeService feeService;
-    private Fee fee;
 
     public AppealSubmitFeeHandler(
         FeeService feeService
@@ -61,11 +63,16 @@ public class AppealSubmitFeeHandler implements PreSubmitCallbackHandler<AsylumCa
 
         AppealType appealType = asylumCase.read(APPEAL_TYPE, AppealType.class)
             .orElseThrow(() -> new IllegalStateException("AppealType is not present"));
+        asylumCase.write(FEE_PAYMENT_APPEAL_TYPE, "No");
 
         if (appealType.equals(AppealType.EA)
             || appealType.equals(AppealType.HU)
             || appealType.equals(AppealType.PA)) {
-            if (!isFeeExists(FeeType.ORAL_FEE)) {
+
+            Fee feeHearing = feeService.getFee(FeeType.FEE_WITH_HEARING);
+            Fee feeWithoutHearing = feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
+
+            if ((feeHearing == null) || (feeWithoutHearing == null)) {
                 PreSubmitCallbackResponse<AsylumCase> response =
                     new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
                 response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
@@ -73,18 +80,19 @@ public class AppealSubmitFeeHandler implements PreSubmitCallbackHandler<AsylumCa
                 return response;
             }
 
-            asylumCase.write(APPEAL_FEE_DESC,
-                "The fee for this type of appeal with a hearing is £" + fee.getCalculatedAmount());
-            asylumCase.write(ORAL_FEE_AMOUNT_FOR_DISPLAY, "£" + fee.getCalculatedAmount());
+            asylumCase.write(
+                APPEAL_FEE_HEARING_DESC,
+                "The fee for this type of appeal with a hearing is £" + feeHearing.getCalculatedAmount());
+            asylumCase.write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£" + feeHearing.getCalculatedAmount());
+            asylumCase.write(
+                APPEAL_FEE_WITHOUT_HEARING_DESC,
+                "The fee for this type of appeal with a hearing is £" + feeWithoutHearing.getCalculatedAmount());
+            asylumCase.write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, "£" + feeWithoutHearing.getCalculatedAmount());
+
             asylumCase.write(PAYMENT_STATUS, "Payment due");
+            asylumCase.write(FEE_PAYMENT_APPEAL_TYPE, "Yes");
         }
 
         return new PreSubmitCallbackResponse<>(asylumCase);
-    }
-
-    private boolean isFeeExists(FeeType feeType) {
-
-        fee = feeService.getFee(feeType);
-        return fee != null;
     }
 }

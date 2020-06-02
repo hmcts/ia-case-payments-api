@@ -46,12 +46,19 @@ fees-register:
   api:
     url: ${FEES_REGISTER_API_URL:http://localhost:8991}
   fees:
-    oralFee:
+    feeWithHearing:
       channel: default
       event: issue
       jurisdiction1: tribunal
       jurisdiction2: immigration and asylum chamber
       keyword: ABC
+      service: other
+    feeWithoutHearing:
+      channel: default
+      event: issue
+      jurisdiction1: tribunal
+      jurisdiction2: immigration and asylum chamber
+      keyword: DEF
       service: other
 
 security:

@@ -5,10 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.AsylumCaseForTest.anAsylumCase;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.CallbackForTest.CallbackForTestBuilder.callback;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.component.testutils.CaseDetailsForTest.CaseDetailsForTestBuilder.someCaseDetailsWith;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_HEARING_DESC;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_WITHOUT_HEARING_DESC;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.ORAL_FEE_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_HEARING_AMOUNT_FOR_DISPLAY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY;
 
 import groovy.util.logging.Slf4j;
 import java.util.Optional;
@@ -38,8 +40,11 @@ public class AppealSubmitFeeIntegrationTest extends SpringBootIntegrationTest {
 
         assertNotNull(response);
         assertNotNull(asylumCase);
-        assertEquals(asylumCase.read(APPEAL_FEE_DESC, String.class),
+        assertEquals(asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class),
             Optional.of("The fee for this type of appeal with a hearing is £140.00"));
-        assertEquals(asylumCase.read(ORAL_FEE_AMOUNT_FOR_DISPLAY), Optional.of("£140.00"));
+        assertEquals(asylumCase.read(FEE_HEARING_AMOUNT_FOR_DISPLAY), Optional.of("£140.00"));
+        assertEquals(asylumCase.read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class),
+                     Optional.of("The fee for this type of appeal with a hearing is £80.00"));
+        assertEquals(asylumCase.read(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY), Optional.of("£80.00"));
     }
 }
