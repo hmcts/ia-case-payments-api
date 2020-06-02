@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StatusHistoriesTest {
+class StatusHistoriesTest {
 
     private String status = "Failed";
     private String errorCode = "Account has been deleted";
@@ -21,7 +21,7 @@ public class StatusHistoriesTest {
     }
 
     @Test
-    public void should_hold_onto_values() {
+    void should_hold_onto_values() {
 
         assertEquals(statusHistories.getStatus(), status);
         assertEquals(statusHistories.getErrorCode(), errorCode);
@@ -29,7 +29,7 @@ public class StatusHistoriesTest {
     }
 
     @Test
-    public void should_throw_required_field_exception() {
+    void should_throw_required_field_exception() {
 
         statusHistories = new StatusHistories(null, null, null);
 

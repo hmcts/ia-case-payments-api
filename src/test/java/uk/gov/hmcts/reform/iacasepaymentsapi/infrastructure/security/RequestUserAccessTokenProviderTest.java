@@ -18,10 +18,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ExtendWith(MockitoExtension.class)
-public class RequestUserAccessTokenProviderTest {
+class RequestUserAccessTokenProviderTest {
 
     @Mock private HttpServletRequest httpServletRequest;
-    @Mock private ServletRequestAttributes servletRequestAttributes;
 
     private RequestUserAccessTokenProvider requestUserAccessTokenProvider;
 
@@ -36,16 +35,16 @@ public class RequestUserAccessTokenProviderTest {
     }
 
     @Test
-    public void should_throw_if_no_http_request_present() {
+    void should_throw_if_no_http_request_present() {
 
         assertThatThrownBy(requestUserAccessTokenProvider::getAccessToken)
             .isExactlyInstanceOf(IllegalStateException.class)
             .hasMessage("Request access token not present");
-        
+
     }
 
     @Test
-    public void should_throw_if_not_authorization_present() {
+    void should_throw_if_not_authorization_present() {
 
         RequestContextHolder.resetRequestAttributes();
 
@@ -55,7 +54,7 @@ public class RequestUserAccessTokenProviderTest {
     }
 
     @Test
-    public void get_access_token_from_http_request() {
+    void get_access_token_from_http_request() {
 
         String expectedAccessToken = "access-token";
 
@@ -67,7 +66,7 @@ public class RequestUserAccessTokenProviderTest {
     }
 
     @Test
-    public void try_get_access_from_http_request() {
+    void try_get_access_from_http_request() {
         String expectedAccessToken = "access-token";
 
         when(httpServletRequest.getHeader(AUTHORIZATION)).thenReturn(expectedAccessToken);
@@ -79,7 +78,7 @@ public class RequestUserAccessTokenProviderTest {
     }
 
     @Test
-    public void try_get_missing_access_token_from_http_request_returns_empty() {
+    void try_get_missing_access_token_from_http_request_returns_empty() {
 
         when(httpServletRequest.getHeader(AUTHORIZATION)).thenReturn(null);
 

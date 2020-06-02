@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 
-public class CreditAccountPaymentTest {
+class CreditAccountPaymentTest {
 
     private String accountNumber = "PBA0072626";
     private BigDecimal amount = new BigDecimal("140.00");
@@ -39,7 +39,7 @@ public class CreditAccountPaymentTest {
     }
 
     @Test
-    public void should_hold_onto_values() {
+    void should_hold_onto_values() {
 
         assertEquals(creditAccountPayment.getAccountNumber(), accountNumber);
         assertEquals(creditAccountPayment.getAmount(), amount);
@@ -55,7 +55,7 @@ public class CreditAccountPaymentTest {
     }
 
     @Test
-    public void should_throw_required_field_exception() {
+    void should_throw_required_field_exception() {
 
         creditAccountPayment = new CreditAccountPayment(
             null, null, null, null,

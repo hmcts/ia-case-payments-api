@@ -20,15 +20,15 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Currency;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.StatusHistories;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.PaymentApi;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentConfiguration;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProperties;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.RequestUserAccessTokenProvider;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-public class PaymentServiceTest {
+class PaymentServiceTest {
 
     @Mock private PaymentApi paymentApi;
-    @Mock private PaymentConfiguration paymentConfiguration;
+    @Mock private PaymentProperties paymentProperties;
     @Mock private RequestUserAccessTokenProvider userAuthorizationProvider;
     @Mock private AuthTokenGenerator serviceAuthorizationProvider;
 
@@ -41,13 +41,13 @@ public class PaymentServiceTest {
 
         paymentService = new PaymentService(
             paymentApi,
-            paymentConfiguration,
+            paymentProperties,
             userAuthorizationProvider,
             serviceAuthorizationProvider);
     }
 
     @Test
-    public void should_make_a_pba_payment() throws Exception {
+    void should_make_a_pba_payment() throws Exception {
 
         when(userAuthorizationProvider.getAccessToken()).thenReturn("userAuthorizationToken");
         when(serviceAuthorizationProvider.generate()).thenReturn("serviceAuthorizationToken");
@@ -67,12 +67,12 @@ public class PaymentServiceTest {
 
         assertNotNull(paymentResponse);
 
-        assertEquals(paymentResponse.getReference(), "RC-1590-6748-2373-9129");
-        assertEquals(paymentResponse.getStatus(), "Success");
+        assertEquals("RC-1590-6748-2373-9129", paymentResponse.getReference());
+        assertEquals("Success", paymentResponse.getStatus());
     }
 
     @Test
-    public void should_throw_for_null_request() {
+    void should_throw_for_null_request() {
 
         assertThatThrownBy(() -> paymentService.creditAccountPayment(null))
             .isExactlyInstanceOf(NullPointerException.class);

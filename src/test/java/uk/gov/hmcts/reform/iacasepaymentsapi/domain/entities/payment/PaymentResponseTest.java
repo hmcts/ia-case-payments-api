@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PaymentResponseTest {
+class PaymentResponseTest {
 
     private String reference = "RC-1590-6786-1063-9996";
     private Date dateCreated = new Date();
@@ -32,7 +32,7 @@ public class PaymentResponseTest {
     }
 
     @Test
-    public void should_hold_onto_values() {
+    void should_hold_onto_values() {
 
         assertEquals(paymentResponse.getReference(), reference);
         assertEquals(paymentResponse.getDateCreated(), dateCreated);
@@ -41,7 +41,7 @@ public class PaymentResponseTest {
     }
 
     @Test
-    public void should_throw_required_field_exception() {
+    void should_throw_required_field_exception() {
 
         paymentResponse = new PaymentResponse(null, null,
             null, null, null);

@@ -76,6 +76,7 @@ security:
     - "/testing-support/**"
   roleEventAccess:
     caseworker-ia-legalrep-solicitor:
+    - "startAppeal"
     - "submitAppeal"
 
 ### dependency configuration

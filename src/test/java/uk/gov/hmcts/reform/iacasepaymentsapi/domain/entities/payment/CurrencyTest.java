@@ -6,16 +6,16 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class CurrencyTest {
+class CurrencyTest {
 
     @Test
-    public void should_have_correct_values() {
+    void should_have_correct_values() {
 
         assertThat("GBP", is(Currency.GBP.toString()));
     }
 
     @Test
-    public void if_this_test_fails_it_is_because_it_needs_updating_with_your_changes() {
+    void if_this_test_fails_it_is_because_it_needs_updating_with_your_changes() {
 
         assertEquals(1, Currency.values().length);
     }

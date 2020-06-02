@@ -5,15 +5,15 @@
   "currency": "GBP",
   "customer_reference": "CustRef123",
   "description": "A test pba payment",
-  "fees": [
-    {
-      "code" : "FEE0239",
-      "description": "Appeal determined with a hearing",
-      "version": 1,
-      "calculated_amount": 140.00
-    }
-  ],
   "organisation_name": "immigration and asylum chamber",
   "service": "IAC",
-  "site_id": "ABA3"
+  "site_id": "ABA3",
+  "fees": [
+    {
+      "code": "FEE0238",
+      "description": "Appeal determined with a hearing",
+      "version": 2,
+      "calculated_amount": 140.00
+    }
+  ]
 }

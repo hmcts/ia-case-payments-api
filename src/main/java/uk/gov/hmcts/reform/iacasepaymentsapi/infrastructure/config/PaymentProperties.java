@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 @EnableConfigurationProperties
 @ConfigurationProperties("payment.params")
-public class PaymentConfiguration {
+public class PaymentProperties {
 
     private String organisationUrn;
     private String siteId;
