@@ -1,5 +1,6 @@
 {
   "description": "RIA-3006-RIA-3002 Make a payment now for EA appeal type",
+  "enabled": false,
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
     "credentials": "LegalRepresentative",
