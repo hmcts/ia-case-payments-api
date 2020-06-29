@@ -17,12 +17,24 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ERROR_CODE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ERROR_MESSAGE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_FAILED_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.FAILED;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_DUE;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
@@ -53,17 +65,21 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
     private final PaymentService paymentService;
     private final RefDataService refDataService;
     private final PaymentProperties paymentProperties;
+    private final ObjectMapper objectMapper;
 
     public PaymentAppealHandler(
         FeeService feeService,
         PaymentService paymentService,
         RefDataService refDataService,
         PaymentProperties paymentProperties
+        PaymentService paymentService,
+        ObjectMapper objectMapper
     ) {
         this.feeService = feeService;
         this.paymentService = paymentService;
         this.refDataService = refDataService;
         this.paymentProperties = paymentProperties;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -146,7 +162,27 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             );
 
             PaymentResponse paymentResponse = makePayment(creditAccountPayment);
-            asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ?  "Paid" : "Payment due"));
+
+            if (paymentResponse.getStatus().equals("Failed")) {
+
+                asylumCase.write(PAYMENT_STATUS, FAILED);
+                asylumCase.write(PAYMENT_FAILED_FOR_DISPLAY, "Pending");
+
+                asylumCase.write(PAYMENT_ERROR_CODE, paymentResponse
+                    .getStatusHistories()
+                    .get(paymentResponse.getStatusHistories().size() - 1)
+                    .getErrorCode());
+
+                asylumCase.write(PAYMENT_ERROR_MESSAGE, paymentResponse
+                    .getStatusHistories()
+                    .get(paymentResponse.getStatusHistories().size() - 1)
+                    .getErrorMessage());
+
+            }  else {
+                asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ? PAID : PAYMENT_DUE));
+                asylumCase.clear(PAYMENT_FAILED_FOR_DISPLAY);
+            }
+
             asylumCase.write(PAYMENT_REFERENCE, paymentResponse.getReference());
             asylumCase.write(PBA_NUMBER, pbaAccountNumber.getValue().getCode());
 
@@ -172,6 +208,20 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
 
     private PaymentResponse makePayment(CreditAccountPayment creditAccountPayment) {
 
-        return paymentService.creditAccountPayment(creditAccountPayment);
+        PaymentResponse paymentResponse = null;
+        try {
+            paymentResponse = paymentService.creditAccountPayment(creditAccountPayment);
+        } catch (FeignException fe) {
+
+            log.error("Payment failed: {}", fe.getMessage());
+            try {
+                paymentResponse = objectMapper.readValue(fe.contentUTF8(), PaymentResponse.class);
+            } catch (JsonProcessingException je) {
+
+                log.error("Error parsing the failed payment response: {}", je.getMessage());
+            }
+        }
+
+        return paymentResponse;
     }
 }

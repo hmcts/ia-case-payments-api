@@ -18,12 +18,21 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ERROR_CODE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ERROR_MESSAGE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_FAILED_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.FAILED;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +53,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.OrganisationEnt
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.OrganisationResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.CreditAccountPayment;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentResponse;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.StatusHistories;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
@@ -62,12 +72,15 @@ class PaymentAppealHandlerTest {
     @Mock private RefDataService refDataService;
     @Mock private PaymentProperties paymentProperties;
 
+    private ObjectMapper objectMapper;
     private PaymentAppealHandler appealFeePaymentHandler;
 
     @BeforeEach
     public void setUp() {
+        objectMapper = new ObjectMapper();
         appealFeePaymentHandler =
             new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties);
+
     }
 
     @Test
@@ -126,10 +139,10 @@ class PaymentAppealHandlerTest {
 
         verify(asylumCase, times(1))
             .write(PAYMENT_REFERENCE, "RC-1590-6748-2373-9129");
-        verify(asylumCase, times(1))
-            .write(PAYMENT_STATUS, "Paid");
+
         String pattern = "d MMM yyyy";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
         verify(asylumCase, times(1))
             .write(PAYMENT_DATE, simpleDateFormat.format(new Date()));
         verify(asylumCase, times(1))
@@ -140,6 +153,79 @@ class PaymentAppealHandlerTest {
             .write(FEE_AMOUNT, "140.0");
         verify(asylumCase, times(1))
             .write(FEE_AMOUNT_FOR_DISPLAY, "£140");
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_STATUS, PAID);
+
+        verify(asylumCase, times(1))
+            .clear(PAYMENT_FAILED_FOR_DISPLAY);
+    }
+
+    @Test
+    void should_call_payment_api_on_pay_now_and_return_failure() throws Exception {
+
+        StatusHistories statusHistory = new StatusHistories(
+            "failed",
+            "CA-E0004",
+            "Your account is deleted",
+            "2020-05-28T14:04:06.048+0000",
+            "2020-05-28T14:04:06.048+0000"
+        );
+
+        List<StatusHistories> statusHistories = new ArrayList<>();
+        statusHistories.add(statusHistory);
+
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of(DECISION_WITH_HEARING.value()));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(fee);
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCode()).thenReturn("FEE0123");
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getDescription())
+            .thenReturn("Appeal determined with a hearing");
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
+        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
+        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Some description"));
+        when(asylumCase.read(HOME_OFFICE_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("A1234567/003"));
+
+        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.of("FEE0123"));
+        when(asylumCase.read(FEE_DESCRIPTION, String.class))
+            .thenReturn(Optional.of("Appeal determined with a hearing"));
+        when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
+        when(asylumCase.read(FEE_AMOUNT, BigDecimal.class)).thenReturn(Optional.of(BigDecimal.valueOf(140.00)));
+
+        when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
+            .thenReturn(new PaymentResponse("RC-1590-6748-2373-9129", new Date(),
+                                            "Failed",
+                                            "2020-1590674823325",
+                                            statusHistories
+            ));
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = appealFeePaymentHandler
+            .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+
+        AsylumCase asylumCase = callbackResponse.getData();
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_REFERENCE, "RC-1590-6748-2373-9129");
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_STATUS, FAILED);
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_FAILED_FOR_DISPLAY, "Pending");
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_ERROR_CODE, statusHistories.get(0).getErrorCode());
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_ERROR_MESSAGE, statusHistories.get(0).getErrorMessage());
     }
 
     @Test

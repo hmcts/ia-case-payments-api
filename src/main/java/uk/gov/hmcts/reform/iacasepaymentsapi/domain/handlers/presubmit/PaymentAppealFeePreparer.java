@@ -7,6 +7,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_DUE;
 
 import java.util.Collections;
 import org.springframework.stereotype.Component;
@@ -90,8 +91,8 @@ public class PaymentAppealFeePreparer implements PreSubmitCallbackHandler<Asylum
             APPEAL_FEE_WITHOUT_HEARING_DESC,
             "The fee for an appeal without a hearing is " + feeWithoutHearing.getFeeForDisplay()
         );
-        asylumCase.write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, feeWithoutHearing.getFeeForDisplay());
-        asylumCase.write(PAYMENT_STATUS, "Payment due");
+        asylumCase.write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, "£" + feeWithoutHearing.getCalculatedAmount());
+        asylumCase.write(PAYMENT_STATUS, PAYMENT_DUE);
 
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
