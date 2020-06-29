@@ -12,6 +12,7 @@ public class EventTest {
         assertEquals("startAppeal", Event.START_APPEAL.toString());
         assertEquals("editAppeal", Event.EDIT_APPEAL.toString());
         assertEquals("paymentAppeal", Event.PAYMENT_APPEAL.toString());
+        assertEquals("payAndSubmitAppeal", Event.PAY_AND_SUBMIT_APPEAL.toString());
         assertEquals("submitAppeal", Event.SUBMIT_APPEAL.toString());
         assertEquals("unknown", Event.UNKNOWN.toString());
     }

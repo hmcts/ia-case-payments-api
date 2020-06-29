@@ -8,6 +8,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_DUE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.AsylumCaseForTest.anAsylumCase;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.CallbackForTest.CallbackForTestBuilder.callback;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.CaseDetailsForTest.CaseDetailsForTestBuilder.someCaseDetailsWith;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.lanwen.wiremock.ext.WiremockResolver;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.PreSubmitCallbackResponseForTest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SpringBootIntegrationTest;
@@ -55,8 +57,8 @@ public class AppealStartFeeIntegrationTest extends SpringBootIntegrationTest
                      response.getAsylumCase().read(APPEAL_FEE_HEARING_DESC, String.class).orElse(""));
         assertEquals("The fee for an appeal without a hearing is £80",
                      response.getAsylumCase().read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class).orElse(""));
-        assertEquals("Payment due",
-                     response.getAsylumCase().read(PAYMENT_STATUS, String.class).orElse(""));
+        assertEquals(PAYMENT_DUE,
+                     response.getAsylumCase().read(PAYMENT_STATUS, PaymentStatus.class).get());
         assertEquals("some-appeal-reference-number",
                      response.getAsylumCase().read(APPEAL_REFERENCE_NUMBER, String.class).orElse(""));
     }
