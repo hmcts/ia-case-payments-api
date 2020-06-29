@@ -26,20 +26,17 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.PreSubmitCallbackResponse
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SpringBootIntegrationTest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.StaticPortWiremockFactory;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithFeeStub;
-import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithIdamStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithPaymentStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
-                                        implements WithIdamStub, WithServiceAuthStub, WithFeeStub, WithPaymentStub {
+                                        implements WithServiceAuthStub, WithFeeStub, WithPaymentStub {
 
     @Test
     @WithMockUser(authorities = {"caseworker-ia-legalrep-solicitor"})
     public void executionEndpoint(@WiremockResolver
                     .Wiremock(factory = StaticPortWiremockFactory.class) WireMockServer server) throws Exception {
 
-        addIdamTokenStub(server);
-        addUserInfoStub(server);
         addServiceAuthStub(server);
         addFeesRegisterStub(server);
         addPaymentStub(server);
