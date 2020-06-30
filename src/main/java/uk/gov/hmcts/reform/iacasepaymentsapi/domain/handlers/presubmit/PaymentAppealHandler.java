@@ -10,12 +10,15 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +129,8 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             .orElseThrow(() -> new IllegalStateException("PBA account number is not present"));
         String paymentDescription = asylumCase.read(PAYMENT_DESCRIPTION, String.class)
             .orElseThrow(() -> new IllegalStateException("Payment description is not present"));
+        String customerReference = asylumCase.read(HOME_OFFICE_REFERENCE_NUMBER, String.class)
+            .orElseThrow(() -> new IllegalStateException("Customer payment reference is not present"));
         String feeCode = asylumCase.read(FEE_CODE, String.class)
             .orElseThrow(() -> new IllegalStateException("Fee code is not present"));
         String feeDescription = asylumCase.read(FEE_DESCRIPTION, String.class)
@@ -159,6 +164,10 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         PaymentResponse paymentResponse = makePayment(creditAccountPayment);
         asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ?  "Paid" : "Payment due"));
         asylumCase.write(PAYMENT_REFERENCE, paymentResponse.getReference());
+
+        String pattern = "d MMM yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        asylumCase.write(PAYMENT_DATE, simpleDateFormat.format(paymentResponse.getDateCreated()));
 
         return new PreSubmitCallbackResponse<>(asylumCase);
     }

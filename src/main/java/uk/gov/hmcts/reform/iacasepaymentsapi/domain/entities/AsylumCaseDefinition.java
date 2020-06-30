@@ -35,10 +35,12 @@ public enum AsylumCaseDefinition {
         "homeOfficeReferenceNumber", new TypeReference<String>(){}),
     PAYMENT_REFERENCE(
         "paymentReference", new TypeReference<String>(){}),
-    ERROR_CODE(
-        "errorCode", new TypeReference<String>(){}),
-    ERROR_MESSAGE(
-        "errorMessage", new TypeReference<String>(){}),
+    PAYMENT_DATE(
+        "paymentDate", new TypeReference<String>(){}),
+    PAYMENT_ERROR_CODE(
+        "paymentErrorCode", new TypeReference<String>(){}),
+    PAYMENT_ERROR_MESSAGE(
+        "paymentErrorMessage", new TypeReference<String>(){}),
     APPEAL_TYPE(
         "appealType", new TypeReference<AppealType>(){}),
     DECISION_WITH_HEARING(
