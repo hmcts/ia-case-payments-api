@@ -11,12 +11,14 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.CreditAccountPayment;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Currency;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentResponse;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Service;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
@@ -140,6 +143,9 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             Currency.GBP,
             customerReference,
             paymentDescription,
+            "ia-legal-rep-org",
+            Service.IAC,
+            "BFA1",
             Arrays.asList(
                 new Fee(
                     feeCode,
@@ -151,6 +157,10 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         PaymentResponse paymentResponse = makePayment(creditAccountPayment);
         asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ?  "Paid" : "Payment due"));
         asylumCase.write(PAYMENT_REFERENCE, paymentResponse.getReference());
+
+        String pattern = "d MMM yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        asylumCase.write(PAYMENT_DATE, simpleDateFormat.format(paymentResponse.getDateCreated()));
 
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
