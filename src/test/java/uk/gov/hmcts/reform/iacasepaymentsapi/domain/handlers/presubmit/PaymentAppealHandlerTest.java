@@ -12,9 +12,11 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_CODE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HEARING_DECISION_SELECTED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
@@ -119,6 +121,8 @@ class PaymentAppealHandlerTest {
             .thenReturn(Optional.of("Appeal determined with a hearing"));
         when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
         when(asylumCase.read(FEE_AMOUNT, BigDecimal.class)).thenReturn(Optional.of(BigDecimal.valueOf(140.00)));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getFeeForDisplay()).thenReturn("£140");
+
 
         when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
             .thenReturn(new PaymentResponse("RC-1590-6748-2373-9129", new Date(),
@@ -144,6 +148,14 @@ class PaymentAppealHandlerTest {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         verify(asylumCase, times(1))
             .write(PAYMENT_DATE, simpleDateFormat.format(new Date()));
+        verify(asylumCase, times(1))
+            .write(PAYMENT_STATUS, "Paid");
+        verify(asylumCase, times(1))
+            .write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+        verify(asylumCase, times(1))
+            .write(FEE_AMOUNT, "140.0");
+        verify(asylumCase, times(1))
+            .write(FEE_AMOUNT_FOR_DISPLAY, "£140");
     }
 
     @Test

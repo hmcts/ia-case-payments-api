@@ -6,10 +6,12 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITHOUT_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_CODE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HEARING_DECISION_SELECTED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
@@ -107,11 +109,16 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                 asylumCase.write(
                     PAYMENT_DESCRIPTION, "The fee for this type of appeal with a hearing is £"
                         + feeSelected.getCalculatedAmount());
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED, "Decision with a hearing");
+
             } else if (hearingFeeOption.equals(DECISION_WITHOUT_HEARING.value())) {
                 feeSelected = feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
                 asylumCase.write(
                     PAYMENT_DESCRIPTION, "The fee for this type of appeal without a hearing is £"
                         + feeSelected.getCalculatedAmount());
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED, "Decision without a hearing");
             }
 
             if (feeSelected == null) {
@@ -140,7 +147,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         BigDecimal feeAmount = asylumCase.read(FEE_AMOUNT, BigDecimal.class)
             .orElseThrow(() -> new IllegalStateException("Fee amount is not present"));
 
-        String orgName = refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
+        String orgName =  refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
         String caseId = String.valueOf(callback.getCaseDetails().getId());
         CreditAccountPayment creditAccountPayment = new CreditAccountPayment(
             pbaAccountNumber,
@@ -178,6 +185,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         asylumCase.write(FEE_DESCRIPTION, fee.getDescription());
         asylumCase.write(FEE_VERSION, fee.getVersion());
         asylumCase.write(FEE_AMOUNT, fee.getCalculatedAmount().toString());
+        asylumCase.write(FEE_AMOUNT_FOR_DISPLAY, fee.getFeeForDisplay());
         asylumCase.write(FEE_PAYMENT_APPEAL_TYPE, YesOrNo.YES);
     }
 
