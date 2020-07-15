@@ -14,8 +14,8 @@ group = 'uk.gov.hmcts.reform'
 version = '0.0.1'
 
 allprojects {
-  sourceCompatibility = '8'
-  targetCompatibility = '8'
+  sourceCompatibility = 11
+  targetCompatibility = 11
 }
 
 sourceSets {
@@ -216,6 +216,7 @@ dependencies {
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+  compile group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
