@@ -44,7 +44,8 @@ public class PaymentAppealFeePreparer implements PreSubmitCallbackHandler<Asylum
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
                && (callback.getEvent() == Event.START_APPEAL
                     || callback.getEvent() == Event.EDIT_APPEAL
-                    || callback.getEvent() == Event.PAYMENT_APPEAL));
+                    || callback.getEvent() == Event.PAYMENT_APPEAL
+                    || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL));
     }
 
     @Override
@@ -62,7 +63,7 @@ public class PaymentAppealFeePreparer implements PreSubmitCallbackHandler<Asylum
                 .getCaseDetails()
                 .getCaseData();
 
-        if (callback.getEvent() == Event.PAYMENT_APPEAL
+        if ((callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL  || callback.getEvent() == Event.PAYMENT_APPEAL)
             && isNotValidAppealType(asylumCase)) {
 
             throw new IllegalStateException("AppealType is not valid");
@@ -82,12 +83,12 @@ public class PaymentAppealFeePreparer implements PreSubmitCallbackHandler<Asylum
 
         asylumCase.write(
             APPEAL_FEE_HEARING_DESC,
-            "The fee for this type of appeal with a hearing is " + feeHearing.getFeeForDisplay()
+            "The fee for an appeal with a hearing is " + feeHearing.getFeeForDisplay()
         );
         asylumCase.write(FEE_HEARING_AMOUNT_FOR_DISPLAY, feeHearing.getFeeForDisplay());
         asylumCase.write(
             APPEAL_FEE_WITHOUT_HEARING_DESC,
-            "The fee for this type of appeal without a hearing is " + feeWithoutHearing.getFeeForDisplay()
+            "The fee for an appeal without a hearing is " + feeWithoutHearing.getFeeForDisplay()
         );
         asylumCase.write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, feeWithoutHearing.getFeeForDisplay());
         asylumCase.write(PAYMENT_STATUS, "Payment due");

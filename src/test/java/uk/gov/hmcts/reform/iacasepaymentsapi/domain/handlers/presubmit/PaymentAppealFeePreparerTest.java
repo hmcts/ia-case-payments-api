@@ -76,7 +76,7 @@ class PaymentAppealFeePreparerTest {
         verify(asylumCase, times(1))
             .write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£140");
         verify(asylumCase, times(1))
-            .write(APPEAL_FEE_HEARING_DESC, "The fee for this type of appeal with a hearing is £140");
+            .write(APPEAL_FEE_HEARING_DESC, "The fee for an appeal with a hearing is £140");
         verify(asylumCase, times(1))
             .write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£140");
     }
@@ -109,7 +109,7 @@ class PaymentAppealFeePreparerTest {
         verify(asylumCase, times(1))
             .write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, "£80");
         verify(asylumCase, times(1))
-            .write(APPEAL_FEE_WITHOUT_HEARING_DESC, "The fee for this type of appeal without a hearing is £80");
+            .write(APPEAL_FEE_WITHOUT_HEARING_DESC, "The fee for an appeal without a hearing is £80");
         verify(asylumCase, times(1))
             .write(FEE_WITHOUT_HEARING_AMOUNT_FOR_DISPLAY, "£80");
     }
@@ -182,7 +182,7 @@ class PaymentAppealFeePreparerTest {
         verify(asylumCase, times(1))
             .write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£140");
         verify(asylumCase, times(1))
-            .write(APPEAL_FEE_HEARING_DESC, "The fee for this type of appeal with a hearing is £140");
+            .write(APPEAL_FEE_HEARING_DESC, "The fee for an appeal with a hearing is £140");
         verify(asylumCase, times(1))
             .write(FEE_HEARING_AMOUNT_FOR_DISPLAY, "£140");
     }
@@ -252,7 +252,8 @@ class PaymentAppealFeePreparerTest {
 
                 boolean canHandle = paymentAppealFeePreparer.canHandle(callbackStage, callback);
 
-                if (((event == Event.START_APPEAL) || (event == Event.EDIT_APPEAL) || (event == Event.PAYMENT_APPEAL))
+                if (((event == Event.START_APPEAL) || (event == Event.EDIT_APPEAL)
+                     || (event == Event.PAYMENT_APPEAL) || (event == Event.PAY_AND_SUBMIT_APPEAL))
                     && (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START)) {
 
                     assertTrue(canHandle);
