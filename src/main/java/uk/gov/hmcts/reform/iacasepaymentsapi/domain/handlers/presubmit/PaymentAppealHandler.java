@@ -30,11 +30,8 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Paym
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import lombok.extern.slf4j.Slf4j;
-import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
@@ -71,8 +68,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         FeeService feeService,
         PaymentService paymentService,
         RefDataService refDataService,
-        PaymentProperties paymentProperties
-        PaymentService paymentService,
+        PaymentProperties paymentProperties,
         ObjectMapper objectMapper
     ) {
         this.feeService = feeService;
@@ -92,8 +88,8 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         requireNonNull(callback, "callback must not be null");
 
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT)
-                && (callback.getEvent() == Event.PAYMENT_APPEAL
-                    || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL);
+               && (callback.getEvent() == Event.PAYMENT_APPEAL
+                   || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL);
     }
 
     @Override
@@ -123,15 +119,19 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             if (hearingFeeOption.equals(DECISION_WITH_HEARING.value())) {
 
                 feeSelected = feeService.getFee(FeeType.FEE_WITH_HEARING);
-                asylumCase.write(PAYMENT_DESCRIPTION,
-                                 asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class).orElse(""));
+                asylumCase.write(
+                    PAYMENT_DESCRIPTION,
+                    asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class).orElse("")
+                );
                 asylumCase.write(HEARING_DECISION_SELECTED, "Decision with a hearing");
 
             } else if (hearingFeeOption.equals(DECISION_WITHOUT_HEARING.value())) {
 
                 feeSelected = feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
-                asylumCase.write(PAYMENT_DESCRIPTION,
-                                 asylumCase.read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class).orElse(""));
+                asylumCase.write(
+                    PAYMENT_DESCRIPTION,
+                    asylumCase.read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class).orElse("")
+                );
                 asylumCase.write(HEARING_DECISION_SELECTED, "Decision without a hearing");
             }
         }
@@ -145,7 +145,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             String paymentDescription = asylumCase.read(PAYMENT_DESCRIPTION, String.class)
                 .orElseThrow(() -> new IllegalStateException("Payment description is not present"));
 
-            String orgName =  refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
+            String orgName = refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
             String caseId = String.valueOf(callback.getCaseDetails().getId());
             CreditAccountPayment creditAccountPayment = new CreditAccountPayment(
                 pbaAccountNumber.getValue().getCode(),
@@ -161,9 +161,22 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                 Arrays.asList(feeSelected)
             );
 
+            try {
+                System.out.println("-- creditAccountPayment --");
+                System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(creditAccountPayment));
+                //System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(paymentResponse));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+
             PaymentResponse paymentResponse = makePayment(creditAccountPayment);
 
+
+
             if (paymentResponse.getStatus().equals("Failed")) {
+
+                System.out.println("--- HERE ----");
 
                 asylumCase.write(PAYMENT_STATUS, FAILED);
                 asylumCase.write(PAYMENT_FAILED_FOR_DISPLAY, "Pending");
@@ -178,7 +191,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                     .get(paymentResponse.getStatusHistories().size() - 1)
                     .getErrorMessage());
 
-            }  else {
+            } else {
                 asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ? PAID : PAYMENT_DUE));
                 asylumCase.clear(PAYMENT_FAILED_FOR_DISPLAY);
             }

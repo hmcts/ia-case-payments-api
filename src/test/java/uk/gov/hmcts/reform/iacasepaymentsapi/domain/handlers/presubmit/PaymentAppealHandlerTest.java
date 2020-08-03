@@ -23,7 +23,6 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_FAILED_FOR_DISPLAY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.FAILED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
 
@@ -79,8 +78,7 @@ class PaymentAppealHandlerTest {
     public void setUp() {
         objectMapper = new ObjectMapper();
         appealFeePaymentHandler =
-            new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties);
-
+            new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties, objectMapper);
     }
 
     @Test
@@ -100,7 +98,7 @@ class PaymentAppealHandlerTest {
     }
 
     @Test
-    void should_call_payment_api_on_pay_now() throws Exception {
+    void should_call_payment_api_on_pay_now() {
 
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
@@ -146,23 +144,19 @@ class PaymentAppealHandlerTest {
         verify(asylumCase, times(1))
             .write(PAYMENT_DATE, simpleDateFormat.format(new Date()));
         verify(asylumCase, times(1))
-            .write(PAYMENT_STATUS, "Paid");
-        verify(asylumCase, times(1))
             .write(HEARING_DECISION_SELECTED, "Decision with a hearing");
         verify(asylumCase, times(1))
             .write(FEE_AMOUNT, "140.0");
         verify(asylumCase, times(1))
             .write(FEE_AMOUNT_FOR_DISPLAY, "£140");
-
         verify(asylumCase, times(1))
             .write(PAYMENT_STATUS, PAID);
-
         verify(asylumCase, times(1))
             .clear(PAYMENT_FAILED_FOR_DISPLAY);
     }
 
     @Test
-    void should_call_payment_api_on_pay_now_and_return_failure() throws Exception {
+    void should_call_payment_api_on_pay_now_and_return_failure() {
 
         StatusHistories statusHistory = new StatusHistories(
             "failed",
@@ -188,15 +182,11 @@ class PaymentAppealHandlerTest {
             .thenReturn("Appeal determined with a hearing");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
-        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Some description"));
-        when(asylumCase.read(HOME_OFFICE_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("A1234567/003"));
-
-        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.of("FEE0123"));
-        when(asylumCase.read(FEE_DESCRIPTION, String.class))
-            .thenReturn(Optional.of("Appeal determined with a hearing"));
-        when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
-        when(asylumCase.read(FEE_AMOUNT, BigDecimal.class)).thenReturn(Optional.of(BigDecimal.valueOf(140.00)));
+        when(asylumCase.read(PAYMENT_ACCOUNT_LIST, DynamicList.class))
+            .thenReturn(Optional.of(new DynamicList("PBA1234567")));
+        when(asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class)).thenReturn(Optional.of("Hearing appeal"));
+        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Hearing appeal"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getFeeForDisplay()).thenReturn("£140");
 
         when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
             .thenReturn(new PaymentResponse("RC-1590-6748-2373-9129", new Date(),
@@ -204,6 +194,9 @@ class PaymentAppealHandlerTest {
                                             "2020-1590674823325",
                                             statusHistories
             ));
+
+        when(refDataService.getOrganisationResponse()).thenReturn(
+            new OrganisationResponse(new OrganisationEntityResponse("ia-legal-rep-org")));
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = appealFeePaymentHandler
             .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
