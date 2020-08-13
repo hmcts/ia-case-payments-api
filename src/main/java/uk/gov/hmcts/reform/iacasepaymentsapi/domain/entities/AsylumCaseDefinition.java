@@ -31,6 +31,8 @@ public enum AsylumCaseDefinition {
         "feePaymentAppealType", new TypeReference<String>(){}),
     PBA_NUMBER(
         "pbaNumber", new TypeReference<String>(){}),
+    PAYMENT_ACCOUNT_LIST(
+        "paymentAccountList", new TypeReference<DynamicList>(){}),
     PAYMENT_DESCRIPTION(
         "paymentDescription", new TypeReference<String>(){}),
     HOME_OFFICE_REFERENCE_NUMBER(
