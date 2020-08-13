@@ -76,8 +76,8 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
         requireNonNull(callback, "callback must not be null");
 
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT)
-                && (callback.getEvent() == Event.PAYMENT_APPEAL
-                    || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL);
+               && (callback.getEvent() == Event.PAYMENT_APPEAL
+                   || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL);
     }
 
     @Override
@@ -107,16 +107,26 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             if (hearingFeeOption.equals(DECISION_WITH_HEARING.value())) {
 
                 feeSelected = feeService.getFee(FeeType.FEE_WITH_HEARING);
-                asylumCase.write(PAYMENT_DESCRIPTION,
-                                 asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class).orElse(""));
-                asylumCase.write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+                asylumCase.write(
+                    PAYMENT_DESCRIPTION,
+                    asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class).orElse("")
+                );
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED,
+                    "Decision with a hearing. The fee for this type of appeal is £140"
+                );
 
             } else if (hearingFeeOption.equals(DECISION_WITHOUT_HEARING.value())) {
 
                 feeSelected = feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
-                asylumCase.write(PAYMENT_DESCRIPTION,
-                                 asylumCase.read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class).orElse(""));
-                asylumCase.write(HEARING_DECISION_SELECTED, "Decision without a hearing");
+                asylumCase.write(
+                    PAYMENT_DESCRIPTION,
+                    asylumCase.read(APPEAL_FEE_WITHOUT_HEARING_DESC, String.class).orElse("")
+                );
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED,
+                    "Decision without a hearing. The fee for this type of appeal is £80"
+                );
             }
         }
 
@@ -129,7 +139,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             String paymentDescription = asylumCase.read(PAYMENT_DESCRIPTION, String.class)
                 .orElseThrow(() -> new IllegalStateException("Payment description is not present"));
 
-            String orgName =  refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
+            String orgName = refDataService.getOrganisationResponse().getOrganisationEntityResponse().getName();
             String caseId = String.valueOf(callback.getCaseDetails().getId());
             CreditAccountPayment creditAccountPayment = new CreditAccountPayment(
                 pbaAccountNumber.getValue().getCode(),
@@ -146,7 +156,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             );
 
             PaymentResponse paymentResponse = makePayment(creditAccountPayment);
-            asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ?  "Paid" : "Payment due"));
+            asylumCase.write(PAYMENT_STATUS, (paymentResponse.getStatus().equals("Success") ? "Paid" : "Payment due"));
             asylumCase.write(PAYMENT_REFERENCE, paymentResponse.getReference());
             asylumCase.write(PBA_NUMBER, pbaAccountNumber.getValue().getCode());
 

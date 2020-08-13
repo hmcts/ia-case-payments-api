@@ -188,24 +188,61 @@ class PaymentAppealFeePreparerTest {
     }
 
     @Test
-    void should_allow_valid_payment_Appeal_type() {
+    void should_allow_valid_payment_ea_appeal_type() {
+
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        assertFalse(paymentAppealFeePreparer.isNotValidAppealType(asylumCase));
+    }
+
+    @Test
+    void should_allow_valid_payment_hu_appeal_type() {
 
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
         assertFalse(paymentAppealFeePreparer.isNotValidAppealType(asylumCase));
     }
 
     @Test
-    void should_Not_allow_invalid_payment_Appeal_type() {
+    void should_allow_valid_payment_pa_appeal_type() {
+
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
+        assertFalse(paymentAppealFeePreparer.isNotValidAppealType(asylumCase));
+    }
+
+    @Test
+    void should_not_allow_invalid_payment_appeal_type() {
 
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.RP));
         assertTrue(paymentAppealFeePreparer.isNotValidAppealType(asylumCase));
     }
 
     @Test
-    void should_Not_allow_invalid_Appeal_type() {
+    void should_not_allow_invalid_appeal_type() {
 
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.empty());
         assertTrue(paymentAppealFeePreparer.isNotValidAppealType(asylumCase));
+    }
+
+    @Test
+    void should_throw_error_for_invalid_appeal_type() {
+
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.RP));
+
+        paymentAppealFeePreparer.isNotValidAppealType(asylumCase);
+
+        assertThatThrownBy(() -> paymentAppealFeePreparer
+            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback))
+            .hasMessage("AppealType is not valid")
+            .isExactlyInstanceOf(IllegalStateException.class);
+
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+
+        assertThatThrownBy(() -> paymentAppealFeePreparer
+            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback))
+            .hasMessage("AppealType is not valid")
+            .isExactlyInstanceOf(IllegalStateException.class);
     }
 
     @Test

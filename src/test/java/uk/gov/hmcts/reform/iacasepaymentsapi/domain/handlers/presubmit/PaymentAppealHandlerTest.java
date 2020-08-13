@@ -135,7 +135,7 @@ class PaymentAppealHandlerTest {
         verify(asylumCase, times(1))
             .write(PAYMENT_STATUS, "Paid");
         verify(asylumCase, times(1))
-            .write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+            .write(HEARING_DECISION_SELECTED, "Decision with a hearing. The fee for this type of appeal is £140");
         verify(asylumCase, times(1))
             .write(FEE_AMOUNT, "140.0");
         verify(asylumCase, times(1))
