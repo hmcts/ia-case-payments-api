@@ -146,7 +146,7 @@ class PaymentAppealHandlerTest {
         verify(asylumCase, times(1))
             .write(PAYMENT_DATE, simpleDateFormat.format(new Date()));
         verify(asylumCase, times(1))
-            .write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+            .write(HEARING_DECISION_SELECTED, "Decision with a hearing. The fee for this type of appeal is £140");
         verify(asylumCase, times(1))
             .write(FEE_AMOUNT, "140.0");
         verify(asylumCase, times(1))
@@ -402,7 +402,10 @@ class PaymentAppealHandlerTest {
 
         appealFeePaymentHandler.getFeeTypeWriteAppealPaymentDetailsToCaseData(AppealType.EA, asylumCase);
 
-        verify(asylumCase, times(1)).write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+        verify(asylumCase, times(1)).write(
+            HEARING_DECISION_SELECTED,
+            "Decision with a hearing. The fee for this type of appeal is £140"
+        );
     }
 
     @Test
@@ -413,7 +416,10 @@ class PaymentAppealHandlerTest {
 
         appealFeePaymentHandler.getFeeTypeWriteAppealPaymentDetailsToCaseData(AppealType.HU, asylumCase);
 
-        verify(asylumCase, times(1)).write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+        verify(asylumCase, times(1)).write(
+            HEARING_DECISION_SELECTED,
+            "Decision with a hearing. The fee for this type of appeal is £140"
+        );
     }
 
     @Test
@@ -424,6 +430,9 @@ class PaymentAppealHandlerTest {
 
         appealFeePaymentHandler.getFeeTypeWriteAppealPaymentDetailsToCaseData(AppealType.PA, asylumCase);
 
-        verify(asylumCase, times(1)).write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+        verify(asylumCase, times(1)).write(
+            HEARING_DECISION_SELECTED,
+            "Decision with a hearing. The fee for this type of appeal is £140"
+        );
     }
 }

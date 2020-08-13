@@ -223,13 +223,19 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             if (hearingFeeOption.equals(DECISION_WITH_HEARING.value())) {
 
                 asylumCase.write(PAYMENT_DESCRIPTION, "Appeal determined with a hearing");
-                asylumCase.write(HEARING_DECISION_SELECTED, "Decision with a hearing");
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED,
+                    "Decision with a hearing. The fee for this type of appeal is £140"
+                );
                 return feeService.getFee(FeeType.FEE_WITH_HEARING);
 
             } else if (hearingFeeOption.equals(DECISION_WITHOUT_HEARING.value())) {
 
                 asylumCase.write(PAYMENT_DESCRIPTION, "Appeal determined without a hearing");
-                asylumCase.write(HEARING_DECISION_SELECTED, "Decision without a hearing");
+                asylumCase.write(
+                    HEARING_DECISION_SELECTED,
+                    "Decision without a hearing. The fee for this type of appeal is £80"
+                );
                 return feeService.getFee(FeeType.FEE_WITHOUT_HEARING);
             }
         }
