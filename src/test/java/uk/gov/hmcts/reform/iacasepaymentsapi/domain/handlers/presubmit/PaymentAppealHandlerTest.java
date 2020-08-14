@@ -8,21 +8,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_FEE_HEARING_DESC;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_FOR_DISPLAY;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_CODE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HEARING_DECISION_SELECTED;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DESCRIPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PBA_NUMBER;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -35,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
@@ -50,6 +47,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentResp
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProperties;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -62,12 +60,14 @@ class PaymentAppealHandlerTest {
     @Mock private Fee fee;
     @Mock private PaymentService paymentService;
     @Mock private RefDataService refDataService;
+    @Mock private PaymentProperties paymentProperties;
 
     private PaymentAppealHandler appealFeePaymentHandler;
 
     @BeforeEach
     public void setUp() {
-        appealFeePaymentHandler = new PaymentAppealHandler(feeService, paymentService, refDataService);
+        appealFeePaymentHandler =
+            new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties);
     }
 
     @Test
@@ -79,21 +79,11 @@ class PaymentAppealHandlerTest {
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
             .thenReturn(Optional.of(DECISION_WITH_HEARING.value()));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(fee);
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCode()).thenReturn("FEE0123");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getDescription())
-            .thenReturn("Appeal determined with a hearing");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
-        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Some description"));
-        when(asylumCase.read(HOME_OFFICE_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("A1234567/003"));
-
-        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.empty());
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(null);
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
             .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Fee code is not present");
+            .hasMessage("Cannot retrieve the fee from fees-register.");
     }
 
     @Test
@@ -112,17 +102,11 @@ class PaymentAppealHandlerTest {
             .thenReturn("Appeal determined with a hearing");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
-        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Some description"));
-        when(asylumCase.read(HOME_OFFICE_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("A1234567/003"));
-
-        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.of("FEE0123"));
-        when(asylumCase.read(FEE_DESCRIPTION, String.class))
-            .thenReturn(Optional.of("Appeal determined with a hearing"));
-        when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
-        when(asylumCase.read(FEE_AMOUNT, BigDecimal.class)).thenReturn(Optional.of(BigDecimal.valueOf(140.00)));
+        when(asylumCase.read(PAYMENT_ACCOUNT_LIST, DynamicList.class))
+            .thenReturn(Optional.of(new DynamicList("PBA1234567")));
+        when(asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class)).thenReturn(Optional.of("Hearing appeal"));
+        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Hearing appeal"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getFeeForDisplay()).thenReturn("£140");
-
 
         when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
             .thenReturn(new PaymentResponse("RC-1590-6748-2373-9129", new Date(),
@@ -173,8 +157,8 @@ class PaymentAppealHandlerTest {
             .thenReturn("Appeal determined with a hearing");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
-
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class)).thenReturn(Optional.of("Hearing appeal"));
+        when(asylumCase.read(PAYMENT_ACCOUNT_LIST, DynamicList.class)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
             .isExactlyInstanceOf(IllegalStateException.class)
@@ -197,38 +181,14 @@ class PaymentAppealHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
         when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
 
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
-        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(PAYMENT_ACCOUNT_LIST, DynamicList.class))
+            .thenReturn(Optional.of(new DynamicList("PBA1234567")));
+
+        when(asylumCase.read(APPEAL_FEE_HEARING_DESC, String.class)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
             .isExactlyInstanceOf(IllegalStateException.class)
             .hasMessage("Payment description is not present");
-    }
-
-    @Test
-    void should_throw_when_no_payment_reference_is_present() {
-
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
-        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
-        when(asylumCase.read(PBA_NUMBER, String.class)).thenReturn(Optional.of("PBA12345678"));
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
-            .thenReturn(Optional.of(DECISION_WITH_HEARING.value()));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(fee);
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCode()).thenReturn("FEE0123");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getDescription())
-            .thenReturn("Appeal determined with a hearing");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getVersion()).thenReturn("1");
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING).getCalculatedAmount()).thenReturn(BigDecimal.valueOf(140.00));
-
-        when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("Some description"));
-        when(asylumCase.read(AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER, String.class))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Customer payment reference is not present");
     }
 
     @Test
@@ -263,7 +223,7 @@ class PaymentAppealHandlerTest {
 
                 boolean canHandle = appealFeePaymentHandler.canHandle(callbackStage, callback);
 
-                if ((event == Event.PAYMENT_APPEAL)
+                if ((event == Event.PAYMENT_APPEAL || callback.getEvent() == Event.PAY_AND_SUBMIT_APPEAL)
                     && (callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT)) {
 
                     assertTrue(canHandle);
