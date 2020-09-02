@@ -22,7 +22,7 @@ public class RequestUserAccessTokenProvider implements AccessTokenProvider {
         }
 
         return Optional
-            .ofNullable(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()))
+            .ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
             .map(ServletRequestAttributes::getRequest)
             .map(request -> request.getHeader(AUTHORIZATION));
 
