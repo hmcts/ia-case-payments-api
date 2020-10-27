@@ -32,7 +32,7 @@ jobs:
           git init
           git config user.email "jenkins-reform-iac@hmcts.net"
           git config user.name "IAC Case Payments API"
-          git remote add upstream https://${{ secrets.GH_TOKEN }}@github.com/hmcts/reform-api-docs.git
+          git remote add upstream https://${{ secrets.SWAGGER_PUBLISHER_API_TOKEN }}@github.com/hmcts/reform-api-docs.git
           git pull upstream master
           repo=`echo "$GITHUB_REPOSITORY" | cut -f2- -d/`
           echo "$(cat /tmp/swagger-specs.json)" > "docs/specs/$repo.json"
