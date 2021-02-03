@@ -21,7 +21,7 @@ class CreditAccountPaymentTest {
     private String description = "Some description";
     private String organisationName = "immigration & asylum chamber";
     private Service service = Service.IAC;
-    private String siteId = "AA001";
+    private String caseTypeId = "Asylum";
     private List<Fee> fees = Arrays.asList(new Fee("FEE0123",
         "Fee description", "1", new BigDecimal("140.00")));
 
@@ -37,7 +37,7 @@ class CreditAccountPaymentTest {
             "BFA1", fees);
         creditAccountPayment.setOrganisationName(organisationName);
         creditAccountPayment.setService(service);
-        creditAccountPayment.setSiteId(siteId);
+        creditAccountPayment.setCaseTypeId(caseTypeId);
     }
 
     @Test
@@ -53,7 +53,7 @@ class CreditAccountPaymentTest {
         assertEquals(creditAccountPayment.getFees(), fees);
         assertEquals(creditAccountPayment.getOrganisationName(), organisationName);
         assertEquals(creditAccountPayment.getService(), service);
-        assertEquals(creditAccountPayment.getSiteId(), siteId);
+        assertEquals(creditAccountPayment.getCaseTypeId(), caseTypeId);
     }
 
     @Test

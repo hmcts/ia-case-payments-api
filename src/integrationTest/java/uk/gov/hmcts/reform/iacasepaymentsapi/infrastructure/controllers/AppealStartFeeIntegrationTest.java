@@ -42,6 +42,7 @@ public class AppealStartFeeIntegrationTest extends SpringBootIntegrationTest
                 .event(Event.PAY_AND_SUBMIT_APPEAL)
                 .caseDetails(someCaseDetailsWith()
                                  .state(null)
+                                 .caseTypeId("Asylum")
                                  .caseData(anAsylumCase()
                                      .with(APPEAL_REFERENCE_NUMBER, "some-appeal-reference-number")
                                      .with(APPEAL_TYPE, "refusalOfEu")

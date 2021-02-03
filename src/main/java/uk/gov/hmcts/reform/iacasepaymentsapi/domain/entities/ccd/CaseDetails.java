@@ -11,6 +11,7 @@ public class CaseDetails<T extends CaseData> {
     private long id;
     private String jurisdiction;
     private State state;
+    private String caseTypeId;
     private T caseData;
 
     private CaseDetails() {
@@ -21,11 +22,13 @@ public class CaseDetails<T extends CaseData> {
         long id,
         String jurisdiction,
         State state,
+        String caseTypeId,
         T caseData
     ) {
         this.id = id;
         this.jurisdiction = jurisdiction;
         this.state = state;
+        this.caseTypeId = caseTypeId;
         this.caseData = caseData;
     }
 
@@ -41,6 +44,11 @@ public class CaseDetails<T extends CaseData> {
     public State getState() {
         requireNonNull(state);
         return state;
+    }
+
+    public String getCaseTypeId() {
+        requireNonNull(caseTypeId);
+        return caseTypeId;
     }
 
     public T getCaseData() {

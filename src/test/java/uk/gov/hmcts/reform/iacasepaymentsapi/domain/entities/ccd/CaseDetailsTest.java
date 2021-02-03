@@ -14,11 +14,13 @@ public class CaseDetailsTest {
     private final Long id = 123L;
     private String jurisdiction = "IA";
     private final State state = State.APPEAL_STARTED;
+    private String caseTypeId = "Asylum";
 
     private CaseDetails<CaseData> caseDetails = new CaseDetails<>(
         id,
         jurisdiction,
         state,
+        caseTypeId,
         caseData
     );
 
@@ -28,12 +30,13 @@ public class CaseDetailsTest {
         assertThat(id).isEqualTo(caseDetails.getId());
         assertThat(jurisdiction).isEqualTo(caseDetails.getJurisdiction());
         assertThat(state).isEqualTo(caseDetails.getState());
+        assertThat(caseTypeId).isEqualTo(caseDetails.getCaseTypeId());
     }
 
     @Test
     public void should_throw_required_field_missing_exception() {
 
-        CaseDetails<CaseData> caseDetails = new CaseDetails<>(id, null, null, null);
+        CaseDetails<CaseData> caseDetails = new CaseDetails<>(id, null, null, null, null);
 
         assertThatThrownBy(caseDetails::getJurisdiction)
             .isExactlyInstanceOf(NullPointerException.class);

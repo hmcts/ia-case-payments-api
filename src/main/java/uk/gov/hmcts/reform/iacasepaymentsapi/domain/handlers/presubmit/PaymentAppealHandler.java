@@ -172,7 +172,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                 paymentDescription,
                 orgName,
                 Service.IAC,
-                paymentProperties.getSiteId(),
+                callback.getCaseDetails().getCaseTypeId(),
                 Arrays.asList(feeSelected)
             );
 

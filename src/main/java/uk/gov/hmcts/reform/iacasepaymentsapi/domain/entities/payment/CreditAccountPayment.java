@@ -22,7 +22,7 @@ public class CreditAccountPayment {
     private String description;
     private String organisationName;
     private Service service;
-    private String siteId;
+    private String caseTypeId;
     private List<Fee> fees;
 
     private CreditAccountPayment() {
@@ -37,7 +37,7 @@ public class CreditAccountPayment {
                                 String description,
                                 String organisationName,
                                 Service service,
-                                String siteId,
+                                String caseTypeId,
                                 List<Fee> fees) {
         this.accountNumber = accountNumber;
         this.amount = amount;
@@ -48,7 +48,7 @@ public class CreditAccountPayment {
         this.description = description;
         this.organisationName = organisationName;
         this.service = service;
-        this.siteId = siteId;
+        this.caseTypeId = caseTypeId;
         this.fees = fees;
     }
 
@@ -93,8 +93,8 @@ public class CreditAccountPayment {
         return service;
     }
 
-    public String getSiteId() {
-        return siteId;
+    public String getCaseTypeId() {
+        return caseTypeId;
     }
 
     public List<Fee> getFees() {
@@ -110,7 +110,7 @@ public class CreditAccountPayment {
         this.service = service;
     }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
+    public void setCaseTypeId(String caseTypeId) {
+        this.caseTypeId = caseTypeId;
     }
 }
