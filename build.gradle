@@ -1,23 +1,32 @@
 buildscript {
+    repositories {
+      jcenter()
+    }
     dependencies {
         classpath("net.serenity-bdd:serenity-gradle-plugin:2.0.11")
     }
 }
 
 plugins {
+  id 'pmd'
+  id "java"
+  id "java-library"
   id 'application'
   id 'checkstyle'
-  id 'pmd'
   id 'jacoco'
-  id "info.solidsoft.pitest" version '1.5.1'
-  id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+  id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id 'org.springframework.boot' version '2.3.9.RELEASE'
-  id 'uk.gov.hmcts.java' version '0.12.5'
-  id 'org.owasp.dependencycheck' version '6.0.2'
-  id 'com.github.ben-manes.versions' version '0.28.0'
-  id 'org.sonarqube' version '2.8'
+  id 'com.github.ben-manes.versions' version '0.38.0'
+  id 'org.sonarqube' version '3.1.1'
+  id 'project-report'
+  id "idea"
+  id 'info.solidsoft.pitest' version '1.5.2'
+  id 'au.com.dius.pact' version '4.1.0'
 }
 
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'info.solidsoft.pitest'
 apply plugin: 'net.serenity-bdd.aggregator'
 group = 'uk.gov.hmcts.reform'
 version = '0.0.1'
@@ -54,6 +63,15 @@ sourceSets {
     }
     resources.srcDir file('src/smokeTest/resources')
   }
+
+  contractTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/contractTest/java')
+    }
+    resources.srcDir file('src/contractTest/resources')
+  }
 }
 
 tasks.withType(JavaCompile) {
@@ -66,6 +84,90 @@ tasks.withType(Test) {
   testLogging {
     exceptionFormat = 'full'
   }
+}
+
+task installDependencies(type: Exec, description: 'Installs Yarn dependencies.') {
+  commandLine '/usr/bin/yarn', '--mutex', 'network', '--frozen-lockfile', '--silent', 'install'
+}
+
+task checkDependenciesIntegrity(type: Exec, description: 'Checks integrity of Yarn dependencies.') {
+  commandLine '/usr/bin/yarn', '--mutex', 'network', '--frozen-lockfile', '--silent', 'check', '--integrity'
+}
+
+task lintUserInterfaceTests(type: Exec, description: 'Runs linting of E2E tests.') {
+  commandLine '/usr/bin/yarn', '--silent', 'lint'
+}
+
+task runSmokeTests(type: Exec, description: 'Runs smoke tests.') {
+  commandLine '/usr/bin/yarn', '--silent', 'test:smoke'
+}
+
+task runBrowserTests(type: Exec, description: 'Runs brower tests.') {
+  onlyIf {
+    return System.env.SKIP_BROWSER_TESTS == null || System.env.SKIP_BROWSER_TESTS == 'false'
+  }
+  commandLine '/usr/bin/yarn', '--silent', 'test:functional'
+}
+
+task runApiTests(type: Test, description: 'Runs api tests.', group: 'Verification') {
+  onlyIf {
+    return System.env.SKIP_API_TESTS == null || System.env.SKIP_API_TESTS == 'false'
+  }
+  testLogging.showStandardStreams = true
+  testClassesDirs = sourceSets.functionalTest.output.classesDirs
+  classpath = sourceSets.functionalTest.runtimeClasspath
+  finalizedBy aggregate
+}
+
+project.ext {
+  pactVersion = getCheckedOutGitCommitHash()
+}
+
+task runContractTests(type: Test, description: 'Runs contract tests.', group: 'Verification') {
+  onlyIf {
+    return System.env.SKIP_CONTRACT_TESTS == null || System.env.SKIP_CONTRACT_TESTS == 'false'
+  }
+  useJUnitPlatform()
+  //include "uk/gov/hmcts/payment/api/controllers/consumer/**"
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+  systemProperty 'pact.rootDir', "pacts"
+  testLogging.showStandardStreams = true
+
+}
+
+task runAndPublishConsumerPactTests(type: Test, description: 'Publish pact test to broker.', group: 'Verification') {
+  logger.lifecycle("Runs pact consumer Tests")
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+}
+
+runAndPublishConsumerPactTests.dependsOn runContractTests
+
+runAndPublishConsumerPactTests.finalizedBy pactPublish
+
+def getCheckedOutGitCommitHash() {
+  'git rev-parse --verify --short HEAD'.execute().text.trim()
+}
+
+pact {
+  publish {
+    pactDirectory = 'pacts'
+    pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?: 'http://localhost:80'
+    tags = [System.getenv("PACT_BRANCH_NAME") ?:'Dev']
+    version = project.pactVersion
+  }
+}
+
+
+def static inStrictOrder(Task... tasks) {
+  for (int i = 0; i < tasks.size() - 1; i++) {
+    tasks[i + 1].mustRunAfter(tasks[i])
+  }
+  return tasks
+}
+task contract(description: 'Runs the contract tests.') {
+  dependsOn(inStrictOrder(installDependencies, checkDependenciesIntegrity, runContractTests))
 }
 
 test {
@@ -167,14 +269,6 @@ dependencyUpdates {
   }
 }
 
-dependencyCheck {
-  suppressionFile = 'config/owasp/suppressions.xml'
-
-  analyzers {
-    // Disable scanning of .NET related binaries
-    assemblyEnabled = false
-  }
-}
 
 dependencyManagement {
   dependencies {
@@ -195,6 +289,14 @@ repositories {
   mavenLocal()
   jcenter()
   mavenCentral()
+
+  maven {
+    url "https://dl.bintray.com/hmcts/hmcts-maven"
+  }
+
+  maven {
+    url "https://repo.spring.io/milestone"
+  }
 }
 
 def versions = [
@@ -204,7 +306,9 @@ def versions = [
   reformLogging   : '5.1.1',
   springBoot      : '2.3.9.RELEASE',
   springfoxSwagger: '2.9.2',
-  serenity        : '2.0.91'
+  pact_version    : '4.1.7',
+  serenity        : '2.0.91',
+  junit_jupiter   : '5.7.1'
 ]
 
 ext.libraries = [
@@ -290,6 +394,21 @@ dependencies {
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
+
+  contractTestCompile group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
+  contractTestCompile group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact_version
+  contractTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  contractTestCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit_jupiter
+  contractTestRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit_jupiter
+  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit_jupiter
+  contractTestRuntime group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.7.0'
+  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+  contractTestCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.2.RELEASE'
+  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-netflix-ribbon', version: '2.2.2.RELEASE'
+//  contractTestImplementation group: 'com.netflix.ribbon', name: 'ribbon-core', version: '2.7.18'
+//  contractTestCompile group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: '4.7.6'
+//  contractTestImplementation group: 'com.google.guava', name: 'guava', version: '30.1-jre'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.iacasepaymentsapi.Application'
