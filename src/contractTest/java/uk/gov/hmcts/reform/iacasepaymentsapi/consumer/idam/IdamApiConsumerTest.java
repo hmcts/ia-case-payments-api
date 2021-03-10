@@ -34,7 +34,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.RestTemplateC
 @ExtendWith(PactConsumerTestExt.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @PactFolder("pacts")
-@PactTestFor(providerName = "idamApi_users", port = "5000")
+@PactTestFor(providerName = "idamApi_oidc", port = "5000")
 @ContextConfiguration(classes = {IdamApiConsumerApplication.class})
 @TestPropertySource(
     properties = {"idam.baseUrl=localhost:5000"}
@@ -45,10 +45,10 @@ public class IdamApiConsumerTest {
     IdamApi idamApi;
     private static final String AUTH_TOKEN = "Bearer someAuthorizationToken";
 
-    @Pact(provider = "idamApi_users", consumer = "ia_case_payments")
+    @Pact(provider = "idamApi_oidc", consumer = "ia_case_payments")
     public RequestResponsePact generatePactFragmentUser(PactDslWithProvider builder) {
         return builder
-            .given("a valid user exists")
+            .given("userinfo is requested")
             .uponReceiving("a request for a user")
             .path("/o/userinfo")
             .method("GET")
@@ -60,7 +60,7 @@ public class IdamApiConsumerTest {
 
     }
 
-    @Pact(provider = "idamApi_users", consumer = "ia_case_payments")
+    @Pact(provider = "idamApi_oidc", consumer = "ia_case_payments")
     public RequestResponsePact generatePactFragmentToken(PactDslWithProvider builder) throws JSONException {
         Map<String, String> responseheaders = ImmutableMap.<String, String>builder()
             .put("Content-Type", "application/json")

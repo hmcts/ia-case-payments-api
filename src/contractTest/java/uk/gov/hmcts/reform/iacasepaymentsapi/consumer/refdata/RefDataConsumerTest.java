@@ -26,7 +26,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.RefDataApi;
 @ExtendWith(PactConsumerTestExt.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
-@PactTestFor(providerName = "referenceData_organisationExternalUsers", port = "8991")
+@PactTestFor(providerName = "referenceData_organisationalExternalPbas", port = "8991")
 @ContextConfiguration(
     classes = {RefDataConsumerApplication.class}
 )
@@ -46,11 +46,11 @@ public class RefDataConsumerTest {
     static final String ORGANISATION_EMAIL = "someemailaddress@organisation.com";
 
 
-    @Pact(provider = "referenceData_organisationExternalUsers", consumer = "ia_case_payments")
+    @Pact(provider = "referenceData_organisationalExternalPbas", consumer = "ia_case_payments")
     public RequestResponsePact generatePactFragment(PactDslWithProvider builder) {
         return builder
-            .given("Organisation with Id exists")
-            .uponReceiving("A request to get organisation")
+            .given("Pbas organisational data exists for identifier " + ORGANISATION_EMAIL)
+            .uponReceiving("a request for information for that organisation's pbas")
             .method("GET")
             .headers(SERVICE_AUTHORIZATION_HEADER, SERVICE_AUTH_TOKEN, AUTHORIZATION_HEADER, AUTHORIZATION_TOKEN)
             .path("/refdata/external/v1/organisations/pbas")
@@ -64,9 +64,9 @@ public class RefDataConsumerTest {
     private DslPart buildOrganisationResponseDsl() {
         return newJsonBody(o -> {
             o.object("organisationEntityResponse", or ->
-                or.stringType("organisationIdentifier", "BJMSDFDS80808")
+                or.stringType("organisationIdentifier", ORGANISATION_EMAIL)
                 .stringType("name", "name")
-                .stringType("status", "ACTIVE")
+                .stringType("status","ACTIVE")
                 .stringType("sraId", "sraId")
                 .stringType("sraRegulated", "TRUE")
                 .stringType("companyNumber", "12345")
@@ -86,7 +86,6 @@ public class RefDataConsumerTest {
                     })
             );
         }).build();
-
     }
 
     @Test
@@ -94,7 +93,7 @@ public class RefDataConsumerTest {
     public void verifyPactResponse() {
         OrganisationResponse response = refDataApi.findOrganisation(AUTHORIZATION_TOKEN, SERVICE_AUTH_TOKEN,
                                                                     ORGANISATION_EMAIL);
-        assertEquals(response.getOrganisationEntityResponse().getOrganisationIdentifier(), "BJMSDFDS80808");
+        assertEquals(response.getOrganisationEntityResponse().getOrganisationIdentifier(), ORGANISATION_EMAIL);
 
     }
 }
