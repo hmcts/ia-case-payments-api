@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.iacasepayments.api.consumer;
+package uk.gov.hmcts.reform.iacasepaymentsapi.consumer.fee;
 
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -30,7 +30,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.FeesRegister
     classes = {FeeApiConsumerApplication.class}
 )
 @TestPropertySource(
-    properties = {"fees-register.api.url=localhost:8991", "payment.api.url=localhost:8991"}
+    properties = {"fees-register.api.url=localhost:8991"}
 )
 @PactFolder("pacts")
 public class FeeApiConsumerTest {

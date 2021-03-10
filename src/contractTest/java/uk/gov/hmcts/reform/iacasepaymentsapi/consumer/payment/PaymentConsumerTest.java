@@ -1,4 +1,6 @@
-package uk.gov.hmcts.reform.iacasepayments.api.consumer;
+package uk.gov.hmcts.reform.iacasepaymentsapi.consumer.payment;
+
+import static io.pactfoundation.consumer.dsl.LambdaDsl.newJsonBody;
 
 import au.com.dius.pact.consumer.dsl.DslPart;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -8,6 +10,11 @@ import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -22,14 +29,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Currency;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Service;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.PaymentApi;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static io.pactfoundation.consumer.dsl.LambdaDsl.newJsonBody;
-
 @ExtendWith(PactConsumerTestExt.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @PactTestFor(providerName = "payment_creditAccountPayment", port = "8991")
@@ -38,7 +37,7 @@ import static io.pactfoundation.consumer.dsl.LambdaDsl.newJsonBody;
     classes = {PaymentConsumerApplication.class}
 )
 @TestPropertySource(
-    properties = {"fees-register.api.url=localhost:8991", "payment.api.url=localhost:8991"}
+    properties = {"payment.api.url=localhost:8991"}
 )
 @PactFolder("pacts")
 public class PaymentConsumerTest {

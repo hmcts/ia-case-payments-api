@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.iacasepayments.api.consumer;
+package uk.gov.hmcts.reform.iacasepaymentsapi.consumer.payment;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;

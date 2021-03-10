@@ -22,6 +22,7 @@ plugins {
   id "idea"
   id 'info.solidsoft.pitest' version '1.5.2'
   id 'au.com.dius.pact' version '4.1.0'
+  id 'uk.gov.hmcts.java' version '0.12.5'
 }
 
 apply plugin: 'org.springframework.boot'
