@@ -85,6 +85,4 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-web@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
   </suppress>
-
-
 </suppressions>
