@@ -10,13 +10,11 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -40,9 +38,9 @@ public class RefDataConsumerTest {
     RefDataApi refDataApi;
 
     static final String AUTHORIZATION_HEADER = "Authorization";
-    static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
+    static final String AUTHORIZATION_TOKEN = "Bearer UserAuthToken";
     static final String SERVICE_AUTHORIZATION_HEADER = "ServiceAuthorization";
-    static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
+    static final String SERVICE_AUTH_TOKEN = "ServiceToken";
     static final String ORGANISATION_EMAIL = "someemailaddress@organisation.com";
 
 
@@ -52,10 +50,10 @@ public class RefDataConsumerTest {
             .given("Pbas organisational data exists for identifier " + ORGANISATION_EMAIL)
             .uponReceiving("a request for information for that organisation's pbas")
             .method("GET")
-            .headers(SERVICE_AUTHORIZATION_HEADER, SERVICE_AUTH_TOKEN, AUTHORIZATION_HEADER, AUTHORIZATION_TOKEN)
             .path("/refdata/external/v1/organisations/pbas")
+            .headers(SERVICE_AUTHORIZATION_HEADER, SERVICE_AUTH_TOKEN, AUTHORIZATION_HEADER,
+                     AUTHORIZATION_TOKEN, "UserEmail", ORGANISATION_EMAIL)
             .willRespondWith()
-            .matchHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .body(buildOrganisationResponseDsl())
             .status(HttpStatus.SC_OK)
             .toPact();
@@ -68,22 +66,15 @@ public class RefDataConsumerTest {
                 .stringType("name", "name")
                 .stringType("status","ACTIVE")
                 .stringType("sraId", "sraId")
-                .stringType("sraRegulated", "TRUE")
-                .stringType("companyNumber", "12345")
-                .stringType("companyUrl", "www.test.com")
+                .booleanType("sraRegulated", true)
+                .stringType("companyNumber", "companyNumber")
+                .stringType("companyUrl", "companyUrl")
                 .object("superUser", su -> su
                     .stringType("firstName", "firstName")
                     .stringType("lastName", "lastName")
-                    .stringType("email", "emailAddress"))
+                    .stringType("email", "email@org.com"))
                 .array("paymentAccount", pa ->
                     pa.stringType("paymentAccountA1"))
-                .minArrayLike("contactInformation", 1, 1,
-                    sh -> {
-                        sh.stringType("addressLine1", "addressLine1")
-                            .stringType("addressLine2", "addressLine2")
-                            .stringType("country", "UK")
-                            .stringType("postCode", "SM12SX");
-                    })
             );
         }).build();
     }
