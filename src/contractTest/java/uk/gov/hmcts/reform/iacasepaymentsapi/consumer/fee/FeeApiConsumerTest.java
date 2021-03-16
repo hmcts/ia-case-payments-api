@@ -37,14 +37,14 @@ public class FeeApiConsumerTest {
     @Autowired
     FeesRegisterApi feesRegisterApi;
 
-    @Pact(provider = "feeRegister_lookUp", consumer = "ia_case_payments")
+    @Pact(provider = "feeRegister_lookUp", consumer = "ia_casePaymentsApi")
     private RequestResponsePact generateFeeWithHearingPact(PactDslWithProvider builder) {
         return getRequestResponsePact(builder, "ABC", "FEE0238",
                                       "Appeal determined with a hearing", BigDecimal.valueOf(140.00)
         );
     }
 
-    @Pact(provider = "feeRegister_lookUp", consumer = "ia_case_payments")
+    @Pact(provider = "feeRegister_lookUp", consumer = "ia_casePaymentsApi")
     private RequestResponsePact generateFeeWithoutHearingPact(PactDslWithProvider builder) {
         return getRequestResponsePact(builder, "DEF", "FEE0456",
                                       "Appeal determined without a hearing", BigDecimal.valueOf(80.00)
