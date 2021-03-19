@@ -109,7 +109,6 @@ public class PaymentConsumerTest {
             .description("IAC Payment")
             .organisationName("immigration and asylum chamber")
             .service(Service.IAC)
-            .siteId("BFA1")
             .fees(Collections.singletonList(fee))
             .build();
     }

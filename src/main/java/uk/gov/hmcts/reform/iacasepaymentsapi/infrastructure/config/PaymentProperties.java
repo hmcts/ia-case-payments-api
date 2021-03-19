@@ -10,21 +10,21 @@ import org.springframework.stereotype.Component;
 public class PaymentProperties {
 
     private String organisationUrn;
-    private String siteId;
+    private String caseType;
 
     public String getOrganisationUrn() {
         return organisationUrn;
     }
 
-    public String getSiteId() {
-        return siteId;
+    public String getCaseType() {
+        return caseType;
     }
 
     public void setOrganisationUrn(String organisationUrn) {
         this.organisationUrn = organisationUrn;
     }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
+    public void setCaseType(String caseType) {
+        this.caseType = caseType;
     }
 }

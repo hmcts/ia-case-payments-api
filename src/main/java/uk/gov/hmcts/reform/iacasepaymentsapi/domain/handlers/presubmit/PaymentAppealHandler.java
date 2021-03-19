@@ -56,29 +56,27 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHa
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProperties;
 
 @Component
 @Slf4j
 public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
+    private final String caseType = "Asylum";
+
     private final FeeService feeService;
     private final PaymentService paymentService;
     private final RefDataService refDataService;
-    private final PaymentProperties paymentProperties;
     private final ObjectMapper objectMapper;
 
     public PaymentAppealHandler(
         FeeService feeService,
         PaymentService paymentService,
         RefDataService refDataService,
-        PaymentProperties paymentProperties,
         ObjectMapper objectMapper
     ) {
         this.feeService = feeService;
         this.paymentService = paymentService;
         this.refDataService = refDataService;
-        this.paymentProperties = paymentProperties;
         this.objectMapper = objectMapper;
     }
 
@@ -174,7 +172,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                 paymentDescription,
                 orgName,
                 Service.IAC,
-                paymentProperties.getSiteId(),
+                caseType,
                 Arrays.asList(feeSelected)
             );
 

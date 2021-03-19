@@ -7,7 +7,7 @@
   "description": "The fee for an appeal with a hearing is £140",
   "organisation_name": "immigration and asylum chamber",
   "service": "IAC",
-  "site_id": "ABA3",
+  "case_type": "Asylum",",
   "fees": [
     {
       "calculated_amount": 140.00,
