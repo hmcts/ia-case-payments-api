@@ -31,7 +31,7 @@
         "appealType": "refusalOfEu",
         "homeOfficeDecisionDate": "{$TODAY-14}",
         "paymentAccountList": "PBA0087442",
-        "feeCode": "FEE0239",
+        "feeCode": "FEE0238",
         "feeVersion": "2",
         "feeAmountGbp": "14000",
         "feeDescription": "Appeal determined with a hearing",
