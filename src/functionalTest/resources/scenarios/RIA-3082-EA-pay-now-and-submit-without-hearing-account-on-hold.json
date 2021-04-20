@@ -31,7 +31,7 @@
         "appealType": "refusalOfEu",
         "homeOfficeDecisionDate": "{$TODAY-14}",
         "paymentAccountList": "PBA0087442",
-        "feeCode": "FEE0373",
+        "feeCode": "FEE0372",
         "feeVersion": "2",
         "feeAmountGbp": "8000",
         "feeDescription": "Notice of Appeal - appellant consents without hearing A",
