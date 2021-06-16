@@ -105,6 +105,37 @@ class PaymentAppealPreparerTest {
     }
 
     @Test
+    void should_get_payment_accounts_from_refDataService_when_remission_option_is_empty() {
+
+        List<String> accountsFromOrg = new ArrayList<String>();
+        accountsFromOrg.add("PBA1234567");
+        accountsFromOrg.add("PBA1234588");
+
+        List<Value> valueList = new ArrayList<Value>();
+        valueList.add(new Value("PBA1234567", "PBA1234567"));
+        valueList.add(new Value("PBA1234588", "PBA1234588"));
+
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        when(refDataService.getOrganisationResponse())
+            .thenReturn(organisationResponse);
+
+        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.empty());
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
+            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+
+        assertNotNull(callbackResponse);
+
+        AsylumCase asylumCase = callbackResponse.getData();
+
+        verify(asylumCase, times(1))
+            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
+    }
+
+    @Test
     void should_handle_no_payment_accounts() {
 
         when(callback.getCaseDetails()).thenReturn(caseDetails);
