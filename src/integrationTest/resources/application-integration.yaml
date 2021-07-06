@@ -1,0 +1,11 @@
+fees-register:
+  api:
+    url: :http://localhost:8990/fees
+
+rd-professional:
+  api:
+    url: http://localhost:8990/refdata
+
+payment:
+  api:
+    url: http://localhost:8990/payment
