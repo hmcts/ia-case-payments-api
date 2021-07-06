@@ -83,7 +83,7 @@ public class FeeApiConsumerTest {
     @PactTestFor(pactMethod = "generateFeeWithHearingPact")
     public void verifyFeesWithHearingPact() {
         FeeResponse feeResponse = feesRegisterApi.findFee("default", "issue", "tribunal",
-                                                          "immigration and asylum chamber", "ABC",
+                                                          "immigration and asylum chamber", "HearingOral",
                                                           "other");
         Assertions.assertEquals("FEE0238", feeResponse.getCode());
     }
@@ -92,8 +92,8 @@ public class FeeApiConsumerTest {
     @PactTestFor(pactMethod = "generateFeeWithoutHearingPact")
     public void verifyFeesWithoutHearingPact() {
         FeeResponse feeResponse = feesRegisterApi.findFee("default", "issue", "tribunal",
-                                                          "immigration and asylum chamber", "DEF",
+                                                          "immigration and asylum chamber", "HearingPaper",
                                                           "other");
-        Assertions.assertEquals("FEE0456", feeResponse.getCode());
+        Assertions.assertEquals("FEE0372", feeResponse.getCode());
     }
 }
