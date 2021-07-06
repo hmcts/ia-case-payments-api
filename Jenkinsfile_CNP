@@ -48,7 +48,6 @@ withPipeline(type, product, component) {
     env.IDAM_URL = "https://idam-web-public.aat.platform.hmcts.net"
     env.S2S_URL = "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
     env.FEES_REGISTER_API_URL = "http://fees-register-api-aat.service.core-compute-aat.internal"
-    env.PAYMENT_API_URL = "http://payment-api-aat.service.core-compute-aat.internal"
     env.PROF_REF_DATA_URL = "http://rd-professional-api-aat.service.core-compute-aat.internal"
     env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 
