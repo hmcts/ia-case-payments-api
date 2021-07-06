@@ -1,6 +1,6 @@
 fees-register:
   api:
-    url: :http://localhost:8990/fees
+    url: http://localhost:8990/fees
 
 rd-professional:
   api:

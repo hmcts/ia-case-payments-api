@@ -1,0 +1,10 @@
+fees-register:
+  api:
+    url: http://fees-register-api-aat.service.core-compute-aat.internal
+
+idam:
+  baseUrl: http://localhost:5000
+
+rd-professional:
+  api:
+    url: http://localhost:8991
