@@ -65,7 +65,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.StatusHisto
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.PaymentService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProperties;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -78,7 +77,6 @@ class PaymentAppealHandlerTest {
     @Mock private Fee fee;
     @Mock private PaymentService paymentService;
     @Mock private RefDataService refDataService;
-    @Mock private PaymentProperties paymentProperties;
     @Mock private PaymentResponse paymentResponse;
     @Mock private CreditAccountPayment creditAccountPayment;
 
@@ -114,7 +112,7 @@ class PaymentAppealHandlerTest {
 
         objectMapper = new ObjectMapper();
         appealFeePaymentHandler =
-            new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties, objectMapper);
+            new PaymentAppealHandler(feeService, paymentService, refDataService, objectMapper);
     }
 
     @Test
