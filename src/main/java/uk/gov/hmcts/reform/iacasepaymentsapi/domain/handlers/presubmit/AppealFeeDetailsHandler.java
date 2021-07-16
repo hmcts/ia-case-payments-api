@@ -101,3 +101,4 @@ public class AppealFeeDetailsHandler implements PreSubmitCallbackHandler<AsylumC
         return feeService.getFee(feeType);
     }
 }
+
