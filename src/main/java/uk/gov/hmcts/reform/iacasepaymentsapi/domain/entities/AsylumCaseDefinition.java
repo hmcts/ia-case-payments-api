@@ -63,6 +63,7 @@ public enum AsylumCaseDefinition {
     REMISSION_TYPE(
         "remissionType", new TypeReference<RemissionType>(){});
 
+
     private final String value;
     private final TypeReference typeReference;
 
