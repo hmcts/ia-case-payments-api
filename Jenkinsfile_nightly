@@ -58,7 +58,13 @@ withNightlyPipeline(type, product, component) {
   loadVaultSecrets(secrets)
 
   enableSecurityScan()
+  enableFortifyScan()
   enableMutationTest()
+
+  after('fortify-scan') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
+  }
+
   enableSlackNotifications('#ia-tech')
   enableFullFunctionalTest()
 
