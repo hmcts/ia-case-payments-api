@@ -8,6 +8,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_GBP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HOME_OFFICE_REFERENCE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.LEGAL_REP_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
@@ -66,6 +67,7 @@ public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
                     .with(APPEAL_REFERENCE_NUMBER, "some-appeal-reference-number")
                     .with(APPELLANT_FAMILY_NAME, "some-appellant-family-name")
                     .with(LEGAL_REP_REFERENCE_NUMBER, "some-legal-reference")
+                    .with(JOURNEY_TYPE, "rep")
                     .with(APPEAL_TYPE, "refusalOfEu")
                     .with(DECISION_HEARING_FEE_OPTION, "decisionWithHearing")
                     .with(PAYMENT_ACCOUNT_LIST,
@@ -92,6 +94,7 @@ public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
                     .with(APPEAL_REFERENCE_NUMBER, "some-appeal-reference-number")
                     .with(APPELLANT_FAMILY_NAME, "some-appellant-family-name")
                     .with(LEGAL_REP_REFERENCE_NUMBER, "some-legal-reference")
+                    .with(JOURNEY_TYPE, "rep")
                     .with(APPEAL_TYPE, "refusalOfEu")
                     .with(DECISION_HEARING_FEE_OPTION, "decisionWithoutHearing")
                     .with(PAYMENT_ACCOUNT_LIST,

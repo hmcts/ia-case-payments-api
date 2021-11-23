@@ -52,6 +52,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
@@ -136,8 +137,8 @@ class PaymentAppealHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(null);
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Cannot retrieve the fee from fees-register for caseId: 1234");
+            .isExactlyInstanceOf(RestClientException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register.");
     }
 
     @ParameterizedTest

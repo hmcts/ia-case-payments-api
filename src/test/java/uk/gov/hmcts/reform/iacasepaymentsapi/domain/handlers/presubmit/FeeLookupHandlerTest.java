@@ -2,7 +2,9 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -10,6 +12,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_GBP;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_CODE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITH_HEARING;
 
@@ -25,6 +30,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
@@ -92,12 +98,35 @@ class FeeLookupHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of(hearingFeeOption));
         when(feeService.getFee(FeeType.valueOf(feeType))).thenReturn(null);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse =
-            feeLookupHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+        assertThatThrownBy(() -> feeLookupHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
+            .isExactlyInstanceOf(RestClientException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register.");
 
-        assertNotNull(callbackResponse);
-        assertThat(callbackResponse.getErrors()).isNotEmpty();
-        assertThat(callbackResponse.getErrors()).contains("Cannot retrieve the fee from fees-register.");
+        verify(asylumCase, times(0)).write(FEE_CODE, fee.getCode());
+        verify(asylumCase, times(0)).write(FEE_DESCRIPTION, fee.getDescription());
+        verify(asylumCase, times(0)).write(FEE_VERSION, fee.getVersion());
+        verify(asylumCase, times(0)).write(FEE_AMOUNT_GBP, fee.getAmountAsString());
+    }
+
+    @ParameterizedTest
+    @MethodSource("handlingShouldReturnFeeDetailsData")
+    void handler_should_throw_when_fee_is_null(Event event, String feeType, Fee fee, String hearingFeeOption) {
+
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(callback.getEvent()).thenReturn(event);
+
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of(hearingFeeOption));
+        when(feeService.getFee(FeeType.valueOf(feeType))).thenReturn(null);
+
+        RestClientException thrown = assertThrows(RestClientException.class, () -> {
+            feeLookupHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+        });
+
+        assertEquals("Cannot retrieve the fee from fees-register.", thrown.getMessage());
+        assertThatThrownBy(() -> FeesHelper.findFeeByHearingType(feeService, asylumCase))
+            .isExactlyInstanceOf(RestClientException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register.");
     }
 
     private static Stream<Arguments> handlingShouldReturnFeeDetailsData() {

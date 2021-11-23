@@ -38,6 +38,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
@@ -355,10 +356,9 @@ class PaymentAppealPreparerTest {
             .thenReturn(Optional.of(hearingType));
         when(feeService.getFee(feeType)).thenReturn(null);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
-        assertThat(callbackResponse.getErrors()).isNotEmpty();
-        assertThat(callbackResponse.getErrors()).contains("Cannot retrieve the fee from fees-register.");
+        assertThatThrownBy(() ->  paymentAppealPreparer.handle(PreSubmitCallbackStage.ABOUT_TO_START, callback))
+            .isExactlyInstanceOf(RestClientException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register.");
     }
 
     private static Stream<Arguments> feeServiceIsDownParameters() {
