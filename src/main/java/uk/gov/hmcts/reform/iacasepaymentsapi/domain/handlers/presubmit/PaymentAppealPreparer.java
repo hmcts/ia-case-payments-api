@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_PBA_ACCOUNTS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
@@ -30,7 +29,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callba
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
@@ -127,12 +125,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
-        if (isNull(fee)) {
-
-            response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
-            return response;
-        }
+        FeesHelper.findFeeByHearingType(feeService, asylumCase);
         asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
 
         return new PreSubmitCallbackResponse<>(asylumCase);

@@ -1,17 +1,14 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
-import java.util.Collections;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 
@@ -58,12 +55,7 @@ public class FeeLookupHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = new PreSubmitCallbackResponse<>(asylumCase);
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
-        if (isNull(fee)) {
-
-            callbackResponse.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
-            return callbackResponse;
-        }
+        FeesHelper.findFeeByHearingType(feeService, asylumCase);
 
         return callbackResponse;
     }

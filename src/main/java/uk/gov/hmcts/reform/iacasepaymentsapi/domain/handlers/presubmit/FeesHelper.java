@@ -13,6 +13,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
@@ -59,6 +60,9 @@ public class FeesHelper {
                     default:
                         break;
                 }
+            } else {
+
+                throw new RestClientException("Cannot retrieve the fee from fees-register.");
             }
         }
         return null;
