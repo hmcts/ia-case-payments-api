@@ -143,8 +143,8 @@ class PaymentAppealHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(null);
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Cannot retrieve the fee from fees-register for caseId: " + caseId);
+            .isExactlyInstanceOf(RestClientException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register.");
     }
 
     @ParameterizedTest
