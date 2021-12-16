@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_GBP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITH_HEARING;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.LEGAL_REP_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_DATE;
@@ -56,6 +58,7 @@ import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.JourneyType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.LegRepAddressUk;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
@@ -90,7 +93,7 @@ class PaymentAppealHandlerTest {
     @Mock private CreditAccountPayment creditAccountPayment;
 
     private ObjectMapper objectMapper;
-    private long caseId = 1234;
+    private long caseId = Long.parseLong("112233445566");
 
     private final String addressLine1 = "A";
     private final String addressLine2 = "B";
@@ -122,14 +125,17 @@ class PaymentAppealHandlerTest {
         objectMapper = new ObjectMapper();
         appealFeePaymentHandler =
             new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties, objectMapper);
+
+        lenient().when(callback.getCaseDetails()).thenReturn(caseDetails);
+        lenient().when(caseDetails.getId()).thenReturn(caseId);
+        lenient().when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        lenient().when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
+        lenient().when(asylumCase.read(JOURNEY_TYPE, JourneyType.class)).thenReturn(Optional.of(JourneyType.REP));
     }
 
     @Test
     void should_return_error_when_fee_does_not_exists() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
@@ -137,18 +143,14 @@ class PaymentAppealHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(null);
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .isExactlyInstanceOf(RestClientException.class)
-            .hasMessage("Cannot retrieve the fee from fees-register.");
+            .isExactlyInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register for caseId: " + caseId);
     }
 
     @ParameterizedTest
     @EnumSource(value = Event.class, names = { "PAYMENT_APPEAL", "PAY_AND_SUBMIT_APPEAL", "PAY_FOR_APPEAL" })
     void handle_should_throw_error_for_no_appeal_type(Event event) {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(event);
 
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(ABOUT_TO_SUBMIT, callback))
@@ -160,17 +162,12 @@ class PaymentAppealHandlerTest {
     @EnumSource(value = Event.class, names = { "PAYMENT_APPEAL", "PAY_AND_SUBMIT_APPEAL", "PAY_FOR_APPEAL" })
     void handle_should_throw_error_for_missing_appeal_reference_number(Event event) {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(event);
 
         when(fee.getAmountAsString()).thenReturn("14000");
         when(fee.getCode()).thenReturn("FEE0123");
         when(fee.getVersion()).thenReturn("1");
         when(fee.getDescription()).thenReturn("IA hearing fee");
-
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(fee);
@@ -188,10 +185,6 @@ class PaymentAppealHandlerTest {
     @EnumSource(value = Event.class, names = { "PAYMENT_APPEAL", "PAY_AND_SUBMIT_APPEAL", "PAY_FOR_APPEAL" })
     void handler_should_throw_error_for_missing_appellant_family_name(Event event) {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(event);
 
         when(fee.getAmountAsString()).thenReturn("14000");
@@ -216,10 +209,6 @@ class PaymentAppealHandlerTest {
     @Test
     void should_call_payment_api_on_pay_now() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("EA/50001/2020"));
         when(asylumCase.read(APPELLANT_FAMILY_NAME, String.class)).thenReturn(Optional.of("AppellantFamilyName"));
@@ -287,10 +276,6 @@ class PaymentAppealHandlerTest {
         List<StatusHistories> statusHistories = new ArrayList<>();
         statusHistories.add(statusHistory);
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("EA/50001/2020"));
         when(asylumCase.read(APPELLANT_FAMILY_NAME, String.class)).thenReturn(Optional.of("AppellantFamilyName"));
@@ -357,10 +342,6 @@ class PaymentAppealHandlerTest {
         List<StatusHistories> statusHistories = new ArrayList<>();
         statusHistories.add(statusHistory);
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("EA/50001/2020"));
         when(asylumCase.read(APPELLANT_FAMILY_NAME, String.class)).thenReturn(Optional.of("AppellantFamilyName"));
@@ -416,9 +397,6 @@ class PaymentAppealHandlerTest {
     @Test
     void should_throw_when_no_account_number_is_present() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
@@ -439,9 +417,6 @@ class PaymentAppealHandlerTest {
     @Test
     void should_throw_when_no_payment_description_is_present() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
@@ -602,9 +577,6 @@ class PaymentAppealHandlerTest {
     @Test
     void should_throw_on_appeal_reference_number_is_null() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(PAYMENT_DESCRIPTION, String.class)).thenReturn(Optional.of("PaymentDescription"));
@@ -634,9 +606,6 @@ class PaymentAppealHandlerTest {
     @Test
     void should_throw_on_legal_rep_reference_is_null() {
 
-        when(callback.getCaseDetails()).thenReturn(caseDetails);
-        when(caseDetails.getId()).thenReturn(caseId);
-        when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
         when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("EA/50001/2020"));
         when(asylumCase.read(APPELLANT_FAMILY_NAME, String.class)).thenReturn(Optional.of("AppellantFamilyName"));
