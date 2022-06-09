@@ -10,14 +10,13 @@ class ExceptionResponseTest {
 
     private String errorMessage = "errorMessage";
     private String errorCode = "errorCode";
-    private LocalDateTime localDateTime;
+    private LocalDateTime localDateTime = LocalDateTime.of(2022,1,1,0,0);
 
     private ExceptionResponse exceptionResponse;
 
     @Test
     void should_hold_onto_values() {
 
-        localDateTime = LocalDateTime.now();
         exceptionResponse = new ExceptionResponse(errorCode, errorMessage, localDateTime);
 
         assertEquals(exceptionResponse.getErrorMessage(), errorMessage);
