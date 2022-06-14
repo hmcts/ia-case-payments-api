@@ -237,7 +237,6 @@ def versions = [
   junit           : '5.6.2',
   junitPlatform   : '1.6.2',
   reformLogging   : '5.1.7',
-  springfoxSwagger: '2.9.2',
   pact_version    : '4.1.7',
   serenity        : '2.2.12'
 ]
@@ -268,11 +267,6 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 
-  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
-  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
-  implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
-  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
-
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
@@ -282,9 +276,13 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
   implementation group: 'org.apache.httpcomponents', name: 'httpclient'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.10.0'
   implementation group: 'org.apache.commons', name: 'commons-lang3'
+
+  implementation group: 'commons-io', name: 'commons-io', version: '2.10.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.9'
+  implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
 
   annotationProcessor 'org.projectlombok:lombok'
   compileOnly 'org.projectlombok:lombok'
