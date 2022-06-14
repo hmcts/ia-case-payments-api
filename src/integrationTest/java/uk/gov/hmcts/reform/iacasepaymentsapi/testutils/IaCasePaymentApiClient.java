@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import groovy.util.logging.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -50,6 +51,7 @@ public class IaCasePaymentApiClient {
         httpHeaders.add(SERVICE_AUTHORIZATION, "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmcGxfY2FzZV9zZXJ2aWNlIiwi"
                                                + "ZXhwIjoxNTkwNjg4NTU4fQ.I-Kuj5uEQqInvIn53bBoJtbtEYp5BGK-qakBjU5V_Mz"
                                                + "ruwmGq9ctPo6kYhnSkzvQ81sasaHZXtjbSKWfnUNeZg");
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     public PreSubmitCallbackResponseForTest aboutToSubmit(
