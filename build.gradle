@@ -287,7 +287,7 @@ dependencies {
   compileOnly 'org.projectlombok:lombok'
 
   testImplementation libraries.junit5
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: testVersions.springBoot, {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     exclude group: "com.vaadin.external.google", module: "android-json"
@@ -299,7 +299,7 @@ dependencies {
   testCompile 'com.github.tomakehurst:wiremock:2.27.2'
   testCompile "ru.lanwen.wiremock:wiremock-junit5:1.3.1"
 
-  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '3.3.0'
+  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.3.1'
   testCompile group: 'net.serenity-bdd', name: 'serenity-core', version: testVersions.serenity
   testCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: testVersions.serenity
   testCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: testVersions.serenity
