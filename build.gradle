@@ -272,7 +272,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
   implementation group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.10.RELEASE'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
@@ -328,7 +328,7 @@ dependencies {
   contractTestRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: testVersions.junit_jupiter
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: testVersions.junit_jupiter
   contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
-  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
+  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.10.RELEASE'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.iacasepaymentsapi.Application'
