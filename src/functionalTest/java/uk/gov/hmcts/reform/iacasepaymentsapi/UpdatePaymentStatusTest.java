@@ -53,7 +53,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .then()
             .extract().response();
 
-        assertEquals(response.getStatusCode(), 200);
+        assertEquals(200, response.getStatusCode());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .then()
             .extract().response();
 
-        assertEquals(response.getStatusCode(), 400);
+        assertEquals(400, response.getStatusCode());
     }
 
     private PaymentDto getPaymentRequest() {
