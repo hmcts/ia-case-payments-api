@@ -55,12 +55,4 @@
     <cve>CVE-2021-22112</cve>
     <cve>CVE-2022-22976</cve>
   </suppress>
-  <suppress>
-    <notes>
-      <![CDATA[https://nvd.nist.gov/vuln/detail/CVE-2021-22053
-      As per Spring (Tanzu) mitigation, Spring Cloud Netflix 2.2.10.RELEASE+ fixes the issues so this should not be reported against our build!
-      ]]>
-    </notes>
-    <cve>CVE-2021-22053</cve>
-  </suppress>
 </suppressions>
