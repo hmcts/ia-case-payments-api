@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Logger;
 import feign.codec.Decoder;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
@@ -19,6 +20,11 @@ public class FeignConfiguration {
         HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter(objectMapper());
 
         return new ResponseEntityDecoder(new SpringDecoder(() -> new HttpMessageConverters(jacksonConverter)));
+    }
+
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.HEADERS;
     }
 
     public ObjectMapper objectMapper() {
