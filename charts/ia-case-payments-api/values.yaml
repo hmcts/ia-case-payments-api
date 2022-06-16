@@ -5,7 +5,7 @@ java:
   aadIdentityName: ia
   environment:
     IDAM_URL: "https://idam-web-public.{{ .Values.global.environment }}.platform.hmcts.net"
-    IA_IDAM_REDIRECT_URI: "https://ia-case-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
+    IA_IDAM_REDIRECT_URI: "https://ia-case-payments-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
     OPEN_ID_IDAM_URL: "https://idam-web-public.{{ .Values.global.environment }}.platform.hmcts.net"
     S2S_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     FEES_REGISTER_API_URL: "http://fees-register-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
