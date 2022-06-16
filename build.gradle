@@ -170,7 +170,6 @@ project.ext {
   pacticipant = 'ia_casePaymentsApi'
   pacticipantVersion = getCheckedOutGitCommitHash()
   set('springCloudVersion', "2021.0.3")
-  set('springCloudAzureVersion', "4.2.0")
 }
 
 def getCheckedOutGitCommitHash() {
@@ -224,7 +223,6 @@ dependencyCheck {
 dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    mavenBom "com.azure.spring:spring-cloud-azure-dependencies:${springCloudAzureVersion}"
   }
 }
 
@@ -270,12 +268,10 @@ dependencies {
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: '5.1.7'
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: '5.1.7'
-  implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
   implementation group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4'
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
-  implementation group: 'com.azure.spring', name: 'spring-cloud-azure-starter-keyvault-secrets'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
