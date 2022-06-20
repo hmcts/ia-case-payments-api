@@ -25,7 +25,7 @@ public class EnvPropertiesLogger  {
                 .filter(ps -> ps instanceof EnumerablePropertySource)
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
                 .flatMap(Arrays::stream)
-                .filter(prop -> (prop.startsWith("IA")))
+                .filter(prop -> prop.startsWith("IA"))
                 .sorted()
                 .forEach(prop -> log.info("{}: {}", prop, env.getProperty(prop)));
         log.info("===========================================");
