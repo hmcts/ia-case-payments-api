@@ -309,6 +309,10 @@ dependencies {
 
   implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
 
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: versions.jacksonAnnotation
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
+
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE'
@@ -368,14 +372,12 @@ dependencies {
   contractTestCompile group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
   contractTestCompile group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact_version
   contractTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.0'
-  contractTestCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit_jupiter
-  contractTestRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit_jupiter
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit_jupiter
-  contractTestRuntime group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.7.0'
-  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
-  contractTestCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
-  contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
-  contractTestCompile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
+  contractTestCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.0'
+  contractTestRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
+  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+
+  contractTestRuntime group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.7.2'
+
   contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
   contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-netflix-ribbon', version: '2.2.10.RELEASE'
 }
