@@ -109,6 +109,14 @@ task smoke(type: Test) {
   classpath = sourceSets.smokeTest.runtimeClasspath
 }
 
+task contract(type: Test, description: 'Runs the pact contract tests.', group: 'Verification') {
+  description = "Runs the consumer Pact tests"
+  useJUnitPlatform()
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+
+}
+
 checkstyle {
   maxWarnings = 0
   toolVersion = '8.29'
@@ -176,13 +184,13 @@ def getCheckedOutGitCommitHash() {
 }
 
 task runAndPublishConsumerPactTests(type: Test, description: 'Publish pact test to broker.', group: 'Verification') {
-  onlyIf {
-    return System.env.SKIP_CONTRACT_TESTS == null || System.env.SKIP_CONTRACT_TESTS == 'false'
-  }
-  useJUnitPlatform()
+//  onlyIf {
+//    return System.env.SKIP_CONTRACT_TESTS == null || System.env.SKIP_CONTRACT_TESTS == 'false'
+//  }
+//  useJUnitPlatform()
   logger.lifecycle("Runs pact consumer Tests")
   testClassesDirs = sourceSets.contractTest.output.classesDirs
-  systemProperty 'pact.rootDir', "pacts"
+//  systemProperty 'pact.rootDir', "pacts"
   classpath = sourceSets.contractTest.runtimeClasspath
 }
 
@@ -286,6 +294,8 @@ configurations {
   integrationTestRuntime.extendsFrom testRuntime
   functionalTestCompile.extendsFrom testCompile
   functionalTestRuntime.extendsFrom testRuntime
+  contractTestCompile.extendsFrom testCompile
+  contractTestRuntime.extendsFrom testRuntime
 }
 
 dependencies {
