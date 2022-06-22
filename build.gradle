@@ -193,7 +193,6 @@ task runAndPublishConsumerPactTests(type: Test, description: 'Publish pact test 
   classpath = sourceSets.contractTest.runtimeClasspath
   systemProperty 'pact.rootDir', "pacts"
   testLogging.showStandardStreams = true
-
 }
 
 runAndPublishConsumerPactTests.finalizedBy pactPublish
@@ -232,7 +231,7 @@ dependencyCheck {
 
 def versions = [
   pitest          : '1.5.2',
-  junit           : '5.7.0',
+  junit           : '5.8.2',
   junitPlatform   : '1.7.2',
   reformLogging   : '5.1.7',
   springBoot      : '2.7.0',
