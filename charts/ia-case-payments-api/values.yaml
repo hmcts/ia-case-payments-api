@@ -2,7 +2,6 @@ java:
   applicationPort: 8096
   image: 'hmctspublic.azurecr.io/ia/ia-case-payments-api:latest'
   ingressHost: ia-case-payments-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-  aadIdentityName: ia
   environment:
     IDAM_URL: "https://idam-web-public.{{ .Values.global.environment }}.platform.hmcts.net"
     IA_IDAM_REDIRECT_URI: "https://ia-case-payments-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
@@ -11,10 +10,10 @@ java:
     PAYMENT_API_URL: "http://payment-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     PROF_REF_DATA_URL: "http://rd-professional-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     CCD_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
-
+  aadIdentityName: ia
   keyVaults:
     ia:
-      resourceGroup: ia
+      excludeEnvironmentSuffix: true
       secrets:
         - name: idam-client-id
           alias: IA_IDAM_CLIENT_ID
