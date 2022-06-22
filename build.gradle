@@ -183,15 +183,17 @@ def getCheckedOutGitCommitHash() {
   'git rev-parse --verify --short HEAD'.execute().text.trim()
 }
 
+
 task runAndPublishConsumerPactTests(type: Test, description: 'Publish pact test to broker.', group: 'Verification') {
-//  onlyIf {
-//    return System.env.SKIP_CONTRACT_TESTS == null || System.env.SKIP_CONTRACT_TESTS == 'false'
-//  }
-//  useJUnitPlatform()
-  logger.lifecycle("Runs pact consumer Tests")
+  onlyIf {
+    return System.env.SKIP_CONTRACT_TESTS == null || System.env.SKIP_CONTRACT_TESTS == 'false'
+  }
+  useJUnitPlatform()
   testClassesDirs = sourceSets.contractTest.output.classesDirs
-//  systemProperty 'pact.rootDir', "pacts"
   classpath = sourceSets.contractTest.runtimeClasspath
+  systemProperty 'pact.rootDir', "pacts"
+  testLogging.showStandardStreams = true
+
 }
 
 runAndPublishConsumerPactTests.finalizedBy pactPublish
