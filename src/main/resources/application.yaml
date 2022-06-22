@@ -26,29 +26,29 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: ${IDAM_URL:https://idam-api.aat.platform.hmcts.net}/o
+            issuer-uri: https://idam-api.aat.platform.hmcts.net/o
         registration:
           oidc:
-            client-id: ${IA_IDAM_CLIENT_ID:iac}
-            client-secret: ${IA_IDAM_SECRET:NDPH6DFQBIPA9UP7}
+            client-id: iac
+            client-secret: NDPH6DFQBIPA9UP7
       resourceserver:
         jwt:
-          jwk-set-uri: ${IDAM_URL:https://idam-api.aat.platform.hmcts.net}/o/jwks
+          jwk-set-uri: https://idam-api.aat.platform.hmcts.net/o/jwks
 
 
 idam:
-  baseUrl: ${IDAM_URL:https://idam-api.aat.platform.hmcts.net}
-  redirectUrl: ${IA_IDAM_REDIRECT_URI:https://ia-case-api-aat.service.core-compute-aat.internal/oauth2/callback}
+  baseUrl: https://idam-api.aat.platform.hmcts.net
+  redirectUrl: https://ia-case-api-aat.service.core-compute-aat.internal/oauth2/callback
   system:
     username: ${IA_SYSTEM_USERNAME:ia-system-user@fake.hmcts.net}
     password: ${IA_SYSTEM_PASSWORD:something}
   scope: "openid profile authorities acr roles create-user manage-user search-user"
   s2s-auth:
-    totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
-    microservice: ${IA_S2S_MICROSERVICE:iac}
-    url: ${S2S_URL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+    totp_secret: AAAAAAAAAAAAAAAC
+    microservice: iac
+    url: http://rpe-service-auth-provider-aat.service.core-compute-aat.internal
   s2s-authorised:
-    services: ${IA_S2S_AUTHORIZED_SERVICES:iac}
+    services: iac
 
 fees-register:
   api:
@@ -116,9 +116,9 @@ security:
     - "updatePaymentStatus"
 
 ### dependency configuration
-auth.idam.client.baseUrl: ${IDAM_URL:https://idam-api.aat.platform.hmcts.net}
+auth.idam.client.baseUrl: https://idam-api.aat.platform.hmcts.net
 auth.idam.client.detailsUri: "/details"
-auth.idam.client.id: ${IA_IDAM_CLIENT_ID:iac}
-auth.idam.client.secret: ${IA_IDAM_SECRET:NDPH6DFQBIPA9UP7}
-auth.idam.client.redirectUri: ${IA_IDAM_REDIRECT_URI:https://ia-case-api-aat.service.core-compute-aat.internal/oauth2/callback}
-auth.provider.service.client.baseUrl: ${S2S_URL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+auth.idam.client.id: iac
+auth.idam.client.secret: NDPH6DFQBIPA9UP7
+auth.idam.client.redirectUri: https://ia-case-api-aat.service.core-compute-aat.internal/oauth2/callback
+auth.provider.service.client.baseUrl: http://rpe-service-auth-provider-aat.service.core-compute-aat.internal
