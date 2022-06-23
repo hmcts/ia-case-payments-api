@@ -52,12 +52,12 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         map.add("password", systemUserPass);
         map.add("scope", systemUserScope);
 
-        log.info("redirect_uri : "+ idamRedirectUrl);
-        log.info("client_id : "+ idamClientId);
-        log.info("client_secret : "+ idamClientSecret);
-        log.info("username : "+ systemUserName);
-        log.info("password : "+ systemUserPass);
-        log.info("scope : "+ systemUserScope);
+        log.info("redirect_uri : " + idamRedirectUrl);
+        log.info("client_id : " + idamClientId);
+        log.info("client_secret : " + idamClientSecret);
+        log.info("username : " + systemUserName);
+        log.info("password : " + systemUserPass);
+        log.info("scope : " + systemUserScope);
         try {
 
             Token tokenResponse = idamApi.token(map);
