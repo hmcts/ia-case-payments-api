@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.oauth2;
 
 import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -10,6 +11,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.T
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 
 @Component
+@Slf4j
 public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
     private final String systemUserName;
@@ -50,6 +52,12 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         map.add("password", systemUserPass);
         map.add("scope", systemUserScope);
 
+        log.info("redirect_uri : "+ idamRedirectUrl);
+        log.info("client_id : "+ idamClientId);
+        log.info("client_secret : "+ idamClientSecret);
+        log.info("username : "+ systemUserName);
+        log.info("password : "+ systemUserPass);
+        log.info("scope : "+ systemUserScope);
         try {
 
             Token tokenResponse = idamApi.token(map);
