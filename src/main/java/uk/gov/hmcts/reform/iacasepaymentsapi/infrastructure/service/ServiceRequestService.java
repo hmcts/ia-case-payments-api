@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemUserProvider;
 
 @Service
 @Slf4j
@@ -25,18 +24,15 @@ public class ServiceRequestService {
     private static final int VOLUME_1 = 1;
 
     private final SystemTokenGenerator systemTokenGenerator;
-    private final SystemUserProvider systemUserProvider;
     private final AuthTokenGenerator serviceAuthorization;
     private final ServiceRequestApi serviceRequestApi;
     String callBackUrl;
 
     public ServiceRequestService(SystemTokenGenerator systemTokenGenerator,
-                                 SystemUserProvider systemUserProvider,
                                  AuthTokenGenerator serviceAuthorization,
                                  ServiceRequestApi serviceRequestApi,
                                  @Value("${payment.api.callback-url}") String callBackUrl) {
         this.systemTokenGenerator = systemTokenGenerator;
-        this.systemUserProvider = systemUserProvider;
         this.serviceAuthorization = serviceAuthorization;
         this.serviceRequestApi = serviceRequestApi;
         this.callBackUrl = callBackUrl;
