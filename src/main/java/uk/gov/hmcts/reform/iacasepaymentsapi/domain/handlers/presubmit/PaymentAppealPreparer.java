@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @Slf4j
 @Component
@@ -41,13 +42,16 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     private final RefDataService refDataService;
     private final FeeService feeService;
+    private final ServiceRequestService serviceRequestService;
 
     public PaymentAppealPreparer(
         RefDataService refDataService,
-        FeeService feeService
+        FeeService feeService,
+        ServiceRequestService serviceRequestService
     ) {
         this.feeService = feeService;
         this.refDataService = refDataService;
+        this.serviceRequestService = serviceRequestService;
     }
 
     @Override
@@ -60,17 +64,21 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         requireNonNull(callback, "callback must not be null");
 
         final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
-        final boolean isLegalRepJourney = asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
-            .orElse(true);
 
-        return callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
+        return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
                && Arrays.asList(
                    Event.PAYMENT_APPEAL,
                    Event.PAY_AND_SUBMIT_APPEAL,
                    Event.PAY_FOR_APPEAL,
                    Event.RECORD_REMISSION_DECISION
                 ).contains(callback.getEvent())
+               && isLegalRepJourney(asylumCase))
+               || isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase));
+    }
+
+    private boolean isWaysToPay(PreSubmitCallbackStage callbackStage, Callback<AsylumCase> callback, boolean isLegalRepJourney) {
+        return callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
+               && callback.getEvent() == Event.START_APPEAL
                && isLegalRepJourney;
     }
 
@@ -133,9 +141,23 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
             return response;
         }
+
+        if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))) {
+            try {
+                serviceRequestService.createServiceRequest(callback, fee);
+            } catch (Exception e) {
+                response.addErrors(Collections.singleton("Cannot create Service Request."));
+                return response;
+            }
+        }
         asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
 
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
 
+    private boolean isLegalRepJourney(AsylumCase asylumCase) {
+        return asylumCase.read(JOURNEY_TYPE, JourneyType.class)
+            .map(journey -> journey == JourneyType.REP)
+            .orElse(true);
+    }
 }

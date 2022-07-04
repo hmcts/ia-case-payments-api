@@ -76,6 +76,7 @@ rd-professional:
 payment:
   api:
     url: ${PAYMENT_API_URL:http://localhost:8991}
+    callback-url: ${PAY_CALLBACK_URL:http://127.0.0.1:8083}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
