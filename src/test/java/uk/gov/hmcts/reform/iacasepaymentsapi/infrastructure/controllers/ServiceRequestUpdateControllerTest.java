@@ -29,13 +29,13 @@ public class ServiceRequestUpdateControllerTest {
     @Mock private CcdDataService ccdDataService;
     @Mock private PaymentDto paymentDto;
     @Mock private ServiceRequestUpdateDto serviceRequestUpdateDto;
-    private final String JURISDICTION = "IA";
-    private final String CASE_TYPE = "Asylum";
-    private final String CCD_CASE_NUMBER = "1111222233334444";
-    private final String SERVICE_REQUEST_REFERENCE = "2020-0000000000000";
-    private final String SERVICE_REQUEST_AMOUNT = "80.00";
-    private final String SERVICE_REQUEST_STATUS = "paid";
-    private final long CASE_ID = 1234;
+    private static final String JURISDICTION = "IA";
+    private static final String CASE_TYPE = "Asylum";
+    private static final String CCD_CASE_NUMBER = "1111222233334444";
+    private static final String SERVICE_REQUEST_REFERENCE = "2020-0000000000000";
+    private static final String SERVICE_REQUEST_AMOUNT = "80.00";
+    private static final String SERVICE_REQUEST_STATUS = "paid";
+    private static final long CASE_ID = 1234;
 
     private ServiceRequestUpdateController serviceRequestUpdateController;
 

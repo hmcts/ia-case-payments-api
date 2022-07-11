@@ -43,8 +43,10 @@ public class ServiceRequestService {
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
         AsylumCase asylumCase = caseDetails.getCaseData();
         String appealReferenceNumber = String.valueOf(caseDetails.getId());
-        String appellantGivenNames = asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class).orElse("");
-        String appellantFamilyName = asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class).orElse("");
+        String appellantGivenNames = asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class)
+            .orElse("");
+        String appellantFamilyName = asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class)
+            .orElse("");
         String responsibleParty = appellantGivenNames + "-" + appellantFamilyName;
 
         String userAuth = systemTokenGenerator.generate();

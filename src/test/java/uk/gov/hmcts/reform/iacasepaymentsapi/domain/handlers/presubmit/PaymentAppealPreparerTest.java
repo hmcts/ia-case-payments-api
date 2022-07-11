@@ -415,11 +415,9 @@ class PaymentAppealPreparerTest {
                     Event.PAYMENT_APPEAL,
                     Event.PAY_AND_SUBMIT_APPEAL,
                     Event.PAY_FOR_APPEAL,
-                    Event.RECORD_REMISSION_DECISION
-                )
-                        .contains(callback.getEvent())
+                    Event.RECORD_REMISSION_DECISION).contains(callback.getEvent())
                     && callbackStage == PreSubmitCallbackStage.ABOUT_TO_START)
-                || isWaysToPay(callbackStage, callback, true)) {
+                    || isWaysToPay(callbackStage, callback, true)) {
 
                     assertTrue(canHandle);
                 } else {
@@ -457,7 +455,9 @@ class PaymentAppealPreparerTest {
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
     }
 
-    private boolean isWaysToPay(PreSubmitCallbackStage callbackStage, Callback<AsylumCase> callback, boolean isLegalRepJourney) {
+    private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
+                                Callback<AsylumCase> callback,
+                                boolean isLegalRepJourney) {
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && callback.getEvent() == Event.START_APPEAL
                && isLegalRepJourney;
