@@ -17,7 +17,7 @@ management:
 
 spring:
   application:
-    name: Welcome to Case Payment Service
+    name: ia-case-payments-api
   main:
     allow-bean-definition-overriding: true
   jackson.date-format: yyyy-MM-dd
@@ -75,8 +75,9 @@ rd-professional:
 
 payment:
   api:
-    url: ${PAYMENT_API_URL:http://localhost:8991}
+    url: ${PAYMENT_API_URL:http://localhost:8083}
     callback-url: ${PAY_CALLBACK_URL:http://127.0.0.1:8083}
+  authorised-services: ${IAC_S2S_AUTHORISED_SERVICES:payment_app}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1

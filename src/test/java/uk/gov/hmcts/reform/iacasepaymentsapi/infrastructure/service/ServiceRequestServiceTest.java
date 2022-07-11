@@ -99,9 +99,9 @@ public class ServiceRequestServiceTest {
 
         serviceRequestService.createServiceRequest(callback, fee);
 
-        verify(serviceRequestApi, times(1)).createPaymentServiceRequest(tokenCaptor.capture(),
-                                                             serviceTokenCaptor.capture(),
-                                                             serviceRequestRequestArgumentCaptor.capture());
+        verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
+                                                                 serviceTokenCaptor.capture(),
+                                                                 serviceRequestRequestArgumentCaptor.capture());
 
         assertEquals("token", tokenCaptor.getValue());
         assertEquals("Bearer serviceToken", serviceTokenCaptor.getValue());

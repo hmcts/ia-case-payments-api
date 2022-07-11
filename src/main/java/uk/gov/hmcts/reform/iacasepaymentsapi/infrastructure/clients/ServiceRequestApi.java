@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 
-@FeignClient(name = "service-request-api", url = "${payment.api.callback-url}")
+@FeignClient(name = "service-request-api", url = "${payment.api.url}")
 public interface ServiceRequestApi {
 
     @PostMapping(value = "/service-request", consumes = "application/json")
-    ServiceRequestResponse createPaymentServiceRequest(
+    ServiceRequestResponse createServiceRequest(
         @RequestHeader(AUTHORIZATION) String authorization,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestBody ServiceRequestRequest serviceRequestRequest
