@@ -50,10 +50,9 @@ public class ServiceRequestService {
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
 
-        return serviceRequestApi.createPaymentServiceRequest(
+        return serviceRequestApi.createServiceRequest(
             userAuth,
             serviceAuth,
-
             ServiceRequestRequest.builder()
                 .callBackUrl(callBackUrl)
                 .casePaymentRequest(
