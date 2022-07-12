@@ -26,7 +26,7 @@ public class ServiceRequestService {
     private final SystemTokenGenerator systemTokenGenerator;
     private final AuthTokenGenerator serviceAuthorization;
     private final ServiceRequestApi serviceRequestApi;
-    String callBackUrl;
+    private String callBackUrl;
 
     public ServiceRequestService(SystemTokenGenerator systemTokenGenerator,
                                  AuthTokenGenerator serviceAuthorization,
