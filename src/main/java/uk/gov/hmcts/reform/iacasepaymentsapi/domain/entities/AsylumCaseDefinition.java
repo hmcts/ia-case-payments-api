@@ -10,6 +10,10 @@ public enum AsylumCaseDefinition {
         "appealReferenceNumber", new TypeReference<String>(){}),
     APPELLANT_FAMILY_NAME(
         "appellantFamilyName", new TypeReference<String>(){}),
+    APPELLANT_GIVEN_NAMES(
+        "appellantGivenNames", new TypeReference<String>(){}),
+    APPELLANT_NAME_FOR_DISPLAY(
+        "appellantNameForDisplay", new TypeReference<String>(){}),
     LEGAL_REP_REFERENCE_NUMBER(
         "legalRepReferenceNumber", new TypeReference<String>(){}),
     FEE_WITH_HEARING(
