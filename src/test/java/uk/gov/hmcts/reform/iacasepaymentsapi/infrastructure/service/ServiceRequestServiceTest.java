@@ -112,7 +112,7 @@ public class ServiceRequestServiceTest {
         ServiceRequestRequest actual = serviceRequestRequestArgumentCaptor.getValue();
         assertEquals("some-callback-url", actual.getCallBackUrl());
         assertEquals("payment", actual.getCasePaymentRequest().getAction());
-        assertEquals("Name-Surname", actual.getCasePaymentRequest().getResponsibleParty());
+        assertEquals("Name Surname", actual.getCasePaymentRequest().getResponsibleParty());
         assertEquals("1111222233334444", actual.getCaseReference());
         assertEquals("1111222233334444", actual.getCcdCaseNumber());
         assertEquals("some-version", actual.getFees()[0].getVersion());

@@ -47,7 +47,7 @@ public class ServiceRequestService {
             .orElse("");
         String appellantFamilyName = asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class)
             .orElse("");
-        String responsibleParty = appellantGivenNames + "-" + appellantFamilyName;
+        String responsibleParty = appellantGivenNames + " " + appellantFamilyName;
 
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
