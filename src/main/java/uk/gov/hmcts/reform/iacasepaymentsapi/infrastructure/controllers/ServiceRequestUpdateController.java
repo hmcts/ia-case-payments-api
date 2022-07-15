@@ -51,8 +51,8 @@ public class ServiceRequestUpdateController {
                              JURISDICTION,
                              CASE_TYPE,
                              Long.parseLong(caseId),
-                             serviceRequestUpdateDto.getServiceRequestStatus(),
-                             serviceRequestUpdateDto.getServiceRequestReference());
+                             serviceRequestUpdateDto.getPayment().getStatus(),
+                             serviceRequestUpdateDto.getPayment().getReference());
 
         SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData);
         return ResponseEntity
