@@ -77,6 +77,9 @@ public class ServiceRequestUpdateControllerTest {
     void should_error_when_service_is_unavailable() {
 
         when(serviceRequestUpdateDto.getCcdCaseNumber()).thenReturn(CCD_CASE_NUMBER);
+        when(serviceRequestUpdateDto.getPayment()).thenReturn(paymentDto);
+        when(paymentDto.getStatus()).thenReturn(PAYMENT_STATUS);
+        when(paymentDto.getReference()).thenReturn(PAYMENT_REFERENCE);
         when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenThrow(ResponseStatusException.class);
 
         assertThatThrownBy(() -> serviceRequestUpdateController.serviceRequestUpdate(serviceRequestUpdateDto))
