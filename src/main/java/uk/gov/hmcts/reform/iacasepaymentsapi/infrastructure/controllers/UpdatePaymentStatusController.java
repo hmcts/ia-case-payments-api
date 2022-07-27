@@ -50,7 +50,7 @@ public class UpdatePaymentStatusController {
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS, JURISDICTION,
                              CASE_TYPE, Long.valueOf(caseId), paymentDto.getStatus(), paymentDto.getReference());
 
-        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData);
+        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false);
         return ResponseEntity.status(response.getCallbackResponseStatusCode()).body(response);
     }
 }

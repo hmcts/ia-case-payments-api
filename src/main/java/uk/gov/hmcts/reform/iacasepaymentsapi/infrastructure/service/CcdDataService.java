@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.StartEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestUpdateDto;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
@@ -43,7 +44,7 @@ public class CcdDataService {
     }
 
 
-    public SubmitEventDetails updatePaymentStatus(CaseMetaData caseMetaData) {
+    public SubmitEventDetails updatePaymentStatus(CaseMetaData caseMetaData, boolean isWaysToPay) {
 
         String event = caseMetaData.getEvent().toString();
         String caseId = String.valueOf(caseMetaData.getCaseId());
@@ -74,7 +75,7 @@ public class CcdDataService {
         log.info("Case details found for the caseId: {}", caseId);
 
         if (!isPaymentReferenceExists(startEventDetails.getCaseDetails().getCaseData(),
-                                      caseMetaData.getPaymentReference())) {
+                                      caseMetaData.getPaymentReference()) && !isWaysToPay) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                               "Payment reference not found for the caseId: " + caseId);

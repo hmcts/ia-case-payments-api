@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -52,9 +53,9 @@ public class ServiceRequestUpdateControllerTest {
 
         when(serviceRequestUpdateDto.getCcdCaseNumber()).thenReturn(CCD_CASE_NUMBER);
         when(serviceRequestUpdateDto.getPayment()).thenReturn(paymentDto);
-        when(paymentDto.getStatus()).thenReturn(PAYMENT_STATUS);
+        when(serviceRequestUpdateDto.getServiceRequestStatus()).thenReturn(PAYMENT_STATUS);
         when(paymentDto.getReference()).thenReturn(PAYMENT_REFERENCE);
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenReturn(getSubmitEventResponse());
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true))).thenReturn(getSubmitEventResponse());
 
         ResponseEntity<SubmitEventDetails> responseEntity = serviceRequestUpdateController
             .serviceRequestUpdate(serviceRequestUpdateDto);
@@ -78,9 +79,9 @@ public class ServiceRequestUpdateControllerTest {
 
         when(serviceRequestUpdateDto.getCcdCaseNumber()).thenReturn(CCD_CASE_NUMBER);
         when(serviceRequestUpdateDto.getPayment()).thenReturn(paymentDto);
-        when(paymentDto.getStatus()).thenReturn(PAYMENT_STATUS);
+        when(serviceRequestUpdateDto.getServiceRequestStatus()).thenReturn(PAYMENT_STATUS);
         when(paymentDto.getReference()).thenReturn(PAYMENT_REFERENCE);
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenThrow(ResponseStatusException.class);
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true))).thenThrow(ResponseStatusException.class);
 
         assertThatThrownBy(() -> serviceRequestUpdateController.serviceRequestUpdate(serviceRequestUpdateDto))
             .isExactlyInstanceOf(ResponseStatusException.class);

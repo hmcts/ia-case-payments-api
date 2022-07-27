@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestUpdateDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.PaymentAppealHandler;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 
 @Api(tags = {"Update service request controller"})
@@ -46,15 +48,16 @@ public class ServiceRequestUpdateController {
 
         String caseId = serviceRequestUpdateDto.getCcdCaseNumber();
 
-        CaseMetaData caseMetaData =
+        CaseMetaData updatePaymentStatusCaseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS,
                              JURISDICTION,
                              CASE_TYPE,
                              Long.parseLong(caseId),
-                             serviceRequestUpdateDto.getPayment().getStatus(),
+                             serviceRequestUpdateDto.getServiceRequestStatus(),
                              serviceRequestUpdateDto.getPayment().getReference());
 
-        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData);
+        SubmitEventDetails response = ccdDataService.updatePaymentStatus(updatePaymentStatusCaseMetaData, true);
+
         return ResponseEntity
             .status(response.getCallbackResponseStatusCode())
             .body(response);

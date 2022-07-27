@@ -45,7 +45,7 @@ class UpdatePaymentStatusControllerTest {
     void should_update_the_payment_status_successfully() {
 
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenReturn(getSubmitEventResponse());
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), false)).thenReturn(getSubmitEventResponse());
 
         ResponseEntity responseEntity = updatePaymentStatusController.updatePaymentStatus(paymentDto);
 
@@ -64,7 +64,7 @@ class UpdatePaymentStatusControllerTest {
     void should_error_when_service_is_unavailable() {
 
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenThrow(ResponseStatusException.class);
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), false)).thenThrow(ResponseStatusException.class);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(paymentDto))
             .isExactlyInstanceOf(ResponseStatusException.class);
@@ -74,7 +74,7 @@ class UpdatePaymentStatusControllerTest {
     void should_error_on_invalid_ccd_case_number() {
 
         when(paymentDto.getCcdCaseNumber()).thenReturn("1001");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class))).thenThrow(BadRequestException.class);
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), false)).thenThrow(BadRequestException.class);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(paymentDto))
             .isExactlyInstanceOf(BadRequestException.class);
