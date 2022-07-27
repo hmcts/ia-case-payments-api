@@ -55,7 +55,8 @@ public class ServiceRequestUpdateControllerTest {
         when(serviceRequestUpdateDto.getPayment()).thenReturn(paymentDto);
         when(serviceRequestUpdateDto.getServiceRequestStatus()).thenReturn(PAYMENT_STATUS);
         when(paymentDto.getReference()).thenReturn(PAYMENT_REFERENCE);
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true))).thenReturn(getSubmitEventResponse());
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true)))
+            .thenReturn(getSubmitEventResponse());
 
         ResponseEntity<SubmitEventDetails> responseEntity = serviceRequestUpdateController
             .serviceRequestUpdate(serviceRequestUpdateDto);
@@ -81,7 +82,8 @@ public class ServiceRequestUpdateControllerTest {
         when(serviceRequestUpdateDto.getPayment()).thenReturn(paymentDto);
         when(serviceRequestUpdateDto.getServiceRequestStatus()).thenReturn(PAYMENT_STATUS);
         when(paymentDto.getReference()).thenReturn(PAYMENT_REFERENCE);
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true))).thenThrow(ResponseStatusException.class);
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(true)))
+            .thenThrow(ResponseStatusException.class);
 
         assertThatThrownBy(() -> serviceRequestUpdateController.serviceRequestUpdate(serviceRequestUpdateDto))
             .isExactlyInstanceOf(ResponseStatusException.class);

@@ -17,8 +17,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestUpdateDto;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.PaymentAppealHandler;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 
 @Api(tags = {"Update service request controller"})
