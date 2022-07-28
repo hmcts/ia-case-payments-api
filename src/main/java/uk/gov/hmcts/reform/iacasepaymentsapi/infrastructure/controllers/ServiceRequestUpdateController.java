@@ -46,15 +46,16 @@ public class ServiceRequestUpdateController {
 
         String caseId = serviceRequestUpdateDto.getCcdCaseNumber();
 
-        CaseMetaData caseMetaData =
+        CaseMetaData updatePaymentStatusCaseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS,
                              JURISDICTION,
                              CASE_TYPE,
                              Long.parseLong(caseId),
-                             serviceRequestUpdateDto.getPayment().getStatus(),
+                             serviceRequestUpdateDto.getServiceRequestStatus(),
                              serviceRequestUpdateDto.getPayment().getReference());
 
-        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData);
+        SubmitEventDetails response = ccdDataService.updatePaymentStatus(updatePaymentStatusCaseMetaData, true);
+
         return ResponseEntity
             .status(response.getCallbackResponseStatusCode())
             .body(response);
