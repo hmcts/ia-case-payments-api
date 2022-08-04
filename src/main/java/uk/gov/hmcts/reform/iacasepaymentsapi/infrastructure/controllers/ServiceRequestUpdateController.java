@@ -46,6 +46,9 @@ public class ServiceRequestUpdateController {
 
         String caseId = serviceRequestUpdateDto.getCcdCaseNumber();
 
+        log.info("Callback received for caseId {}, paymentStatus {}", caseId,
+                 serviceRequestUpdateDto.getPayment().getStatus());
+
         CaseMetaData updatePaymentStatusCaseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS,
                              JURISDICTION,
