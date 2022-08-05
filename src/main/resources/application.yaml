@@ -77,7 +77,6 @@ payment:
   api:
     url: ${PAYMENT_API_URL:http://localhost:8083}
     callback-url: ${PAY_CALLBACK_URL:http://localhost:8096}
-  authorised-services: ${IAC_S2S_AUTHORISED_SERVICES:payment_app}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
