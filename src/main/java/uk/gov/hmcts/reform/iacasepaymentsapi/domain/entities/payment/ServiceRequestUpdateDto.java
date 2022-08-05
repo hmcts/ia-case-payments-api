@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,14 +24,17 @@ import lombok.NoArgsConstructor;
 @Data
 public class ServiceRequestUpdateDto {
     @JsonProperty("service_request_reference")
+    @NonNull
     private String serviceRequestReference;
     @JsonProperty("ccd_case_number")
+    @NonNull
     private String ccdCaseNumber;
     @JsonProperty("service_request_amount")
     private String serviceRequestAmount;
     @JsonProperty("service_request_status")
     private String serviceRequestStatus;
     @JsonProperty("payment")
+    @NonNull
     private PaymentDto payment;
 
 }

@@ -48,7 +48,7 @@ idam:
     microservice: ${IA_S2S_MICROSERVICE:ia}
     url: ${S2S_URL:http://127.0.0.1:4502}
   s2s-authorised:
-    services: ${IA_S2S_AUTHORIZED_SERVICES:iac}
+    services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
 
 fees-register:
   api:
@@ -77,7 +77,6 @@ payment:
   api:
     url: ${PAYMENT_API_URL:http://localhost:8083}
     callback-url: ${PAY_CALLBACK_URL:http://localhost:8096}
-  authorised-services: ${IAC_S2S_AUTHORISED_SERVICES:payment_app}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
