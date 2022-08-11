@@ -42,7 +42,9 @@ public class ServiceRequestService {
 
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
         AsylumCase asylumCase = caseDetails.getCaseData();
-        String appealReferenceNumber = String.valueOf(caseDetails.getId());
+        String ccdCaseReferenceNumber = String.valueOf(caseDetails.getId());
+        String appealReferenceNumber = asylumCase.read(AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER, String.class)
+            .orElse("");
         String appellantGivenNames = asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class)
             .orElse("");
         String appellantFamilyName = asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class)
@@ -63,7 +65,7 @@ public class ServiceRequestService {
                         .responsibleParty(responsibleParty)
                         .build())
                 .caseReference(appealReferenceNumber)
-                .ccdCaseNumber(appealReferenceNumber)
+                .ccdCaseNumber(ccdCaseReferenceNumber)
                 .fees(new FeeDto[]{
                     FeeDto.builder()
                         .calculatedAmount(fee.getCalculatedAmount())

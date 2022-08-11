@@ -432,7 +432,7 @@ class PaymentAppealPreparerTest {
 
     @Test
     void should_send_request_for_service_request_if_is_ways_to_pay() throws Exception {
-        when(callback.getEvent()).thenReturn(Event.START_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         when(refDataService.getOrganisationResponse())
             .thenReturn(organisationResponse);
 
@@ -462,7 +462,7 @@ class PaymentAppealPreparerTest {
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-               && callback.getEvent() == Event.START_APPEAL
+               && callback.getEvent() == Event.SUBMIT_APPEAL
                && isLegalRepJourney;
     }
 }
