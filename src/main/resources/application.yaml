@@ -76,7 +76,7 @@ rd-professional:
 payment:
   api:
     url: ${PAYMENT_API_URL:http://localhost:8083}
-    callback-url: ${PAY_CALLBACK_URL:http://localhost:8096}
+    callback-url: ${PAY_CALLBACK_URL:http://localhost:8096/service-request-update}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
@@ -108,6 +108,7 @@ security:
     - "paymentAppeal"
     caseworker-ia-legalrep-solicitor:
     - "startAppeal"
+    - "submitAppeal"
     - "editAppeal"
     - "paymentAppeal"
     - "payAndSubmitAppeal"
