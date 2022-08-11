@@ -39,6 +39,7 @@ public class ServiceRequestServiceTest {
     private static final String APPELLANT_GIVEN_NAMES = "Name";
     private static final String APPELLANT_FAMILY_NAMES = "Surname";
     private static final String CALLBACK_URL = "some-callback-url";
+    private static final String APPEAL_REFERENCE_NUMBER = "EA/00001/01";
     private static final long CASE_ID = 1111222233334444L;
 
     @Mock SystemTokenGenerator systemTokenGenerator;
@@ -93,6 +94,8 @@ public class ServiceRequestServiceTest {
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
             .thenReturn(Optional.of(APPELLANT_GIVEN_NAMES));
+        when(asylumCase.read(AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER, String.class))
+            .thenReturn(Optional.of(APPEAL_REFERENCE_NUMBER));
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class))
             .thenReturn(Optional.of(APPELLANT_FAMILY_NAMES));
         when(caseDetails.getId()).thenReturn(CASE_ID);
@@ -113,7 +116,7 @@ public class ServiceRequestServiceTest {
         assertEquals("some-callback-url", actual.getCallBackUrl());
         assertEquals("payment", actual.getCasePaymentRequest().getAction());
         assertEquals("Name Surname", actual.getCasePaymentRequest().getResponsibleParty());
-        assertEquals("1111222233334444", actual.getCaseReference());
+        assertEquals("EA/00001/01", actual.getCaseReference());
         assertEquals("1111222233334444", actual.getCcdCaseNumber());
         assertEquals("some-version", actual.getFees()[0].getVersion());
         assertEquals("some-code", actual.getFees()[0].getCode());

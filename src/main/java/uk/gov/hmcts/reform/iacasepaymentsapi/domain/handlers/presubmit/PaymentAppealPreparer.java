@@ -82,7 +82,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-               && callback.getEvent() == Event.START_APPEAL
+               && callback.getEvent() == Event.SUBMIT_APPEAL
                && isLegalRepJourney
                && isHuOrEaOrPa(callback.getCaseDetails().getCaseData());
     }
