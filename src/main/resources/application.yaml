@@ -76,7 +76,7 @@ rd-professional:
 payment:
   api:
     url: ${PAYMENT_API_URL:http://localhost:8083}
-    callback-url: ${PAY_CALLBACK_URL:http://localhost:8096}
+    callback-url: ${PAY_CALLBACK_URL:http://localhost:8096/service-request-update}
   params:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
@@ -108,6 +108,7 @@ security:
       - "paymentAppeal"
     caseworker-ia-legalrep-solicitor:
       - "startAppeal"
+      - "submitAppeal"
       - "editAppeal"
       - "paymentAppeal"
       - "payAndSubmitAppeal"
@@ -124,4 +125,6 @@ auth.idam.client.id: ${IA_IDAM_CLIENT_ID:ia}
 auth.idam.client.secret: ${IA_IDAM_SECRET:something}
 auth.idam.client.redirectUri: ${IA_IDAM_REDIRECT_URI:http://localhost}
 auth.provider.service.client.baseUrl: ${S2S_URL:http://127.0.0.1:4502}
-
+idam.s2s-auth.totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
+idam.s2s-auth.microservice: ${IA_S2S_MICROSERVICE:something}
+idam.s2s-auth.url: ${S2S_URL:http://127.0.0.1:4502}
