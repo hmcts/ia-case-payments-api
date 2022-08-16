@@ -113,6 +113,7 @@ security:
       - "paymentAppeal"
       - "payAndSubmitAppeal"
       - "payForAppeal"
+      - "generateServiceRequest"
     caseworker-ia-admofficer:
       - "recordRemissionDecision"
     caseworker-ia-system:

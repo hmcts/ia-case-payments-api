@@ -4,6 +4,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_PBA_ACCOUNTS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
@@ -33,6 +34,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSub
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
@@ -82,7 +84,8 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-               && callback.getEvent() == Event.SUBMIT_APPEAL
+               && (callback.getEvent() == Event.SUBMIT_APPEAL
+                   || callback.getEvent() == Event.GENERATE_SERVICE_REQUEST)
                && isLegalRepJourney
                && isHuOrEaOrPa(callback.getCaseDetails().getCaseData());
     }
@@ -147,9 +150,19 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             return response;
         }
 
-        if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))) {
+        YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
+            .orElse(YesOrNo.NO);
+
+        if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
+            && hasServiceRequestAlready != YesOrNo.YES) {
             try {
-                serviceRequestService.createServiceRequest(callback, fee);
+                ServiceRequestResponse serviceRequestResponse = serviceRequestService
+                    .createServiceRequest(callback, fee);
+                if (serviceRequestResponse.getServiceRequestReference() != null) {
+                    asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
+                } else {
+                    asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
+                }
             } catch (Exception e) {
                 response.addErrors(Collections.singleton("Cannot create Service Request."));
                 return response;
