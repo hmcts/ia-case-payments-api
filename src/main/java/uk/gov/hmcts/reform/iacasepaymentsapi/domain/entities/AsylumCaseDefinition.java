@@ -73,7 +73,10 @@ public enum AsylumCaseDefinition {
     JOURNEY_TYPE(
         "journeyType", new TypeReference<JourneyType>(){}),
     REMISSION_TYPE(
-        "remissionType", new TypeReference<RemissionType>(){});
+        "remissionType", new TypeReference<RemissionType>(){}),
+    HAS_SERVICE_REQUEST_ALREADY(
+        "hasServiceRequestAlready", new TypeReference<YesOrNo>(){}),
+    ;
 
     private final String value;
     private final TypeReference typeReference;
