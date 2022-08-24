@@ -338,7 +338,8 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
 
   implementation group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4'
-
+  // CVE-2022-22978
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: versions.springSecurity
 
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
 
