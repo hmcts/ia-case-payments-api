@@ -13,12 +13,13 @@
   <suppress until="2030-01-01">
     <notes><![CDATA[
              False positive.
-             These three vulnerabilities actually affect Spring Security, but dependencyCheck is mixing them up with spring-boot-starter-oauth2-resource-server.
-             Resolution of these false positives is available through Gradle upgrade to v. 7.1.1+ (currently it's 6.9)
+             These vulnerabilities actually affect Spring Security, but dependencyCheck is mixing them up with spring-boot-starter-oauth2-resource-server.
+             Resolution of these false positives hasn't been resolved yet in the latest dependencyCheck upgrade.
              https://github.com/jeremylong/DependencyCheck/issues/3622
             ]]>
     </notes>
     <cve>CVE-2022-22978</cve>
+    <cve>CVE-2022-22976</cve>
     <cve>CVE-2018-1258</cve>
     <cve>CVE-2021-22112</cve>
   </suppress>
