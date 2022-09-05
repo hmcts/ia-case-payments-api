@@ -234,7 +234,7 @@ def versions = [
   junit           : '5.7.0',
   junitPlatform   : '1.7.2',
   reformLogging   : '5.1.7',
-  springBoot      : '2.7.1',
+  springBoot      : '2.7.3',
   springDoc       : '1.6.8',
   pact_version    : '4.1.7',
   serenity        : '3.1.20',
@@ -272,6 +272,9 @@ dependencyManagement {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
     }
+
+    //CVE-2022-25857
+    dependency group: 'org.yaml', name: 'snakeyaml', version: '1.31'
   }
 }
 
