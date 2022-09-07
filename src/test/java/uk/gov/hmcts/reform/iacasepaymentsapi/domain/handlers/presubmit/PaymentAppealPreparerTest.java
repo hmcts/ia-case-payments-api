@@ -394,11 +394,6 @@ class PaymentAppealPreparerTest {
     @Test
     void handling_should_throw_if_cannot_actually_handle() {
 
-        assertThatThrownBy(() -> paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Cannot handle callback");
-
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         assertThatThrownBy(() -> paymentAppealPreparer
             .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback))
@@ -501,7 +496,8 @@ class PaymentAppealPreparerTest {
                                 boolean isLegalRepJourney) {
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && (callback.getEvent() == Event.SUBMIT_APPEAL
-                   || callback.getEvent() == Event.GENERATE_SERVICE_REQUEST)
+                   || callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
+                   || callback.getEvent() == Event.RECORD_REMISSION_DECISION)
                && isLegalRepJourney;
     }
 }
