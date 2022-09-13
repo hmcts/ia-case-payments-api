@@ -268,7 +268,8 @@ def versions = [
   springBoot      : '2.6.3',
   springfoxSwagger: '2.9.2',
   pact_version    : '4.1.7',
-  serenity        : '2.2.12'
+  serenity        : '2.2.12',
+  springDoc       : '1.6.8'
 ]
 
 ext.libraries = [
@@ -314,6 +315,8 @@ dependencies {
 
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
+
+  implementation group:  'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
   implementation group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4'
 
