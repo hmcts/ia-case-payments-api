@@ -6,6 +6,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callba
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PostSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.ErrorHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.FeesHelper;
@@ -48,7 +48,11 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
     ) {
         requireNonNull(callback, "callback must not be null");
 
-        return callback.getEvent() == Event.SUBMIT_APPEAL;
+        return Arrays.asList(
+            Event.SUBMIT_APPEAL,
+            Event.GENERATE_SERVICE_REQUEST,
+            Event.RECORD_REMISSION_DECISION
+        ).contains(callback.getEvent());
     }
 
     public PostSubmitCallbackResponse handle(
@@ -65,8 +69,8 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
             && hasNoRemission(asylumCase)) {
             try {
-                ServiceRequestResponse serviceRequestResponse = serviceRequestService
-                    .createServiceRequest(callback, fee);
+                serviceRequestService.createServiceRequest(callback, fee);
+
             } catch (Exception e) {
                 errorHandling.ifPresent(asylumCaseErrorHandler -> asylumCaseErrorHandler.accept(callback, e));
             }

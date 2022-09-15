@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.*;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackResponse;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.PostSubmitCallbackDispatcher;
 
 @Api(
@@ -56,7 +58,7 @@ public class PostSubmitCallbackController {
         @ApiResponse(
             code = 200,
             message = "Optional confirmation text for CCD",
-            response = PreSubmitCallbackResponse.class
+            response = PostSubmitCallbackResponse.class
         ),
         @ApiResponse(
             code = 400,
