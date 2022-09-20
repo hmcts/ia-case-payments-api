@@ -83,9 +83,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
+
+        List<Event> waysToPayEvents = List.of(Event.SUBMIT_APPEAL,
+                                              Event.GENERATE_SERVICE_REQUEST,
+                                              Event.RECORD_REMISSION_DECISION);
+
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-               && (callback.getEvent() == Event.SUBMIT_APPEAL
-                   || callback.getEvent() == Event.GENERATE_SERVICE_REQUEST)
+               && waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
                && isHuOrEaOrPa(callback.getCaseDetails().getCaseData());
     }
@@ -108,13 +112,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         PreSubmitCallbackResponse<AsylumCase> response =
             new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
 
-        Optional<RemissionType> optRemissionType = asylumCase.read(REMISSION_TYPE, RemissionType.class);
-        Optional<RemissionDecision> optionalRemissionDecision =
-            asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
-        if ((optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
-            || optRemissionType.isEmpty()
-            || (optionalRemissionDecision.isPresent() && optionalRemissionDecision.get() == RemissionDecision.REJECTED)
-        ) {
+        if (hasNoRemission(asylumCase)) {
 
             try {
 
@@ -154,6 +152,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             .orElse(YesOrNo.NO);
 
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
+            && hasNoRemission(asylumCase)
             && hasServiceRequestAlready != YesOrNo.YES) {
             try {
                 ServiceRequestResponse serviceRequestResponse = serviceRequestService
@@ -188,5 +187,16 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                 || appealType.equals(AppealType.PA);
         }
         return false;
+    }
+
+    private boolean hasNoRemission(AsylumCase asylumCase) {
+        Optional<RemissionType> optRemissionType = asylumCase.read(REMISSION_TYPE, RemissionType.class);
+        Optional<RemissionDecision> optionalRemissionDecision =
+            asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
+
+        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
+               || optRemissionType.isEmpty()
+               || (optionalRemissionDecision.isPresent()
+                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
     }
 }

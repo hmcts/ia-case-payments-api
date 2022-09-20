@@ -18,9 +18,19 @@
              https://github.com/jeremylong/DependencyCheck/issues/3622
             ]]>
     </notes>
+    <cve>CVE-2018-1258</cve>
+    <cve>CVE-2020-5408</cve>
+    <cve>CVE-2021-22112</cve>
     <cve>CVE-2022-22978</cve>
     <cve>CVE-2022-22976</cve>
-    <cve>CVE-2018-1258</cve>
-    <cve>CVE-2021-22112</cve>
+  </suppress>
+  <suppress until="2030-01-01">
+    <notes><![CDATA[
+             False positive.
+             This is addressed in snake yaml 1.32 revision, however CVEs DB is still not updated to reflect it.
+             https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081
+            ]]>
+    </notes>
+    <cve>CVE-2022-38752</cve>
   </suppress>
 </suppressions>
