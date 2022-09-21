@@ -93,9 +93,8 @@ security:
     - "/health/readiness"
     - "/loggers/**"
     - "/swagger-ui.html"
-    - "/swagger-resources/**"
-    - "/v2/api-docs"
-    - "/webjars/springfox-swagger-ui/**"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
     - "/favicon.ico"
     - "/csrf"
     - "/testing-support/**"
@@ -103,21 +102,21 @@ security:
     - "/service-request-update"
   roleEventAccess:
     citizen:
-    - "startAppeal"
-    - "editAppeal"
-    - "paymentAppeal"
+      - "startAppeal"
+      - "editAppeal"
+      - "paymentAppeal"
     caseworker-ia-legalrep-solicitor:
-    - "startAppeal"
-    - "submitAppeal"
-    - "editAppeal"
-    - "paymentAppeal"
-    - "payAndSubmitAppeal"
-    - "payForAppeal"
-    - "generateServiceRequest"
+      - "startAppeal"
+      - "submitAppeal"
+      - "editAppeal"
+      - "paymentAppeal"
+      - "payAndSubmitAppeal"
+      - "payForAppeal"
+      - "generateServiceRequest"
     caseworker-ia-admofficer:
-    - "recordRemissionDecision"
+      - "recordRemissionDecision"
     caseworker-ia-system:
-    - "updatePaymentStatus"
+      - "updatePaymentStatus"
 
 ### dependency configuration
 auth.idam.client.baseUrl: ${IDAM_URL:http://127.0.0.1:4501}

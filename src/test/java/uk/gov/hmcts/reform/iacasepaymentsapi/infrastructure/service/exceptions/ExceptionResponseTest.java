@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ class ExceptionResponseTest {
 
         assertEquals(exceptionResponse.getErrorMessage(), errorMessage);
         assertEquals(exceptionResponse.getErrorCode(), errorCode);
-        assertEquals(exceptionResponse.getTimestamp(), localDateTime);
+        assertTrue(exceptionResponse.getTimestamp().isBefore(LocalDateTime.now())
+                   || exceptionResponse.getTimestamp().isEqual(LocalDateTime.now()));
     }
 }
