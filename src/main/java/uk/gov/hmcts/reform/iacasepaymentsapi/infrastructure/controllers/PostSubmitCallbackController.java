@@ -24,7 +24,11 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSu
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.PostSubmitCallbackDispatcher;
 
 @Tag(name = "Asylum Service")
-@OpenAPIDefinition(tags = {@Tag(name = "PostSubmitCallbackController", description = "Handle 'SubmittedEvent' callbacks from CCD")})
+@OpenAPIDefinition(tags = {
+    @Tag(
+        name = "PostSubmitCallbackController",
+        description = "Handle 'SubmittedEvent' callbacks from CCD")
+})
 @RequestMapping(
     path = "/asylum",
     consumes = MediaType.APPLICATION_JSON_VALUE,
