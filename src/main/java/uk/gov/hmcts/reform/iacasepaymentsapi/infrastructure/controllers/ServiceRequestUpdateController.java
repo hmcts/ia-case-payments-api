@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers;
 
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +17,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDeta
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestUpdateDto;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 
-@Api(tags = {"Update service request controller"})
-@SwaggerDefinition(tags = {@Tag(name = "ServiceRequestUpdateController", description = "Update service request")})
+@Tag(name = "Update service request controller")
+@OpenAPIDefinition(tags = {@Tag(name = "ServiceRequestUpdateController", description = "Update service request")})
 @RestController
 @Slf4j
 public class ServiceRequestUpdateController {
@@ -37,10 +35,12 @@ public class ServiceRequestUpdateController {
     @PutMapping(path = "/service-request-update",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Ways to pay will call this API and send the status of payment with other details")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Callback processed."),
-        @ApiResponse(code = 400, message = "Bad Request")})
+    @Operation(
+        summary = "Ways to pay will call this API and send the status of payment with other details",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Callback processed."),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+        })
     public ResponseEntity<SubmitEventDetails> serviceRequestUpdate(
         @RequestBody ServiceRequestUpdateDto serviceRequestUpdateDto) {
 
