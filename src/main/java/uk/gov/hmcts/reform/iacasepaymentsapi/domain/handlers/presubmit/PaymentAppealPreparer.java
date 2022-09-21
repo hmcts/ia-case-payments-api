@@ -34,7 +34,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSub
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
@@ -148,26 +147,16 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             return response;
         }
 
+        asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
+
         YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
             .orElse(YesOrNo.NO);
 
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
-            && hasNoRemission(asylumCase)
             && hasServiceRequestAlready != YesOrNo.YES) {
-            try {
-                ServiceRequestResponse serviceRequestResponse = serviceRequestService
-                    .createServiceRequest(callback, fee);
-                if (serviceRequestResponse.getServiceRequestReference() != null) {
-                    asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
-                } else {
-                    asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
-                }
-            } catch (Exception e) {
-                response.addErrors(Collections.singleton("Cannot create Service Request."));
-                return response;
-            }
+
+            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
         }
-        asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
 
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
