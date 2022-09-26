@@ -76,6 +76,8 @@ public enum AsylumCaseDefinition {
         "remissionType", new TypeReference<RemissionType>(){}),
     HAS_SERVICE_REQUEST_ALREADY(
         "hasServiceRequestAlready", new TypeReference<YesOrNo>(){}),
+    IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS(
+        "isServiceRequestTabVisibleConsideringRemissions", new TypeReference<YesOrNo>(){}),
     ;
 
     private final String value;
