@@ -3,8 +3,10 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.postsubmit;
 import static java.util.Objects.requireNonNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +21,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackStage;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PostSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.ErrorHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.FeesHelper;
@@ -66,8 +70,17 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
 
         Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
 
+        YesOrNo requestFeeRemissionFlagForServiceRequest =
+            asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)
+            .orElse(YesOrNo.NO);
+
+        PaymentStatus paymentStatus = asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)
+            .orElse(PaymentStatus.PAYMENT_PENDING);
+
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
-            && hasNoRemission(asylumCase)) {
+            && hasNoRemission(asylumCase)
+            && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
+            && paymentStatus != PaymentStatus.PAID) {
             try {
                 serviceRequestService.createServiceRequest(callback, fee);
 

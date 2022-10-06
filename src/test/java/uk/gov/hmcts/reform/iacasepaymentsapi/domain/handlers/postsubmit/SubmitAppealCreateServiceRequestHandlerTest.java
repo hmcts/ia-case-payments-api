@@ -11,8 +11,10 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType.NO_REMISSION;
 
 import java.math.BigDecimal;
@@ -33,8 +35,10 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackStage;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeType;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.ErrorHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
@@ -74,6 +78,10 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
@@ -96,6 +104,10 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
@@ -118,6 +130,10 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
