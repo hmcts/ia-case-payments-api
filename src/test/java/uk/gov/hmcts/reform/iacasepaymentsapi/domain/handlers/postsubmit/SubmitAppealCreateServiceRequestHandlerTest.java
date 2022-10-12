@@ -131,6 +131,10 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class))
+            .thenReturn(Optional.of(YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
