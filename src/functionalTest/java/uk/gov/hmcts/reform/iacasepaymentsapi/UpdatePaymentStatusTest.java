@@ -8,6 +8,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .build();
     }
 
+    @Ignore
     @Test
     public void should_update_payment_status_successfully_with_status_code_200() {
 
@@ -56,6 +58,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
         assertEquals(response.getStatusCode(), 200);
     }
 
+    @Ignore
     @Test
     public void should_fail_on_invalid_payment_reference_with_status_code_400() {
 
