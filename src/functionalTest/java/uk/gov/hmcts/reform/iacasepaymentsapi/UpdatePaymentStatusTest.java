@@ -41,8 +41,8 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .build();
     }
 
-    @Ignore
-    @Test
+
+    //@Test
     public void should_update_payment_status_successfully_with_status_code_200() {
 
         shouldPayAndSubmitAppeal();
@@ -58,8 +58,8 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
         assertEquals(response.getStatusCode(), 200);
     }
 
-    @Ignore
-    @Test
+
+   //@Test
     public void should_fail_on_invalid_payment_reference_with_status_code_400() {
 
         shouldPayAndSubmitAppeal();
