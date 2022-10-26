@@ -42,43 +42,43 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
     }
 
 
-    @Ignore
-    @Test
-    public void should_update_payment_status_successfully_with_status_code_200() {
-
-        shouldPayAndSubmitAppeal();
-
-        Response response = given(requestSpecification)
-            .when()
-            .contentType("application/json")
-            .body(getPaymentRequest())
-            .put("/payment-updates")
-            .then()
-            .extract().response();
-
-        assertEquals(response.getStatusCode(), 200);
-    }
-
-
-    @Ignore
-    @Test
-    public void should_fail_on_invalid_payment_reference_with_status_code_400() {
-
-        shouldPayAndSubmitAppeal();
-
-        PaymentDto paymentDto = getPaymentRequest();
-        paymentDto.setReference("RC-1111-2222-3333-4444");
-
-        Response response = given(requestSpecification)
-            .when()
-            .contentType("application/json")
-            .body(paymentDto)
-            .put("/payment-updates")
-            .then()
-            .extract().response();
-
-        assertEquals(response.getStatusCode(), 400);
-    }
+    //@Ignore
+    //@Test
+    //public void should_update_payment_status_successfully_with_status_code_200() {
+    //
+    //    shouldPayAndSubmitAppeal();
+    //
+    //    Response response = given(requestSpecification)
+    //        .when()
+    //        .contentType("application/json")
+    //        .body(getPaymentRequest())
+    //        .put("/payment-updates")
+    //        .then()
+    //        .extract().response();
+    //
+    //    assertEquals(response.getStatusCode(), 200);
+    //}
+    //
+    //
+    //@Ignore
+    //@Test
+    //public void should_fail_on_invalid_payment_reference_with_status_code_400() {
+    //
+    //    shouldPayAndSubmitAppeal();
+    //
+    //    PaymentDto paymentDto = getPaymentRequest();
+    //    paymentDto.setReference("RC-1111-2222-3333-4444");
+    //
+    //    Response response = given(requestSpecification)
+    //        .when()
+    //        .contentType("application/json")
+    //        .body(paymentDto)
+    //        .put("/payment-updates")
+    //        .then()
+    //        .extract().response();
+    //
+    //    assertEquals(response.getStatusCode(), 400);
+    //}
 
     private PaymentDto getPaymentRequest() {
 
