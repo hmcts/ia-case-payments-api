@@ -177,6 +177,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             .orElse(true);
     }
 
+
     private boolean isHuEaEuPa(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
