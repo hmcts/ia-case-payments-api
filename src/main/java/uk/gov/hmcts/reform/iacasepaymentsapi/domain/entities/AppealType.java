@@ -12,7 +12,8 @@ public enum AppealType {
     PA("protection"),
     EA("refusalOfEu"),
     HU("refusalOfHumanRights"),
-    DC("deprivation");
+    DC("deprivation"),
+    AG("ageAssessment");
 
     @JsonValue
     private String value;
