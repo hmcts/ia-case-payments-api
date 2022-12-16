@@ -183,9 +183,9 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
-            boolean isNonAdaOrNonDetained = asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class)
+            boolean isNonAda = asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class)
                 .orElse(YesOrNo.NO).equals(YesOrNo.NO);
-            return isNonAdaOrNonDetained && (List.of(HU, EA, EU, PA).contains(appealType));
+            return isNonAda && (List.of(HU, EA, EU, PA).contains(appealType));
         }
         return false;
     }
