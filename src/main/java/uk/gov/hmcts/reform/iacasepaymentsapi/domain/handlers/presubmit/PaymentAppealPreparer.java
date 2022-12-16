@@ -9,6 +9,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.P
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_PBA_ACCOUNTS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ACCELERATED_DETAINED_APPEAL;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
@@ -95,7 +96,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
-               && isHuEaEuPa(callback.getCaseDetails().getCaseData());
+               && isHuEaEuPaAda(callback.getCaseDetails().getCaseData());
     }
 
     @Override
@@ -178,11 +179,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     }
 
 
-    private boolean isHuEaEuPa(AsylumCase asylumCase) {
+    private boolean isHuEaEuPaAda(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
-            return List.of(HU, EA, EU, PA).contains(appealType);
+            boolean isNonAda = asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class)
+                .orElse(YesOrNo.NO).equals(YesOrNo.NO);
+            return isNonAda && (List.of(HU, EA, EU, PA).contains(appealType));
         }
         return false;
     }
