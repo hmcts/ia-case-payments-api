@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.AG;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
@@ -96,7 +97,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
-               && isHuEaEuPaAda(callback.getCaseDetails().getCaseData());
+               && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData());
     }
 
     @Override
@@ -179,13 +180,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     }
 
 
-    private boolean isHuEaEuPaAda(AsylumCase asylumCase) {
+    private boolean isHuEaEuPaAgAda(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
             boolean isNonAda = asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class)
                 .orElse(YesOrNo.NO).equals(YesOrNo.NO);
-            return isNonAda && (List.of(HU, EA, EU, PA).contains(appealType));
+            return isNonAda && (List.of(HU, EA, EU, PA, AG).contains(appealType));
         }
         return false;
     }
