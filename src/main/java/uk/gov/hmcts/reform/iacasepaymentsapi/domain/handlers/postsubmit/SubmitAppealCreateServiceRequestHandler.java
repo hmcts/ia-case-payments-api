@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.postsubmit;
 
 import static java.util.Objects.requireNonNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.AG;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
@@ -104,14 +105,14 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
 
         return waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
-               && isHuEaEuPa(callback.getCaseDetails().getCaseData());
+               && isHuEaEuPaAg(callback.getCaseDetails().getCaseData());
     }
 
-    private boolean isHuEaEuPa(AsylumCase asylumCase) {
+    private boolean isHuEaEuPaAg(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
-            return List.of(HU, EA, EU, PA).contains(appealType);
+            return List.of(HU, EA, EU, PA, AG).contains(appealType);
         }
         return false;
     }
