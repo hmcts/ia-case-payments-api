@@ -114,6 +114,7 @@ security:
       - "payForAppeal"
       - "generateServiceRequest"
     caseworker-ia-admofficer:
+      - "submitAppeal"
       - "recordRemissionDecision"
     caseworker-ia-system:
       - "updatePaymentStatus"
