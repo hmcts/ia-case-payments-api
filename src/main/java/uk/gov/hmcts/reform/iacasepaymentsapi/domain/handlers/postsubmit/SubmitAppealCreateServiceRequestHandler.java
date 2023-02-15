@@ -6,12 +6,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.E
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,10 +77,14 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
         PaymentStatus paymentStatus = asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)
             .orElse(PaymentStatus.PAYMENT_PENDING);
 
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
+
+
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
-            && paymentStatus != PaymentStatus.PAID) {
+            && paymentStatus != PaymentStatus.PAID
+            && isAdmin != YesOrNo.YES) {
             try {
                 serviceRequestService.createServiceRequest(callback, fee);
 
