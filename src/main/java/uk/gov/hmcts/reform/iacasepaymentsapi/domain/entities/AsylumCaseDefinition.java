@@ -82,6 +82,8 @@ public enum AsylumCaseDefinition {
         "requestFeeRemissionFlagForServiceRequest", new TypeReference<YesOrNo>(){}),
     IS_ACCELERATED_DETAINED_APPEAL(
         "isAcceleratedDetainedAppeal", new TypeReference<YesOrNo>(){}),
+    IS_ADMIN(
+        "isAdmin", new TypeReference<YesOrNo>(){})
     ;
 
     private final String value;
