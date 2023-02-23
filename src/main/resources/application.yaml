@@ -116,6 +116,7 @@ security:
     caseworker-ia-admofficer:
       - "startAppeal"
       - "submitAppeal"
+      - "editAppeal"
       - "generateServiceRequest"
       - "recordRemissionDecision"
     caseworker-ia-system:
