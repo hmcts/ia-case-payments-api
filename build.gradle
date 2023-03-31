@@ -374,6 +374,8 @@ dependencies {
   annotationProcessor 'org.projectlombok:lombok:1.18.12'
   implementation 'org.projectlombok:lombok:1.18.12'
 
+  testCompile group: 'org.springframework.security', name: 'spring-security-test', version: versions.springSecurity
+
   testImplementation libraries.junit5
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
