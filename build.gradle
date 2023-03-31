@@ -409,9 +409,9 @@ dependencies {
 
   contractTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
 
-  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.3'
-  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
-  contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
+  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
+  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+  contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
 
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
