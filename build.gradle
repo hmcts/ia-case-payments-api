@@ -258,8 +258,18 @@ dependencyManagement {
     // CVE-2021-22060, CVE-2022-22965, CVE-2022-22950, CVE-2022-22971, CVE-2022-22968, CVE-2022-22970
     dependency(group: 'org.springframework', name: 'spring-core', version: '5.3.22')
 
-    //CVE-2021-22119
-    dependency group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
+
+    dependencySet(group: 'org.springframework.security', version: '5.7.5') {
+      entry 'spring-security-crypto'
+      entry 'spring-security-core'
+      entry 'spring-security-config'
+      entry 'spring-security-web'
+      entry 'spring-security-test'
+      entry 'spring-security-oauth2-client'
+      entry 'spring-security-oauth2-core'
+      entry 'spring-security-oauth2-jose'
+      entry 'spring-security-oauth2-resource-server'
+    }
 
     //CVE-2021-42550
     dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
@@ -333,10 +343,10 @@ dependencies {
 
   implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
 
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.3'
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.13.3'
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
@@ -361,7 +371,6 @@ dependencies {
   testImplementation libraries.junit5
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
-  testImplementation group: 'org.springframework.security', name: 'spring-security-test', version: '5.7.1'
 
   testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.6.28'
   testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
