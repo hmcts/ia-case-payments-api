@@ -1,16 +1,25 @@
-variable "product" {}
+variable "product" {
+  default = ""
+}
 
-variable "component" {}
-
+variable "component" {
+  default = ""
+}
 variable "location" {
   default = "UK South"
 }
 
-variable "env" {}
+variable "env" {
+  default = ""
+}
 
-variable "subscription" {}
+variable "subscription" {
+  default = ""
+}
 
-variable "deployment_namespace" {}
+variable "deployment_namespace" {
+  default = ""
+}
 
 variable "common_tags" {
   type = map(string)
