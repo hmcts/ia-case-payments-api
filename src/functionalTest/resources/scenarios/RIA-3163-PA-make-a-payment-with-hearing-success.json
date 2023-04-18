@@ -14,7 +14,7 @@
           "appealType": "protection",
           "decisionHearingFeeOption": "decisionWithHearing",
           "homeOfficeDecisionDate": "{$TODAY-14}",
-          "paymentAccountList": "PBA0087535",
+          "paymentAccountList": "PBAFUNC12345",
           "homeOfficeReferenceNumber": "A123456",
           "paymentDescription": "An IA pba test payment",
           "customerReference": "543232",
@@ -31,7 +31,7 @@
       "replacements": {
         "appealType": "protection",
         "homeOfficeDecisionDate": "{$TODAY-14}",
-        "paymentAccountList":"PBA0087535",
+        "paymentAccountList":"PBAFUNC12345",
         "feeCode":"FEE0238",
         "feeVersion":"2",
         "feeAmountGbp":"14000",
