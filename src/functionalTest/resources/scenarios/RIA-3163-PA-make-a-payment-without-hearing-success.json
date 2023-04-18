@@ -1,6 +1,5 @@
 {
   "description": "RIA-3163 Success for make a payment without a hearing (PA appeal type) at case building state - PBA0087535",
-  "enabled": true,
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
     "credentials": "LegalRepresentativeOrgSuccess",
@@ -14,7 +13,7 @@
           "appealType": "protection",
           "decisionHearingFeeOption": "decisionWithoutHearing",
           "homeOfficeDecisionDate": "{$TODAY-14}",
-          "paymentAccountList": "PBA0087535",
+          "paymentAccountList": "PBAFUNC12345",
           "homeOfficeReferenceNumber": "A123456",
           "paymentDescription": "An IA pba test payment",
           "customerReference": "543232",
@@ -31,7 +30,7 @@
       "replacements": {
         "appealType": "protection",
         "homeOfficeDecisionDate": "{$TODAY-14}",
-        "paymentAccountList":"PBA0087535",
+        "paymentAccountList":"PBAFUNC12345",
         "feeCode":"FEE0372",
         "feeVersion":"2",
         "feeAmountGbp":"8000",
