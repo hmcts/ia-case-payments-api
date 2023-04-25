@@ -11,6 +11,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_PBA_ACCOUNTS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ACCELERATED_DETAINED_APPEAL;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
@@ -155,13 +156,14 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         }
 
         asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
-
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
         YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
             .orElse(YesOrNo.NO);
 
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
             && hasServiceRequestAlready != YesOrNo.YES
-            && hasNoRemission(asylumCase)) {
+            && hasNoRemission(asylumCase)
+            && isAdmin != YesOrNo.YES) {
 
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
 
