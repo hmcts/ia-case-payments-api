@@ -156,12 +156,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         }
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
+
         if (callback.getEvent() != Event.RECORD_REMISSION_DECISION
             || (callback.getEvent() == Event.RECORD_REMISSION_DECISION
                 && asylumCase.read(PAYMENT_STATUS).isEmpty())) {
             asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
         }
-        
+
         YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
             .orElse(YesOrNo.NO);
 
