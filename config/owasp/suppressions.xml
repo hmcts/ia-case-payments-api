@@ -4,7 +4,7 @@
     <notes><![CDATA[
       This vulnerability is about potential Remote Code Execution when serializing and deserializing Java classes
       using HttpInvokerServiceExport and org.springframework.remoting.
-      As we don't use those constructs, we're not affected by it.
+      As we don't use those constructs, we are not affected by it.
       The suppression will be a long-term one. An expiry to the suppression is kept to allow re-evaluating whether
       we're still unaffected by it.
       ]]></notes>
@@ -19,10 +19,11 @@
       If it still happens, check that we don't use hutool-json and json-java. If we don't, extend the suppression date by another year.
       ]]</notes>
     <cve>CVE-2022-45688</cve>
+  </suppress>
+  <suppress until="2023-07-30">
     <cve>CVE-2023-20883</cve>
-    <cve>CVE-2023-2976</cve>
     <cve>CVE-2023-35116</cve>
+    <cve>CVE-2023-2976</cve>
     <cve>CVE-2023-34981</cve>
   </suppress>
-
 </suppressions>
