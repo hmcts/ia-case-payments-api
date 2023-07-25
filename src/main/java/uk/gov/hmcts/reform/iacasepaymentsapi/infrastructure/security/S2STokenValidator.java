@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
@@ -24,7 +23,6 @@ public class S2STokenValidator {
     @Value("${idam.s2s-authorised.services}")
     private final List<String> iaS2sAuthorisedServices;
 
-    @Autowired
     private final AuthTokenValidator authTokenValidator;
 
     public boolean checkIfServiceIsAllowed(String token) throws InvalidTokenException {

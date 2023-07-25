@@ -47,6 +47,7 @@ idam:
     totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
     microservice: ${IA_S2S_MICROSERVICE:ia}
     url: ${S2S_URL:http://127.0.0.1:4502}
+    services-allowed-to-payment-update: ${SERVICES_ALLOWED_TO_PAYMENT_UPDATE:payment_app}
   s2s-authorised:
     services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
 
