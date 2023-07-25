@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SecurityUtilsTest {
+public class S2STokenValidatorTest {
 
     private static final List<String> IA_S2S_AUTH_SERVICES = List.of("iac,payment_app");
 
