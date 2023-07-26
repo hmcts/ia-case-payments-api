@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 
@@ -25,24 +27,19 @@ public class S2STokenValidator {
 
     private final AuthTokenValidator authTokenValidator;
 
-    public boolean checkIfServiceIsAllowed(String token) throws InvalidTokenException {
+    public void checkIfServiceIsAllowed(String token) {
         String serviceName = authenticate(token);
-        if (Objects.nonNull(serviceName)) {
-            return iaS2sAuthorisedServices.contains(serviceName);
-        } else {
-            log.warn("Service name from S2S token ('ServiceAuthorization' header) is null");
-            return false;
+        if (!Objects.nonNull(serviceName)) {
+            throw new AccessDeniedException("Service name from S2S token ('ServiceAuthorization' header) is null");
+        }
+        if (!iaS2sAuthorisedServices.contains(serviceName)) {
+            log.error("Service name '{}' was not recognised for S2S authentication. Please check s2s-authorised.services in application.yaml", serviceName);
+            throw new AccessDeniedException("Service name from S2S token ('ServiceAuthorization' header) is not recognised.");
         }
     }
 
-    private String authenticate(String authHeader) throws InvalidTokenException {
-        if (isBlank(authHeader)) {
-            throw new InvalidTokenException("Provided S2S token is missing or invalid");
-        }
-
+    private String authenticate(String authHeader) {
         String bearerAuthToken = getBearerToken(authHeader);
-
-        log.info("S2S token found in the request");
         return authTokenValidator.getServiceName(bearerAuthToken);
     }
 
