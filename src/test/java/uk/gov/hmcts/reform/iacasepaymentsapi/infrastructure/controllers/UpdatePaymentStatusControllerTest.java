@@ -23,6 +23,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
@@ -79,24 +80,14 @@ class UpdatePaymentStatusControllerTest {
     @Test
     void should_error_when_the_s2s_token_is_invalid() {
         doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
-
-        ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(INVALID_S2S_TOKEN, paymentDto);
-
-        assertNotNull(responseEntity);
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-
+        assertThrows(AccessDeniedException.class, () -> updatePaymentStatusController.updatePaymentStatus(INVALID_S2S_TOKEN, paymentDto));
         verify(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
     }
 
     @Test
     void should_error_when_the_s2s_token_is_null() {
-        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
-
-        ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(null, paymentDto);
-
-        assertNotNull(responseEntity);
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-
+        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(null);
+        assertThrows(AccessDeniedException.class, () -> updatePaymentStatusController.updatePaymentStatus(null, paymentDto));
         verify(s2STokenValidator).checkIfServiceIsAllowed(null);
     }
 
