@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +60,6 @@ class UpdatePaymentStatusControllerTest {
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
         when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
             .thenReturn(getSubmitEventResponse());
-        when(s2STokenValidator.checkIfServiceIsAllowed(VALID_S2S_TOKEN)).thenReturn(true);
 
         ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto);
 
@@ -78,7 +79,7 @@ class UpdatePaymentStatusControllerTest {
 
     @Test
     void should_error_when_the_s2s_token_is_invalid() {
-        when(s2STokenValidator.checkIfServiceIsAllowed(INVALID_S2S_TOKEN)).thenReturn(false);
+        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
 
         ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(INVALID_S2S_TOKEN, paymentDto);
 
@@ -89,20 +90,8 @@ class UpdatePaymentStatusControllerTest {
     }
 
     @Test
-    void should_error_when_the_s2s_token_is_empty() {
-        when(s2STokenValidator.checkIfServiceIsAllowed("")).thenThrow(InvalidTokenException.class);
-
-        ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus("", paymentDto);
-
-        assertNotNull(responseEntity);
-        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
-
-        verify(s2STokenValidator).checkIfServiceIsAllowed("");
-    }
-
-    @Test
     void should_error_when_the_s2s_token_is_null() {
-        when(s2STokenValidator.checkIfServiceIsAllowed(null)).thenReturn(false);
+        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
 
         ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(null, paymentDto);
 
@@ -118,7 +107,6 @@ class UpdatePaymentStatusControllerTest {
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
         when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
             .thenThrow(ResponseStatusException.class);
-        when(s2STokenValidator.checkIfServiceIsAllowed(VALID_S2S_TOKEN)).thenReturn(true);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto))
             .isExactlyInstanceOf(ResponseStatusException.class);
@@ -132,7 +120,6 @@ class UpdatePaymentStatusControllerTest {
         when(paymentDto.getCcdCaseNumber()).thenReturn("1001");
         when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
             .thenThrow(BadRequestException.class);
-        when(s2STokenValidator.checkIfServiceIsAllowed(VALID_S2S_TOKEN)).thenReturn(true);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto))
             .isExactlyInstanceOf(BadRequestException.class);

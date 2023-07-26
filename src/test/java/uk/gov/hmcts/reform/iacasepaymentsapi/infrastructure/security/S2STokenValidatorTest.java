@@ -5,17 +5,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class S2STokenValidatorTest {
+class S2STokenValidatorTest {
 
     private static final List<String> IA_S2S_AUTH_SERVICES = List.of("iac,payment_app");
 
@@ -30,19 +30,19 @@ public class S2STokenValidatorTest {
     }
 
     @Test
-    public void givenServiceNameIsValid() {
+    void givenServiceNameIsValid() {
         when(authTokenValidator.getServiceName("Bearer payment_app")).thenReturn("payment_app");
-        assertEquals(Boolean.FALSE, s2STokenValidator.checkIfServiceIsAllowed("payment_app"));
+        assertThrows(AccessDeniedException.class, () -> s2STokenValidator.checkIfServiceIsAllowed("payment_app"));
     }
 
     @Test
-    public void givenServiceNameIsNullFromToken() {
+    void givenServiceNameIsNullFromToken() {
         when(authTokenValidator.getServiceName("Bearer TestService")).thenReturn(null);
-        assertEquals(Boolean.FALSE, s2STokenValidator.checkIfServiceIsAllowed("TestService"));
+        assertThrows(AccessDeniedException.class, () -> s2STokenValidator.checkIfServiceIsAllowed("TestService"));
     }
 
     @Test
-    public void givenServiceNameIsEmptyFromToken() throws InvalidTokenException {
+    void givenServiceNameIsEmptyFromToken() throws InvalidTokenException {
         assertThrows(InvalidTokenException.class, () -> s2STokenValidator.checkIfServiceIsAllowed(""));
     }
 }

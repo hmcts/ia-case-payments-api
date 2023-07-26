@@ -73,31 +73,16 @@ public class UpdatePaymentStatusController {
         @RequestHeader(value = SERVICE_AUTHORIZATION_HEADER) String s2sAuthToken,
         @RequestBody PaymentDto paymentDto
     ) {
-        try {
-            if (s2STokenValidator.checkIfServiceIsAllowed(s2sAuthToken)) {
-                String caseId = paymentDto.getCcdCaseNumber();
+        s2STokenValidator.checkIfServiceIsAllowed(s2sAuthToken);
 
-                CaseMetaData caseMetaData =
-                    new CaseMetaData(
-                        Event.UPDATE_PAYMENT_STATUS,
-                        JURISDICTION,
-                        CASE_TYPE,
-                        Long.parseLong(caseId),
-                        paymentDto.getStatus(),
-                        paymentDto.getReference()
-                    );
+        String caseId = paymentDto.getCcdCaseNumber();
 
-                SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false);
-                return ResponseEntity.status(response.getCallbackResponseStatusCode()).body(response);
-            } else {
-                log.info("Calling Service is not authorised to use the endpoint");
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } catch (InvalidTokenException e) {
-            log.error(e.getMessage());
-            log.info("Provided s2s token is missing or invalid");
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+        CaseMetaData caseMetaData =
+            new CaseMetaData(Event.UPDATE_PAYMENT_STATUS, JURISDICTION,
+                CASE_TYPE, Long.parseLong(caseId), paymentDto.getStatus(), paymentDto.getReference());
+
+        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false);
+        return ResponseEntity.status(response.getCallbackResponseStatusCode()).body(response);
     }
 
 }
