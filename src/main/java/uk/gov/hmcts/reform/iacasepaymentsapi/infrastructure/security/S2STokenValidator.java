@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
-import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
+import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class S2STokenValidator {
     @Value("${idam.s2s-authorised.services}")
     private final List<String> iaS2sAuthorisedServices;
 
-    private final ServiceAuthTokenValidator authTokenValidator;
+    private final AuthTokenValidator authTokenValidator;
 
     public boolean checkIfServiceIsAllowed(String token) throws InvalidTokenException {
         String serviceName = authenticate(token);
