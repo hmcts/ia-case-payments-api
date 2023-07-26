@@ -18,19 +18,8 @@ import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
 public class ServiceTokenValidatorConfiguration {
 
     @Bean
-    public ServiceAuthTokenGenerator serviceAuthTokenGenerator(@Value("${service.auth.provider.base.url}")
-                                                                       String s2sUrl,
-                                                               @Value("${s2s.auth.totp.secret}") String secret,
-                                                               @Value("${service.name}") String microservice) {
-        final ServiceAuthorisationApi serviceAuthorisationApi = Feign.builder()
-                .encoder(new JacksonEncoder())
-                .contract(new SpringMvcContract())
-                .target(ServiceAuthorisationApi.class, s2sUrl);
-        return new ServiceAuthTokenGenerator(secret, microservice, serviceAuthorisationApi);
-    }
-
-    @Bean
     public AuthTokenValidator tokenValidator(ServiceAuthorisationApi s2sApi) {
         return new ServiceAuthTokenValidator(s2sApi);
     }
+
 }
