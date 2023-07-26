@@ -49,10 +49,6 @@ public class UpdatePaymentStatusController {
                     description = "Bad Request",
                     content = @Content(schema = @Schema(implementation = String.class))),
                 @ApiResponse(
-                    responseCode = "401",
-                    description = "Provided S2S token is missing or invalid",
-                    content = @Content(schema = @Schema(implementation = String.class))),
-                @ApiResponse(
                     responseCode = "403",
                     description = "Calling service is not authorised to use the endpoint",
                     content = @Content(schema = @Schema(implementation = String.class))),
