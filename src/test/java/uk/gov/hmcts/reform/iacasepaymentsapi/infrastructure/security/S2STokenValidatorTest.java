@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
-import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 
 import java.util.List;
@@ -42,7 +41,7 @@ class S2STokenValidatorTest {
     }
 
     @Test
-    void givenServiceNameIsEmptyFromToken() throws InvalidTokenException {
-        assertThrows(InvalidTokenException.class, () -> s2STokenValidator.checkIfServiceIsAllowed(""));
+    void givenServiceNameIsEmptyFromToken() {
+        assertThrows(AccessDeniedException.class, () -> s2STokenValidator.checkIfServiceIsAllowed(""));
     }
 }
