@@ -70,7 +70,7 @@ public class UpdatePaymentStatusController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SubmitEventDetails> updatePaymentStatus(
-        @RequestHeader(value = SERVICE_AUTHORIZATION_HEADER) String s2sAuthToken,
+        @RequestHeader(value = SERVICE_AUTHORIZATION_HEADER, required = true) String s2sAuthToken,
         @RequestBody PaymentDto paymentDto
     ) {
         try {
