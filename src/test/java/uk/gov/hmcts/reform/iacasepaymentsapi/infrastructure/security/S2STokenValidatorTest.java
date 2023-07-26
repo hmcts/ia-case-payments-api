@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
-import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class S2STokenValidatorTest {
     private static final List<String> IA_S2S_AUTH_SERVICES = List.of("iac,payment_app");
 
     @Mock
-    private AuthTokenValidator authTokenValidator;
+    private ServiceAuthTokenValidator authTokenValidator;
 
     private S2STokenValidator s2STokenValidator;
 
