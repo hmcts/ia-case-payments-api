@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
