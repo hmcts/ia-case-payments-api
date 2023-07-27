@@ -5,17 +5,21 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 
 import java.math.BigDecimal;
 
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.ID;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
+
 @SuperBuilder
 public class PaymentDtoForTest extends PaymentDto {
 
     public static PaymentDtoBuilder generateValid() {
         return builder()
-            .id("1234")
+            .id(ID)
             .amount(BigDecimal.valueOf(140))
             .description("Payment status update")
-            .reference("RC-1627-5070-9329-7815")
+            .reference(PAYMENT_STATUS_UPDATE_CASE_REFERENCE)
             .currency("GBP")
-            .ccdCaseNumber("1627506765384547")
+            .ccdCaseNumber(CCD_CASE_NUMBER)
             .channel("online")
             .method("card")
             .externalProvider("gov pay")

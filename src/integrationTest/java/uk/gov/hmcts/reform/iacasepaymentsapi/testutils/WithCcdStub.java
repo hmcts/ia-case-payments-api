@@ -10,6 +10,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
 
 public interface WithCcdStub {
 
@@ -19,7 +21,7 @@ public interface WithCcdStub {
         server.addStubMapping(
             new StubMapping(
                 newRequestPattern(GET, urlEqualTo("/ccd/caseworkers//jurisdictions/IA/case-types"
-                        + "/Asylum/cases/1627506765384547/event-triggers/updatePaymentStatus"
+                        + "/Asylum/cases/" + CCD_CASE_NUMBER + "/event-triggers/updatePaymentStatus"
                         + "/token?ignore-warning=true"))
                     .build(),
                 aResponse()
@@ -36,7 +38,7 @@ public interface WithCcdStub {
     default void addCcdUpdatePaymentStatusEventStub(WireMockServer server) throws JsonProcessingException {
         server.addStubMapping(
             new StubMapping(
-                newRequestPattern(POST, urlEqualTo("/ccd/cases/1627506765384547/events"))
+                newRequestPattern(POST, urlEqualTo("/ccd/cases/" + CCD_CASE_NUMBER + "/events"))
                     .build(),
                 aResponse()
                     .withStatus(200)
@@ -44,7 +46,7 @@ public interface WithCcdStub {
                     .withBody(mapper.writeValueAsString(
                         CaseDataContentForTest.generateValidUpdatePaymentStatus(
                             "Success",
-                            "RC-1627-5070-9329-7815",
+                            PAYMENT_STATUS_UPDATE_CASE_REFERENCE,
                             "integrationCcdEventToken"
                         )))
                     .build()

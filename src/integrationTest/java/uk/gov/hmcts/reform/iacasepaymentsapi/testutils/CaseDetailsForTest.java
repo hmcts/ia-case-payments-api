@@ -8,6 +8,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 
 import java.time.LocalDateTime;
 
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.JURISDICTION;
+
 @Data
 public class CaseDetailsForTest {
 
@@ -34,7 +37,7 @@ public class CaseDetailsForTest {
         }
 
         private long id = 1;
-        private String jurisdiction = "ia";
+        private String jurisdiction = JURISDICTION;
         private State state;
         private AsylumCase caseData;
         private LocalDateTime createdDate = LocalDateTime.now();
@@ -83,8 +86,8 @@ public class CaseDetailsForTest {
 
     public static CaseDetails<AsylumCase> generateValidCaseDetailWithAsylumCase() {
         return new CaseDetails<>(
-            1627506765384547L,
-            "IA",
+            Long.parseLong(CCD_CASE_NUMBER),
+            JURISDICTION,
             State.PENDING_PAYMENT,
             AsylumCaseForTest.generateValidPaymentStatusAsylumCase()
         );

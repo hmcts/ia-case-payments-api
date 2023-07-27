@@ -5,14 +5,18 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDeta
 
 import java.util.HashMap;
 
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.ID;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.JURISDICTION;
+
 public class SubmitEventDetailsForTest extends SubmitEventDetails {
 
     public static SubmitEventDetails generateValidPaymentUpdateEvent() {
         return new SubmitEventDetails(
-            1234L,
-            "IA",
+            Long.parseLong(ID),
+            JURISDICTION,
             State.PENDING_PAYMENT,
-            generateEventData("RC-1627-5070-9329-7815"),
+            generateEventData(CCD_CASE_NUMBER),
             200,
             "CALLBACK_COMPLETED"
         );
