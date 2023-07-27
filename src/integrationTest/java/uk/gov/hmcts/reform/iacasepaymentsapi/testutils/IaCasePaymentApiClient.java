@@ -1,10 +1,5 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import groovy.util.logging.Slf4j;
@@ -12,6 +7,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
 
 @Slf4j
 public class IaCasePaymentApiClient {
@@ -20,6 +23,7 @@ public class IaCasePaymentApiClient {
     private final String aboutToSubmitUrl;
     private final String aboutToStartUrl;
     private final String ccdSubmittedUrl;
+    private final String updatePaymentStatusUrl;
 
     private final HttpHeaders httpHeaders = new HttpHeaders();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -29,6 +33,7 @@ public class IaCasePaymentApiClient {
         this.aboutToSubmitUrl = "/asylum/ccdAboutToSubmit";
         this.aboutToStartUrl = "/asylum/ccdAboutToStart";
         this.ccdSubmittedUrl = "/asylum/ccdSubmitted";
+        this.updatePaymentStatusUrl = "/payment-updates";
 
         objectMapper.registerModule(new JavaTimeModule());
 
@@ -95,6 +100,18 @@ public class IaCasePaymentApiClient {
 
         return translateException(() -> objectMapper
             .readValue(response.getContentAsByteArray(), PreSubmitCallbackResponseForTest.class));
+    }
+
+    public SubmitEventDetails updatePaymentStatus(PaymentDto paymentDto) throws Exception {
+        final MockHttpServletResponse response =
+            mockMvc.perform(put(updatePaymentStatusUrl)
+                                .headers(httpHeaders)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(toJson(paymentDto)))
+            .andExpect(status().isOk()).andReturn().getResponse();
+
+        return translateException(() -> objectMapper
+            .readValue(response.getContentAsByteArray(), SubmitEventDetails.class));
     }
 
     private String toJson(Object o) {
