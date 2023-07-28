@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.PaymentDtoForTest;
