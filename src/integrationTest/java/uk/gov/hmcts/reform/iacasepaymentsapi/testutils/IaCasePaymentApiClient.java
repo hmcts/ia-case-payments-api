@@ -27,6 +27,8 @@ public class IaCasePaymentApiClient {
     public static final String CCD_CASE_NUMBER = "1627506765384547";
     public static final String JURISDICTION = "IA";
     public static final BigDecimal PAYMENT_AMOUNT = BigDecimal.valueOf(140);
+    public static final String CALLBACK_COMPLETED = "CALLBACK_COMPLETED";
+    public static final String SUCCESS = "success";
 
     private final MockMvc mockMvc;
     private final String aboutToSubmitUrl;

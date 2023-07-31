@@ -7,6 +7,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiCl
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_AMOUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.SUCCESS;
 
 @SuperBuilder
 public class PaymentDtoForTest extends PaymentDto {
@@ -23,7 +24,7 @@ public class PaymentDtoForTest extends PaymentDto {
             .method("card")
             .externalProvider("gov pay")
             .externalReference("8saf7t8kav53mmubrff738nord")
-            .status("success");
+            .status(SUCCESS);
     }
 
 }

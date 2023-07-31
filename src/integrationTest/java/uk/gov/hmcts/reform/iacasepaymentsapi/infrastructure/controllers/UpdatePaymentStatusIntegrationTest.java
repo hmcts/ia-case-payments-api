@@ -15,10 +15,14 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.PENDING_PAYMENT;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CALLBACK_COMPLETED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.JURISDICTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.SUCCESS;
 
 @Slf4j
 public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTest
@@ -44,10 +48,10 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
         SubmitEventDetails response = iaCasePaymentApiClient.updatePaymentStatus(PaymentDtoForTest.generateValid().build());
 
         assertNotNull(response);
-        assertEquals("CALLBACK_COMPLETED", response.getCallbackResponseStatus());
+        assertEquals(CALLBACK_COMPLETED, response.getCallbackResponseStatus());
         assertEquals(200, response.getCallbackResponseStatusCode());
-        assertEquals(CCD_CASE_NUMBER, response.getData().get("paymentReference"));
-        assertEquals("success", response.getData().get("paymentStatus"));
+        assertEquals(CCD_CASE_NUMBER, response.getData().get(PAYMENT_REFERENCE));
+        assertEquals(SUCCESS, response.getData().get(PAYMENT_STATUS));
         assertEquals(Long.parseLong(ID), response.getId());
         assertEquals(JURISDICTION, response.getJurisdiction());
         assertEquals(PENDING_PAYMENT, response.getState());

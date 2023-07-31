@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_AMOUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.SUCCESS;
 
 @SuperBuilder
 public class ServiceRequestUpdateDtoForTest extends ServiceRequestUpdateDto {
@@ -15,7 +16,7 @@ public class ServiceRequestUpdateDtoForTest extends ServiceRequestUpdateDto {
             .serviceRequestReference(PAYMENT_STATUS_UPDATE_CASE_REFERENCE)
             .ccdCaseNumber(CCD_CASE_NUMBER)
             .serviceRequestAmount(PAYMENT_AMOUNT.toString())
-            .serviceRequestStatus("success")
+            .serviceRequestStatus(SUCCESS)
             .payment(PaymentDtoForTest.generateValid().build());
     }
 
