@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 
 import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator.SERVICE_AUTHORIZATION_HEADER;
@@ -34,7 +33,6 @@ public class UpdatePaymentStatusController {
     private static final String CASE_TYPE = "Asylum";
 
     private final CcdDataService ccdDataService;
-    private final S2STokenValidator s2STokenValidator;
 
     @Operation(
         summary = "Update payment status",
@@ -67,15 +65,13 @@ public class UpdatePaymentStatusController {
         @RequestHeader(value = SERVICE_AUTHORIZATION_HEADER) String s2sAuthToken,
         @RequestBody PaymentDto paymentDto
     ) {
-        s2STokenValidator.checkIfServiceIsAllowed(s2sAuthToken);
-
         String caseId = paymentDto.getCcdCaseNumber();
 
         CaseMetaData caseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS, JURISDICTION,
                 CASE_TYPE, Long.parseLong(caseId), paymentDto.getStatus(), paymentDto.getReference());
 
-        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false);
+        SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false, s2sAuthToken);
         return ResponseEntity.status(response.getCallbackResponseStatusCode()).body(response);
     }
 

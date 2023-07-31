@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinitio
 
 import java.util.Map;
 
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
 
 public class AsylumCaseForTest implements Builder<AsylumCase> {
 

@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.BadRequestException;
 
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,9 +33,6 @@ class UpdatePaymentStatusControllerTest {
 
     @Mock
     private CcdDataService ccdDataService;
-
-    @Mock
-    private S2STokenValidator s2STokenValidator;
 
     @Mock
     private PaymentDto paymentDto;
@@ -52,13 +47,13 @@ class UpdatePaymentStatusControllerTest {
 
     @BeforeEach
     void setUp() {
-        updatePaymentStatusController = new UpdatePaymentStatusController(ccdDataService, s2STokenValidator);
+        updatePaymentStatusController = new UpdatePaymentStatusController(ccdDataService);
     }
 
     @Test
     void should_update_the_payment_status_successfully() {
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false), eq(VALID_S2S_TOKEN)))
             .thenReturn(getSubmitEventResponse());
 
         ResponseEntity<SubmitEventDetails> responseEntity = updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto);
@@ -73,48 +68,33 @@ class UpdatePaymentStatusControllerTest {
         assertEquals("Success", response.getData().get("paymentStatus"));
         assertEquals(200, response.getCallbackResponseStatusCode());
         assertEquals("CALLBACK_COMPLETED", response.getCallbackResponseStatus());
-
-        verify(s2STokenValidator).checkIfServiceIsAllowed(VALID_S2S_TOKEN);
     }
 
     @Test
     void should_error_when_the_s2s_token_is_invalid() {
-        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
+        when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
+        doThrow(AccessDeniedException.class).when(ccdDataService).updatePaymentStatus(any(CaseMetaData.class), eq(false), eq(INVALID_S2S_TOKEN));
         assertThrows(AccessDeniedException.class, () -> updatePaymentStatusController.updatePaymentStatus(INVALID_S2S_TOKEN, paymentDto));
-        verify(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
-    }
-
-    @Test
-    void should_error_when_the_s2s_token_is_null() {
-        doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(null);
-        assertThrows(AccessDeniedException.class, () -> updatePaymentStatusController.updatePaymentStatus(null, paymentDto));
-        verify(s2STokenValidator).checkIfServiceIsAllowed(null);
     }
 
     @Test
     void should_error_when_service_is_unavailable() {
-
         when(paymentDto.getCcdCaseNumber()).thenReturn("1234");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false), eq(VALID_S2S_TOKEN)))
             .thenThrow(ResponseStatusException.class);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto))
             .isExactlyInstanceOf(ResponseStatusException.class);
-
-        verify(s2STokenValidator).checkIfServiceIsAllowed(VALID_S2S_TOKEN);
     }
 
     @Test
     void should_error_on_invalid_ccd_case_number() {
-
         when(paymentDto.getCcdCaseNumber()).thenReturn("1001");
-        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false)))
+        when(ccdDataService.updatePaymentStatus(any(CaseMetaData.class), eq(false), eq(VALID_S2S_TOKEN)))
             .thenThrow(BadRequestException.class);
 
         assertThatThrownBy(() -> updatePaymentStatusController.updatePaymentStatus(VALID_S2S_TOKEN, paymentDto))
             .isExactlyInstanceOf(BadRequestException.class);
-
-        verify(s2STokenValidator).checkIfServiceIsAllowed(VALID_S2S_TOKEN);
 
     }
 

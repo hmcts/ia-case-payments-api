@@ -3,11 +3,10 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 import lombok.experimental.SuperBuilder;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 
-import java.math.BigDecimal;
-
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.ID;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_AMOUNT;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
 
 @SuperBuilder
 public class PaymentDtoForTest extends PaymentDto {
@@ -15,7 +14,7 @@ public class PaymentDtoForTest extends PaymentDto {
     public static PaymentDtoBuilder generateValid() {
         return builder()
             .id(ID)
-            .amount(BigDecimal.valueOf(140))
+            .amount(PAYMENT_AMOUNT)
             .description("Payment status update")
             .reference(PAYMENT_STATUS_UPDATE_CASE_REFERENCE)
             .currency("GBP")
@@ -24,7 +23,7 @@ public class PaymentDtoForTest extends PaymentDto {
             .method("card")
             .externalProvider("gov pay")
             .externalReference("8saf7t8kav53mmubrff738nord")
-            .status("Success");
+            .status("success");
     }
 
 }

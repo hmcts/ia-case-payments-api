@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient;
-import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.PaymentDtoForTest;
+import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.ServiceRequestUpdateDtoForTest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SpringBootIntegrationTest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithCcdStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithFeeStub;
@@ -21,7 +21,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiCl
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.JURISDICTION;
 
 @Slf4j
-public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTest
+public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTest
     implements WithServiceAuthStub, WithFeeStub, WithPaymentStub, WithIdamStub, WithCcdStub {
 
     private IaCasePaymentApiClient iaCasePaymentApiClient;
@@ -32,7 +32,7 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
     }
 
     @Test
-    public void updatePaymentStatusEndpoint() throws Exception {
+    public void serviceRequestUpdateEndpoint() throws Exception {
         addServiceAuthStub(server);
         addFeesRegisterStub(server);
         addPaymentStub(server);
@@ -41,7 +41,7 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
         addCcdUpdatePaymentStatusGetTokenStub(server);
         addCcdUpdatePaymentSubmitEventStub(server);
 
-        SubmitEventDetails response = iaCasePaymentApiClient.updatePaymentStatus(PaymentDtoForTest.generateValid().build());
+        SubmitEventDetails response = iaCasePaymentApiClient.serviceRequestUpdate(ServiceRequestUpdateDtoForTest.generateValid().build());
 
         assertNotNull(response);
         assertEquals("CALLBACK_COMPLETED", response.getCallbackResponseStatus());

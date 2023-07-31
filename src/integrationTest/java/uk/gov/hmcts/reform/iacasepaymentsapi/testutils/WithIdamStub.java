@@ -19,7 +19,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface WithIdamStub {
 
     String EMAIL = "ia.legalrep.orgcreator@gmail.com";
-    ObjectMapper mapper = new ObjectMapper();
 
     default void addUserInfoStub(WireMockServer server) {
         server.addStubMapping(
@@ -49,7 +48,7 @@ public interface WithIdamStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                    .withBody(mapper.writeValueAsString(TokenForTest.generateValid()))
+                    .withBody(new ObjectMapper().writeValueAsString(TokenForTest.generateValid()))
                     .build()
             )
         );

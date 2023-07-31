@@ -8,8 +8,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 
 import java.time.LocalDateTime;
 
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.JURISDICTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.JURISDICTION;
 
 @Data
 public class CaseDetailsForTest {

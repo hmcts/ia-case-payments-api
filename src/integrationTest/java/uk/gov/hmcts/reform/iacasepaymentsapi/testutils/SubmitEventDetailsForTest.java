@@ -5,9 +5,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDeta
 
 import java.util.HashMap;
 
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.CCD_CASE_NUMBER;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.ID;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers.UpdatePaymentStatusIntegrationTest.JURISDICTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.JURISDICTION;
 
 public class SubmitEventDetailsForTest extends SubmitEventDetails {
 
@@ -24,7 +24,7 @@ public class SubmitEventDetailsForTest extends SubmitEventDetails {
 
     private static HashMap<String, Object> generateEventData(String caseReference) {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("paymentStatus", "Success");
+        data.put("paymentStatus", "success");
         data.put("paymentReference", caseReference);
         return data;
     }
