@@ -23,12 +23,13 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.Servic
 public class IaCasePaymentApiClient {
 
     public static final String ID = "1234";
-    public static final String PAYMENT_STATUS_UPDATE_CASE_REFERENCE = "RC-1627-5070-9329-7815";
+    public static final String PAYMENT_CASE_REFERENCE = "RC-1627-5070-9329-7815";
     public static final String CCD_CASE_NUMBER = "1627506765384547";
     public static final String JURISDICTION = "IA";
     public static final BigDecimal PAYMENT_AMOUNT = BigDecimal.valueOf(140);
     public static final String CALLBACK_COMPLETED = "CALLBACK_COMPLETED";
     public static final String SUCCESS = "success";
+    public static final String APPEAL_REFERENCE_NUMBER = "HU/50004/2021";
 
     private final MockMvc mockMvc;
     private final String aboutToSubmitUrl;

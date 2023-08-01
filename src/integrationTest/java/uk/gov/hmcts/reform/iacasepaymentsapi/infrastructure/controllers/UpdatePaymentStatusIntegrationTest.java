@@ -15,9 +15,10 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.PENDING_PAYMENT;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.APPEAL_SUBMITTED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CALLBACK_COMPLETED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
@@ -48,13 +49,16 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
         SubmitEventDetails response = iaCasePaymentApiClient.updatePaymentStatus(PaymentDtoForTest.generateValid().build());
 
         assertNotNull(response);
-        assertEquals(CALLBACK_COMPLETED, response.getCallbackResponseStatus());
         assertEquals(200, response.getCallbackResponseStatusCode());
-        assertEquals(CCD_CASE_NUMBER, response.getData().get(PAYMENT_REFERENCE));
-        assertEquals(SUCCESS, response.getData().get(PAYMENT_STATUS));
+        assertEquals(APPEAL_SUBMITTED, response.getState());
+        assertEquals(CALLBACK_COMPLETED, response.getCallbackResponseStatus());
+        assertEquals(IaCasePaymentApiClient.APPEAL_REFERENCE_NUMBER,
+                     response.getData().get(APPEAL_REFERENCE_NUMBER.value()));
+        assertEquals(CCD_CASE_NUMBER, response.getData().get(PAYMENT_REFERENCE.value()));
+        assertEquals(SUCCESS, response.getData().get(PAYMENT_STATUS.value()));
         assertEquals(Long.parseLong(ID), response.getId());
         assertEquals(JURISDICTION, response.getJurisdiction());
-        assertEquals(PENDING_PAYMENT, response.getState());
+        assertEquals(APPEAL_SUBMITTED, response.getState());
     }
 
 }

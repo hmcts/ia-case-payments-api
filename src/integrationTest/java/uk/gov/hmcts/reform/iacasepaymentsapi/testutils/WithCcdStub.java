@@ -18,6 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SubmitEventDetailsForTest.generateValidPaymentUpdateEvent;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SubmitEventDetailsForTest.generateValidServiceRequestEvent;
 
 public interface WithCcdStub {
 
@@ -53,7 +54,7 @@ public interface WithCcdStub {
                     .withHeader(CONTENT_LENGTH, equalTo("172"))
                     .withRequestBody(equalTo(
                         "{\"case_reference\":\"" + CCD_CASE_NUMBER + "\"," +
-                            "\"data\":{\"paymentStatus\":\"success\"}," +
+                            "\"data\":{\"paymentStatus\":\"Success\"}," +
                             "\"event\":{\"id\":\"updatePaymentStatus\"}," +
                             "\"event_token\":\"ccdIntegrationEventToken\"," +
                             "\"ignore_warning\":true}"))
@@ -62,6 +63,34 @@ public interface WithCcdStub {
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
                     .withBody(new ObjectMapper().writeValueAsString(generateValidPaymentUpdateEvent()))
+                    .build()
+            )
+        );
+    }
+
+    default void addCcdServiceRequestUpdateSubmitEventStub(WireMockServer server) throws JsonProcessingException {
+        server.addStubMapping(
+            new StubMapping(
+                newRequestPattern(POST, urlEqualTo("/ccd/cases/" + CCD_CASE_NUMBER + "/events"))
+                    .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON_VALUE))
+                    .withHeader(AUTHORIZATION, equalTo("Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJiL082T3ZWdjEre"))
+                    .withHeader(SERVICE_AUTHORIZATION,
+                                equalTo("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                                            + "eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ."
+                                            + "L8i6g3PfcHlioHCCPURC9pmXT7gdJpx3kOoyAfNUwCc"))
+                    .withHeader("experimental", equalTo("true"))
+                    .withHeader(CONTENT_LENGTH, equalTo("172"))
+                    .withRequestBody(equalTo(
+                        "{\"case_reference\":\"" + CCD_CASE_NUMBER + "\"," +
+                            "\"data\":{\"paymentStatus\":\"success\"}," +
+                            "\"event\":{\"id\":\"updatePaymentStatus\"}," +
+                            "\"event_token\":\"ccdIntegrationEventToken\"," +
+                            "\"ignore_warning\":true}"))
+                    .build(),
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(new ObjectMapper().writeValueAsString(generateValidServiceRequestEvent()))
                     .build()
             )
         );

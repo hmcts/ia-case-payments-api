@@ -6,8 +6,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.ID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_AMOUNT;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_STATUS_UPDATE_CASE_REFERENCE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.SUCCESS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_CASE_REFERENCE;
 
 @SuperBuilder
 public class PaymentDtoForTest extends PaymentDto {
@@ -17,14 +16,14 @@ public class PaymentDtoForTest extends PaymentDto {
             .id(ID)
             .amount(PAYMENT_AMOUNT)
             .description("Payment status update")
-            .reference(PAYMENT_STATUS_UPDATE_CASE_REFERENCE)
+            .reference(PAYMENT_CASE_REFERENCE)
             .currency("GBP")
             .ccdCaseNumber(CCD_CASE_NUMBER)
             .channel("online")
             .method("card")
             .externalProvider("gov pay")
             .externalReference("8saf7t8kav53mmubrff738nord")
-            .status(SUCCESS);
+            .status("Success");
     }
 
 }

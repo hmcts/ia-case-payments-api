@@ -21,7 +21,7 @@ public interface WithPaymentStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody("{\"status\": \"success\",\n"
+                    .withBody("{\"status\": \"Success\",\n"
                                   + "  \"reference\": \"RC-1590-6786-1063-9996\" ,"
                                   + "  \"date_created\": \"2020-05-29T15:10:10.694+0000\"  }")
                     .build()
