@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.postsubmit;
 
 import static java.util.Objects.requireNonNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.AG;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
@@ -81,10 +83,14 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
         PaymentStatus paymentStatus = asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)
             .orElse(PaymentStatus.PAYMENT_PENDING);
 
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
+
+
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
-            && paymentStatus != PaymentStatus.PAID) {
+            && paymentStatus != PaymentStatus.PAID
+            && isAdmin != YesOrNo.YES) {
             try {
                 serviceRequestService.createServiceRequest(callback, fee);
 
@@ -104,14 +110,14 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
 
         return waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
-               && isHuEaEuPa(callback.getCaseDetails().getCaseData());
+               && isHuEaEuPaAg(callback.getCaseDetails().getCaseData());
     }
 
-    private boolean isHuEaEuPa(AsylumCase asylumCase) {
+    private boolean isHuEaEuPaAg(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
-            return List.of(HU, EA, EU, PA).contains(appealType);
+            return List.of(HU, EA, EU, PA, AG).contains(appealType);
         }
         return false;
     }

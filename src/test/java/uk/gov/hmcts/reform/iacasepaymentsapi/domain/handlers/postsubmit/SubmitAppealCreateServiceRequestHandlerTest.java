@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
@@ -24,6 +25,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
@@ -71,11 +74,12 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         lenient().when(asylumCase.read(JOURNEY_TYPE, JourneyType.class)).thenReturn(Optional.of(JourneyType.REP));
     }
 
-    @Test
-    void should_generate_service_request_when_can_handle_ea_appeal() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = { "EA", "HU", "AG", "EU" })
+    void should_generate_service_request_when_can_handle_ea_hu_eu_ag_appeal(String appealType) throws Exception {
 
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.valueOf(appealType)));
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
@@ -83,58 +87,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
             YesOrNo.NO));
         when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
             .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
-
-        Fee feeWithHearing =
-            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
-        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
-
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
-
-        assertNotNull(callbackResponse);
-        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
-    }
-
-    @Test
-    void should_generate_service_request_when_can_handle_hu_appeal() throws Exception {
-
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
-        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
-            .thenReturn(Optional.empty());
-        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
-            YesOrNo.NO));
-        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
-            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
-
-        Fee feeWithHearing =
-            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
-        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
-
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
-
-        assertNotNull(callbackResponse);
-        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
-    }
-
-    @Test
-    void should_generate_service_request_when_can_handle_eu_appeal() throws Exception {
-
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EU));
-        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
-            .thenReturn(Optional.empty());
-        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class))
-            .thenReturn(Optional.of(YesOrNo.NO));
-        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
-            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
@@ -161,6 +114,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
             YesOrNo.NO));
         when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
             .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
@@ -184,6 +138,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
             YesOrNo.YES));
         when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
             .thenReturn(Optional.of(PaymentStatus.PAID));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
