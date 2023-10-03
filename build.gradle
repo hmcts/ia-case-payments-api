@@ -418,7 +418,7 @@ dependencies {
   testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
     exclude group: "com.vaadin.external.google", module: "android-json"
   }
-
+  testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.6.28'
   testImplementation group: 'io.rest-assured', name: 'rest-assured-all', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
