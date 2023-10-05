@@ -26,13 +26,16 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2ST
 @OpenAPIDefinition(tags = {@Tag(name = "UpdatePaymentStatusController", description = "Update payment status")})
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 public class UpdatePaymentStatusController {
 
     private static final String JURISDICTION = "IA";
     private static final String CASE_TYPE = "Asylum";
 
     private final CcdDataService ccdDataService;
+
+    public UpdatePaymentStatusController(CcdDataService ccdDataService) {
+        this.ccdDataService = ccdDataService;
+    }
 
     @Operation(
         summary = "Update payment status",
