@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 
 import java.math.BigDecimal;
 
+import javax.servlet.http.HttpServletResponse;
+
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -128,6 +130,14 @@ public class IaCasePaymentApiClient {
             .readValue(response.getContentAsByteArray(), SubmitEventDetails.class));
     }
 
+    public HttpServletResponse updatePaymentStatusWithError(PaymentDto paymentDto) throws Exception {
+        return mockMvc.perform(put(updatePaymentStatusUrl)
+                                .headers(httpHeaders)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(toJson(paymentDto)))
+                                .andReturn().getResponse();
+    }
+
     public SubmitEventDetails serviceRequestUpdate(ServiceRequestUpdateDto serviceRequestUpdateDto) throws Exception {
         final MockHttpServletResponse response =
             mockMvc.perform(put(serviceRequestUpdateUrl)
@@ -138,6 +148,14 @@ public class IaCasePaymentApiClient {
 
         return translateException(() -> objectMapper
             .readValue(response.getContentAsByteArray(), SubmitEventDetails.class));
+    }
+
+    public HttpServletResponse serviceRequestUpdateWithError(ServiceRequestUpdateDto serviceRequestUpdateDto) throws Exception {
+        return mockMvc.perform(put(serviceRequestUpdateUrl)
+                                .headers(httpHeaders)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(toJson(serviceRequestUpdateDto)))
+                                .andReturn().getResponse();
     }
 
     private String toJson(Object o) {

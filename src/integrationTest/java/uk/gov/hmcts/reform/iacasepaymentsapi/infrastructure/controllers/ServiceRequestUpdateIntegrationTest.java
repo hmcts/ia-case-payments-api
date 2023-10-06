@@ -18,6 +18,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CALLBACK_COMPLETED;
@@ -41,7 +44,7 @@ public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTe
 
     @Test
     public void serviceRequestUpdateEndpoint() throws Exception {
-        addServiceAuthStub(server);
+        addServiceAuthStub(server, "payment_app");
         addFeesRegisterStub(server);
         addPaymentStub(server);
         addUserInfoStub(server);
@@ -65,4 +68,19 @@ public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTe
         assertEquals(CALLBACK_COMPLETED, response.getCallbackResponseStatus());
     }
 
+    @Test
+    public void serviceRequestUpdateEndpoint_fails_if_wrong_service_name() throws Exception {
+        addServiceAuthStub(server, "probate");
+        addFeesRegisterStub(server);
+        addPaymentStub(server);
+        addUserInfoStub(server);
+        addIdamTokenStub(server);
+        addCcdUpdatePaymentStatusGetTokenStub(server);
+        addCcdServiceRequestUpdateSubmitEventStub(server);
+
+        HttpServletResponse response = iaCasePaymentApiClient.serviceRequestUpdateWithError(ServiceRequestUpdateDtoForTest.generateValid().build());
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(403);
+    }
 }

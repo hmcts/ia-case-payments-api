@@ -13,6 +13,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithIdamStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithPaymentStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
+import javax.servlet.http.HttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
@@ -38,7 +41,7 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
 
     @Test
     public void updatePaymentStatusEndpoint() throws Exception {
-        addServiceAuthStub(server);
+        addServiceAuthStub(server, "payment_app");
         addFeesRegisterStub(server);
         addPaymentStub(server);
         addUserInfoStub(server);
@@ -61,4 +64,19 @@ public class UpdatePaymentStatusIntegrationTest extends SpringBootIntegrationTes
         assertEquals(APPEAL_SUBMITTED, response.getState());
     }
 
+    @Test
+    public void updatePaymentStatusEndpoint_fails_if_wrong_service_name() throws Exception {
+        addServiceAuthStub(server, "probate");
+        addFeesRegisterStub(server);
+        addPaymentStub(server);
+        addUserInfoStub(server);
+        addIdamTokenStub(server);
+        addCcdUpdatePaymentStatusGetTokenStub(server);
+        addCcdUpdatePaymentSubmitEventStub(server);
+
+        HttpServletResponse response = iaCasePaymentApiClient.updatePaymentStatusWithError(PaymentDtoForTest.generateValid().build());
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(403);
+    }
 }
