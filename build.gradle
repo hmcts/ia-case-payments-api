@@ -135,7 +135,7 @@ task contract(type: Test, description: 'Runs the pact contract tests.', group: '
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '10.12.0'
+  toolVersion = '10.12.4'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
