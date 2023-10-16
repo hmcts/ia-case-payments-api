@@ -5,7 +5,7 @@
       This vulnerability is about potential Remote Code Execution when serializing and deserializing Java classes
       using HttpInvokerServiceExport and org.springframework.remoting.
       As we do not use those constructs, we are not affected by it.
-      This suppression will be a long-term. An expiry to the suppression is kept to allow re-evaluating whether
+      This will be a long-term suppression. An expiry to the suppression is kept to allow re-evaluating whether
       we are still unaffected by it.
       ]]></notes>
     <cve>CVE-2016-1000027</cve>
