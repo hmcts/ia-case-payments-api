@@ -376,7 +376,7 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
-  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
+  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.9'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
