@@ -5,7 +5,7 @@
       This vulnerability is about potential Remote Code Execution when serializing and deserializing Java classes
       using HttpInvokerServiceExport and org.springframework.remoting.
       As we do not use those constructs, we are not affected by it.
-      This will be a long-term suppression. An expiry to the suppression is kept to allow re-evaluating whether
+      This suppression will be a long-term. An expiry to the suppression is kept to allow re-evaluating whether
       we are still unaffected by it.
       ]]></notes>
     <cve>CVE-2016-1000027</cve>
@@ -23,5 +23,9 @@
   <suppress until="2023-10-31">
     <cve>CVE-2023-35116</cve><!-- 2023-08-03 jackson-databind 2.15.2 (latest at the time of writing) still has the vulnerability. Try again when there's a new version available -->
      <cve>CVE-2023-41080</cve>
+     <cve>CVE-2023-44487</cve>
+     <cve>CVE-2023-42794</cve>
+     <cve>CVE-2023-42795</cve>
+     <cve>CVE-2023-45648</cve>
   </suppress>
 </suppressions>
