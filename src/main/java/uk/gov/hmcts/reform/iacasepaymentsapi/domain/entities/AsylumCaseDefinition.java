@@ -83,7 +83,9 @@ public enum AsylumCaseDefinition {
     IS_ACCELERATED_DETAINED_APPEAL(
         "isAcceleratedDetainedAppeal", new TypeReference<YesOrNo>(){}),
     IS_ADMIN(
-        "isAdmin", new TypeReference<YesOrNo>(){})
+        "isAdmin", new TypeReference<YesOrNo>(){}),
+    IS_EJP(
+        "isEjp", new TypeReference<YesOrNo>() {})
     ;
 
     private final String value;

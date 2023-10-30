@@ -18,6 +18,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_EJP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
 import feign.FeignException;
@@ -87,6 +88,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                || isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase));
     }
 
+    // No payments for EJP Cases
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
@@ -98,7 +100,8 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
                && isLegalRepJourney
-               && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData());
+               && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData())
+               && !isEjpCase(callback.getCaseDetails().getCaseData());
     }
 
     @Override
@@ -208,5 +211,10 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                || optRemissionType.isEmpty()
                || (optionalRemissionDecision.isPresent()
                    && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+    }
+
+    // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
+    private boolean isEjpCase(AsylumCase asylumCase) {
+        return asylumCase.read(IS_EJP, YesOrNo.class).orElse(YesOrNo.NO) == YesOrNo.YES;
     }
 }
