@@ -246,7 +246,7 @@ def versions = [
   pitest          : '1.5.2',
   junit           : '5.7.0',
   junitPlatform   : '1.7.2',
-  reformLogging   : '5.1.7',
+  reformLogging   : '6.0.1',
   springDoc       : '1.6.8',
   pact_version    : '4.1.38',
   serenity        : '3.2.3'
@@ -292,6 +292,7 @@ repositories {
   mavenLocal()
   jcenter()
   mavenCentral()
+  maven { url 'https://jitpack.io' }
 }
 
 ext.libraries = [
@@ -346,8 +347,8 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
 
   implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.1.0'
 
