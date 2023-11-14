@@ -114,6 +114,7 @@ public class ServiceRequestServiceTest {
 
         ServiceRequestResponse actualResponse = serviceRequestService.createServiceRequest(callback, fee);
 
+        assertEquals(expectedResponse, actualResponse);
         verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
                                                                  serviceTokenCaptor.capture(),
                                                                  serviceRequestRequestArgumentCaptor.capture());
@@ -131,7 +132,6 @@ public class ServiceRequestServiceTest {
         assertEquals("some-code", actual.getFees()[0].getCode());
         assertEquals(1, actual.getFees()[0].getVolume());
         assertEquals(80, actual.getFees()[0].getCalculatedAmount().intValue());
-        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -153,6 +153,7 @@ public class ServiceRequestServiceTest {
 
         ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
 
+        assertNull(serviceRequestResponse);
         verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
                                                                  serviceTokenCaptor.capture(),
                                                                  serviceRequestRequestArgumentCaptor.capture());
@@ -160,7 +161,6 @@ public class ServiceRequestServiceTest {
         assertEquals("token", tokenCaptor.getValue());
         assertEquals("Bearer serviceToken", serviceTokenCaptor.getValue());
 
-        assertNull(serviceRequestResponse);
     }
 
 }
