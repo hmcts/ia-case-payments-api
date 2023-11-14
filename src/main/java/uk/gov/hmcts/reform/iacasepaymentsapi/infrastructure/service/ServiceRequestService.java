@@ -81,7 +81,8 @@ public class ServiceRequestService {
                     .build()
             );
             log.info("Payment Service Request API response for case reference {} - {}",
-                     ccdCaseReferenceNumber, serviceRequestResponse.getServiceRequestReference()
+                     ccdCaseReferenceNumber,
+                     serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
             );
 
         } catch (FeignException fe) {
