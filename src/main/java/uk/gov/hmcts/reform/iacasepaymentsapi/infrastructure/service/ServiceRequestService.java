@@ -80,14 +80,19 @@ public class ServiceRequestService {
                     })
                     .build()
             );
-            log.info("Payment Service Request API response for case reference {} - {}",
-                     ccdCaseReferenceNumber,
-                     serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
+            log.info(
+                "Payment Service Request API response for case reference {} - {}",
+                ccdCaseReferenceNumber,
+                serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
             );
 
         } catch (FeignException fe) {
-            log.error("Error in calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
-            fe.printStackTrace();
+            log.error(
+                "Error in calling Payment Service Request API for case reference {} \n {}",
+                ccdCaseReferenceNumber,
+                fe.getMessage()
+            );
+
         }
         return serviceRequestResponse;
     }
