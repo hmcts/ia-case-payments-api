@@ -303,6 +303,7 @@ repositories {
   mavenLocal()
   jcenter()
   mavenCentral()
+  maven { url 'https://jitpack.io' }
 }
 
 ext.libraries = [
@@ -368,6 +369,8 @@ dependencies {
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose'
 
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.0.1'
+
   // CVE-2019-17195
   implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.22'
 
@@ -396,8 +399,8 @@ dependencies {
 
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
 
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.80'
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '9.0.80'
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.81'
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '9.0.81'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
 
