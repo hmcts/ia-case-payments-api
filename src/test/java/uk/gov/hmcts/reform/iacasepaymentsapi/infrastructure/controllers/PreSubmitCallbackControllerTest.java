@@ -34,7 +34,6 @@ public class PreSubmitCallbackControllerTest {
 
     @BeforeEach
     public void setUp() {
-
         preSubmitCallbackController =
             new PreSubmitCallbackController(callbackDispatcher);
     }
