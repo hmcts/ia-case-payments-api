@@ -436,7 +436,7 @@ dependencies {
   testImplementation "info.solidsoft.gradle.pitest:gradle-pitest-plugin:${versions.pitest}"
   testImplementation "org.codehaus.sonar-plugins:sonar-pitest-plugin:${versions.sonarPitest}"
 
-  testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.15.4'
+  testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.7.2'
 
   testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.8') {
     exclude group: "com.github.tomakehurst", module: "wiremock-standalone"
