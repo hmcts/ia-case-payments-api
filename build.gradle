@@ -254,7 +254,7 @@ def versions = [
   junitPlatform   : '1.10.1',
   reformLogging   : '5.1.7',
   springDoc       : '1.7.0',
-  pact_version    : '4.6.3',
+  pact_version    : '4.1.38',
   serenity        : '3.9.8',
   sonarPitest     : '0.5',
   restAssured     : '5.3.2'
