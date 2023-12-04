@@ -61,6 +61,7 @@ public class ServiceRequestRetryTest {
     ArgumentCaptor<String> serviceTokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<ServiceRequestRequest> serviceRequestRequestArgumentCaptor = ArgumentCaptor
             .forClass(ServiceRequestRequest.class);
+
     @BeforeEach
     public void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
