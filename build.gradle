@@ -454,7 +454,7 @@ dependencies {
   smokeTestImplementation sourceSets.test.runtimeClasspath
 
   contractTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
-
+  contractTestImplementation libraries.junit5
   contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
   contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
