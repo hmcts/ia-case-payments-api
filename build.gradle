@@ -249,7 +249,8 @@ dependencyCheck {
 
 
 def versions = [
-  pitest          : '1.15.0',
+  pitest          : '1.15.3',
+  gradlePitest    : '1.15.0',
   junit           : '5.10.1',
   junitPlatform   : '1.10.1',
   reformLogging   : '5.1.7',
@@ -414,8 +415,6 @@ dependencies {
 
   testImplementation group: 'org.springframework.security', name: 'spring-security-test'
 
-  testImplementation libraries.junit5
-
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
   testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
@@ -436,7 +435,7 @@ dependencies {
 
 
   testImplementation group: 'org.pitest', name: 'pitest', version: versions.pitest
-  testImplementation "info.solidsoft.gradle.pitest:gradle-pitest-plugin:${versions.pitest}"
+  testImplementation "info.solidsoft.gradle.pitest:gradle-pitest-plugin:${versions.gradlePitest}"
   testImplementation "org.codehaus.sonar-plugins:sonar-pitest-plugin:${versions.sonarPitest}"
 
   testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.7.2'
