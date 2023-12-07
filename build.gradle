@@ -395,6 +395,9 @@ dependencies {
 
   implementation group:  'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.13'
+
   implementation group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.4'
 
 
