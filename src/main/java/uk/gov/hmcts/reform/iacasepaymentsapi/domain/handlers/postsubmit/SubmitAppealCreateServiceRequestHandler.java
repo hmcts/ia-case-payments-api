@@ -5,13 +5,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.E
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -91,6 +85,8 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
             && paymentStatus != PaymentStatus.PAID) {
             try {
+                Optional<YesOrNo> test = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class);
+                log.info("result is : " + test.toString());
                 ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
                 log.info("Generated service request successfully {}", serviceRequestResponse.toString());
                 String serviceRequestReference = serviceRequestResponse.getServiceRequestReference();
