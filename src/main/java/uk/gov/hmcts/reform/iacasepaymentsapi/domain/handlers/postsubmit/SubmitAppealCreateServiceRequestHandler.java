@@ -7,7 +7,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.H
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
@@ -94,9 +94,10 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
                 ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
                 log.info("Generated service request successfully {}", serviceRequestResponse.toString());
                 String serviceRequestReference = serviceRequestResponse.getServiceRequestReference();
-                log.info("Service request reference {} being saved as {}", serviceRequestReference, DECISION_HEARING_FEE_OPTION);
-                asylumCase.write(DECISION_HEARING_FEE_OPTION, serviceRequestReference);
-                log.info("Successfully written serviceRequestReference to case_data {}", asylumCase.read(DECISION_HEARING_FEE_OPTION));
+                log.info("Service request reference {} being saved as {}", serviceRequestReference, SERVICE_REQUEST_REFERENCE);
+                asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestReference);
+                Optional<String> savedServiceRequestReference = asylumCase.read(SERVICE_REQUEST_REFERENCE, String.class);
+                log.info("Successfully written serviceRequestReference to case_data {}", asylumCase.read(SERVICE_REQUEST_REFERENCE, String.class));
             } catch (Exception e) {
                 log.error("something failed: {}", e.getMessage());
                 errorHandling.ifPresent(asylumCaseErrorHandler -> asylumCaseErrorHandler.accept(callback, e));
