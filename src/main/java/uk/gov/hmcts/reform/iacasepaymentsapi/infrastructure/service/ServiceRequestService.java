@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
+
 @Service
 @Slf4j
 public class ServiceRequestService {
@@ -80,12 +82,13 @@ public class ServiceRequestService {
                     })
                     .build()
             );
+            String serviceRequestReference = serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : "";
             log.info(
                 "Payment Service Request API response for case reference {} - {}",
                 ccdCaseReferenceNumber,
-                serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
+                serviceRequestReference
             );
-
+            asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestReference);
         } catch (FeignException fe) {
             log.error(
                 "Error in calling Payment Service Request API for case reference {} \n {}",

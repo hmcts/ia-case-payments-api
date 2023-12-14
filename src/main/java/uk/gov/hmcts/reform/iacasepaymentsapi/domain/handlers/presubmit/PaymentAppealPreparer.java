@@ -15,7 +15,6 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
 import feign.FeignException;
@@ -167,7 +166,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             && hasNoRemission(asylumCase)) {
 
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
-            asylumCase.write(SERVICE_REQUEST_REFERENCE, "testytesttest");
 
             if (hasNoRemission(asylumCase)) {
                 asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
