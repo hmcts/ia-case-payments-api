@@ -16,6 +16,8 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
@@ -36,6 +38,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.FeesHelpe
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
+@Slf4j
 @Component
 public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallbackHandler<AsylumCase> {
 
@@ -89,9 +92,13 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
             && paymentStatus != PaymentStatus.PAID) {
             try {
                 ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
+                log.info("Generated service request successfully {}", serviceRequestResponse.toString());
                 String serviceRequestReference = serviceRequestResponse.getServiceRequestReference();
+                log.info("Service request reference {} being saved as {}", serviceRequestReference, DECISION_HEARING_FEE_OPTION);
                 asylumCase.write(DECISION_HEARING_FEE_OPTION, serviceRequestReference);
+                log.info("Successfully written serviceRequestReference to case_data {}", asylumCase.read(DECISION_HEARING_FEE_OPTION));
             } catch (Exception e) {
+                log.error("something failed: {}", e.getMessage());
                 errorHandling.ifPresent(asylumCaseErrorHandler -> asylumCaseErrorHandler.accept(callback, e));
             }
         }
