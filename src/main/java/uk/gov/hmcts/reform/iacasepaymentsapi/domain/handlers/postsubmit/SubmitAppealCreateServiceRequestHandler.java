@@ -5,9 +5,15 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.E
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +25,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.JourneyType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.*;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
