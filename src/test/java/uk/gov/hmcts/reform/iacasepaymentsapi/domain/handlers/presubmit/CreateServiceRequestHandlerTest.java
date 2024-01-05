@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.postsubmit;
+package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,20 +34,19 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackResponse;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PostSubmitCallbackStage;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit.ErrorHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-class SubmitAppealCreateServiceRequestHandlerTest {
+class CreateServiceRequestHandlerTest {
 
     @Mock private Callback<AsylumCase> callback;
     @Mock private CaseDetails<AsylumCase> caseDetails;
@@ -58,12 +57,12 @@ class SubmitAppealCreateServiceRequestHandlerTest {
 
     @Mock private ErrorHandler<AsylumCase> errorHandling;
 
-    private SubmitAppealCreateServiceRequestHandler submitAppealCreateServiceRequestHandler;
+    private CreateServiceRequestHandler createServiceRequestHandler;
 
     @BeforeEach
     public void setUp() {
-        submitAppealCreateServiceRequestHandler =
-            new SubmitAppealCreateServiceRequestHandler(serviceRequestService, feeService, Optional.of(errorHandling)
+        createServiceRequestHandler =
+            new CreateServiceRequestHandler(serviceRequestService, feeService, Optional.of(errorHandling)
         );
 
         lenient().when(callback.getCaseDetails()).thenReturn(caseDetails);
@@ -74,7 +73,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     @Test
     void should_generate_service_request_when_can_handle_ea_appeal() throws Exception {
 
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
@@ -90,8 +89,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
 
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
@@ -100,7 +99,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     @Test
     void should_generate_service_request_when_can_handle_hu_appeal() throws Exception {
 
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
@@ -116,8 +115,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
 
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
@@ -126,7 +125,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     @Test
     void should_generate_service_request_when_can_handle_eu_appeal() throws Exception {
 
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EU));
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
@@ -142,8 +141,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
 
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
@@ -152,7 +151,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     @Test
     void should_generate_service_request_when_can_handle_pa_appeal() throws Exception {
 
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
@@ -168,8 +167,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
 
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
@@ -178,7 +177,7 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     @Test
     void should_not_generate_service_request_when_flag_set_and_payment_status_paid() throws Exception {
 
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
         when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
             YesOrNo.YES));
@@ -190,8 +189,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
 
-        PostSubmitCallbackResponse callbackResponse =
-            submitAppealCreateServiceRequestHandler.handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback);
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, never()).createServiceRequest(callback, feeWithHearing);
@@ -201,8 +200,8 @@ class SubmitAppealCreateServiceRequestHandlerTest {
     void handling_should_throw_if_cannot_actually_handle() {
 
         when(callback.getEvent()).thenReturn(Event.START_APPEAL);
-        assertThatThrownBy(() -> submitAppealCreateServiceRequestHandler
-            .handle(PostSubmitCallbackStage.CCD_SUBMITTED, callback))
+        assertThatThrownBy(() -> createServiceRequestHandler
+            .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
             .isExactlyInstanceOf(IllegalStateException.class)
             .hasMessage("Cannot handle callback");
     }
@@ -214,15 +213,13 @@ class SubmitAppealCreateServiceRequestHandlerTest {
 
             when(callback.getEvent()).thenReturn(event);
 
-            for (PostSubmitCallbackStage callbackStage : PostSubmitCallbackStage.values()) {
+            for (PreSubmitCallbackStage callbackStage : PreSubmitCallbackStage.values()) {
 
-                boolean canHandle = submitAppealCreateServiceRequestHandler.canHandle(callbackStage, callback);
+                boolean canHandle = createServiceRequestHandler.canHandle(callbackStage, callback);
 
-                if ((Arrays.asList(
-                    Event.SUBMIT_APPEAL,
-                    Event.GENERATE_SERVICE_REQUEST,
-                    Event.RECORD_REMISSION_DECISION).contains(callback.getEvent())
-                     && callbackStage == PostSubmitCallbackStage.CCD_SUBMITTED)
+                if ((callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
+                     && (callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
+                        || callbackStage == PreSubmitCallbackStage.ABOUT_TO_START))
                     || isWaysToPay(callbackStage, callback, true)) {
 
                     assertTrue(canHandle);
@@ -233,13 +230,11 @@ class SubmitAppealCreateServiceRequestHandlerTest {
         }
     }
 
-    private boolean isWaysToPay(PostSubmitCallbackStage callbackStage,
+    private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
-        return callbackStage == PostSubmitCallbackStage.CCD_SUBMITTED
-               && (callback.getEvent() == Event.SUBMIT_APPEAL
-                   || callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
-                   || callback.getEvent() == Event.RECORD_REMISSION_DECISION)
+        return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
+               && callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
                && isLegalRepJourney;
     }
 }
