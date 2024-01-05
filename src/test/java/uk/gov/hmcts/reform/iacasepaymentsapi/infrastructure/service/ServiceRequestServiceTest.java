@@ -135,7 +135,7 @@ public class ServiceRequestServiceTest {
     }
 
     @Test
-    void should_return_null_when_service_request_api_fails() throws Exception {
+    void should_throw_runtime_error_when_service_request_api_fails() throws Exception {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
@@ -151,16 +151,7 @@ public class ServiceRequestServiceTest {
         when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
             .thenThrow(FeignException.FeignClientException.class);
 
-        ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
-
-        assertNull(serviceRequestResponse);
-        verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
-                                                                 serviceTokenCaptor.capture(),
-                                                                 serviceRequestRequestArgumentCaptor.capture());
-
-        assertEquals("token", tokenCaptor.getValue());
-        assertEquals("Bearer serviceToken", serviceTokenCaptor.getValue());
-
+        assertThrows(RuntimeException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
     }
 
 }
