@@ -39,7 +39,7 @@ public class ServiceRequestService {
         this.callBackUrl = callBackUrl;
     }
 
-    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) throws Exception {
+    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) {
 
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
         AsylumCase asylumCase = caseDetails.getCaseData();
@@ -56,7 +56,7 @@ public class ServiceRequestService {
         String serviceAuth = serviceAuthorization.generate();
 
         log.info("Calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
-        ServiceRequestResponse serviceRequestResponse = null;
+        ServiceRequestResponse serviceRequestResponse;
 
         try {
             serviceRequestResponse = serviceRequestApi.createServiceRequest(
@@ -92,7 +92,7 @@ public class ServiceRequestService {
                 ccdCaseReferenceNumber,
                 fe.getMessage()
             );
-
+            throw new RuntimeException(fe.getMessage());
         }
         return serviceRequestResponse;
     }
