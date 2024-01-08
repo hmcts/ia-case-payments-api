@@ -120,9 +120,9 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         Optional<RemissionDecision> optionalRemissionDecision =
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
-        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
+        return ((optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
                || optRemissionType.isEmpty()
                || (optionalRemissionDecision.isPresent()
-                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED));
     }
 }
