@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.PaymentServiceRequestException;
 
 @Service
 @Slf4j
@@ -92,7 +93,7 @@ public class ServiceRequestService {
                 ccdCaseReferenceNumber,
                 fe.getMessage()
             );
-            throw new RuntimeException(fe.getMessage());
+            throw new PaymentServiceRequestException(fe.getMessage(), fe.getCause());
         }
         return serviceRequestResponse;
     }

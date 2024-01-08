@@ -54,14 +54,12 @@ class CreateServiceRequestHandlerTest {
     @Mock private ServiceRequestService serviceRequestService;
     @Mock private ServiceRequestResponse serviceRequestResponse;
 
-    @Mock private ErrorHandler<AsylumCase> errorHandling;
-
     private CreateServiceRequestHandler createServiceRequestHandler;
 
     @BeforeEach
     public void setUp() {
         createServiceRequestHandler =
-            new CreateServiceRequestHandler(serviceRequestService, feeService, Optional.of(errorHandling)
+            new CreateServiceRequestHandler(serviceRequestService, feeService
         );
 
         lenient().when(callback.getCaseDetails()).thenReturn(caseDetails);
@@ -70,7 +68,7 @@ class CreateServiceRequestHandlerTest {
     }
 
     @Test
-    void should_generate_service_request_when_can_handle_ea_appeal() throws Exception {
+    void should_generate_service_request_when_can_handle_ea_appeal() {
 
         when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
@@ -96,7 +94,7 @@ class CreateServiceRequestHandlerTest {
     }
 
     @Test
-    void should_generate_service_request_when_can_handle_hu_appeal() throws Exception {
+    void should_generate_service_request_when_can_handle_hu_appeal() {
 
         when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
@@ -122,7 +120,7 @@ class CreateServiceRequestHandlerTest {
     }
 
     @Test
-    void should_generate_service_request_when_can_handle_eu_appeal() throws Exception {
+    void should_generate_service_request_when_can_handle_eu_appeal() {
 
         when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EU));
@@ -148,7 +146,7 @@ class CreateServiceRequestHandlerTest {
     }
 
     @Test
-    void should_generate_service_request_when_can_handle_pa_appeal() throws Exception {
+    void should_generate_service_request_when_can_handle_pa_appeal() {
 
         when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
@@ -174,7 +172,7 @@ class CreateServiceRequestHandlerTest {
     }
 
     @Test
-    void should_not_generate_service_request_when_flag_set_and_payment_status_paid() throws Exception {
+    void should_not_generate_service_request_when_flag_set_and_payment_status_paid() {
 
         when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
         when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
@@ -254,7 +252,125 @@ class CreateServiceRequestHandlerTest {
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+    }
 
+    @Test
+    void should_not_generate_service_request_when_no_appeal_type() {
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+    }
+
+    @Test
+    void should_not_generate_service_request_for_aip() {
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(JOURNEY_TYPE, JourneyType.class)).thenReturn(Optional.of(JourneyType.AIP));
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+    }
+
+    @Test
+    void should_not_generate_service_request_when_remission_not_rejected() {
+
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(RemissionType.HO_WAIVER_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
+            .thenReturn(Optional.of(RemissionDecision.APPROVED));
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+    }
+
+    @Test
+    void should_generate_service_request_when_remission_is_rejected() {
+
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(RemissionType.HO_WAIVER_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
+            .thenReturn(Optional.of(RemissionDecision.REJECTED));
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+    }
+
+    @Test
+    void should_generate_service_request_when_remission_type_is_noRemission() {
+
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(RemissionType.NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
+            .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
     }
 
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,

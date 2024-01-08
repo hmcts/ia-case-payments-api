@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.PaymentServiceRequestException;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -94,7 +95,7 @@ public class ServiceRequestServiceTest {
     }
 
     @Test
-    void should_create_request_for_service_request_and_get_response_for_service_request() throws Exception {
+    void should_create_request_for_service_request_and_get_response_for_service_request() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
@@ -134,7 +135,7 @@ public class ServiceRequestServiceTest {
     }
 
     @Test
-    void should_throw_runtime_error_when_service_request_api_fails() throws Exception {
+    void should_throw_runtime_error_when_service_request_api_fails() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
@@ -150,7 +151,7 @@ public class ServiceRequestServiceTest {
         when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
             .thenThrow(FeignException.FeignClientException.class);
 
-        assertThrows(RuntimeException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
+        assertThrows(PaymentServiceRequestException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
     }
 
 }

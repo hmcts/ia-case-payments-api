@@ -42,8 +42,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
     public CreateServiceRequestHandler(
         ServiceRequestService serviceRequestService,
-        FeeService feeService,
-        Optional<ErrorHandler<AsylumCase>> errorHandling) {
+        FeeService feeService) {
         this.serviceRequestService = serviceRequestService;
         this.feeService = feeService;
     }
@@ -120,9 +119,9 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         Optional<RemissionDecision> optionalRemissionDecision =
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
-        return ((optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
+        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
                || optRemissionType.isEmpty()
                || (optionalRemissionDecision.isPresent()
-                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED));
+                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
     }
 }
