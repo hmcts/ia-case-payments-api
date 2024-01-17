@@ -1,7 +1,12 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
@@ -18,6 +23,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemToken
 
 @Service
 @Slf4j
+@EnableRetry
 public class ServiceRequestService {
 
     private static final String PAYMENT_ACTION = "payment";
@@ -38,6 +44,7 @@ public class ServiceRequestService {
         this.callBackUrl = callBackUrl;
     }
 
+    @Retryable(retryFor = { FeignException.class }, maxAttempts = 3, backoff = @Backoff(3000))
     public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) throws Exception {
 
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
@@ -53,27 +60,49 @@ public class ServiceRequestService {
 
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
+        ServiceRequestResponse serviceRequestResponse;
+        log.info("Calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
+        try {
+            serviceRequestResponse = serviceRequestApi.createServiceRequest(
+                userAuth,
+                serviceAuth,
+                ServiceRequestRequest.builder()
+                    .callBackUrl(callBackUrl)
+                    .casePaymentRequest(
+                        CasePaymentRequestDto.builder()
+                            .action(PAYMENT_ACTION)
+                            .responsibleParty(responsibleParty)
+                            .build())
+                    .caseReference(appealReferenceNumber)
+                    .ccdCaseNumber(ccdCaseReferenceNumber)
+                    .fees(new FeeDto[]{
+                        FeeDto.builder()
+                            .calculatedAmount(fee.getCalculatedAmount())
+                            .code(fee.getCode())
+                            .version(fee.getVersion())
+                            .volume(VOLUME_1).build()
+                    })
+                    .build()
+            );
+            log.info(
+                "Payment Service Request API response for case reference {} - {}",
+                ccdCaseReferenceNumber,
+                serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
+            );
+        } catch (FeignException fe) {
+            log.error(
+                "Error in calling Payment Service Request API for case reference {} \n {}",
+                ccdCaseReferenceNumber,
+                fe.getMessage()
+            );
+            throw fe;
+        }
+        return serviceRequestResponse;
+    }
 
-        return serviceRequestApi.createServiceRequest(
-            userAuth,
-            serviceAuth,
-            ServiceRequestRequest.builder()
-                .callBackUrl(callBackUrl)
-                .casePaymentRequest(
-                    CasePaymentRequestDto.builder()
-                        .action(PAYMENT_ACTION)
-                        .responsibleParty(responsibleParty)
-                        .build())
-                .caseReference(appealReferenceNumber)
-                .ccdCaseNumber(ccdCaseReferenceNumber)
-                .fees(new FeeDto[]{
-                    FeeDto.builder()
-                        .calculatedAmount(fee.getCalculatedAmount())
-                        .code(fee.getCode())
-                        .version(fee.getVersion())
-                        .volume(VOLUME_1).build()
-                })
-                .build()
-        );
+    @Recover
+    public ServiceRequestResponse recover(FeignException f, Callback<AsylumCase> callback, Fee fee) {
+        log.error("Error in calling Payment Service Request API for 3 retries \n {}", f.getMessage());
+        return null;
     }
 }

@@ -1,17 +1,24 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+
+import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -23,6 +30,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
@@ -51,6 +59,8 @@ public class ServiceRequestServiceTest {
     @Mock private AsylumCase asylumCase;
     private String token = "token";
     private String serviceToken = "Bearer serviceToken";
+    private static final String ERROR_TEST_MESSAGE = "error log test message";
+
 
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> serviceTokenCaptor = ArgumentCaptor.forClass(String.class);
@@ -59,6 +69,7 @@ public class ServiceRequestServiceTest {
 
     private Fee fee;
 
+    @InjectMocks
     private ServiceRequestService serviceRequestService;
 
     @BeforeEach
@@ -102,9 +113,13 @@ public class ServiceRequestServiceTest {
 
         when(systemTokenGenerator.generate()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        ServiceRequestResponse expectedResponse = ServiceRequestResponse.builder().serviceRequestReference("1234").build();
+        when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
+            .thenReturn(expectedResponse);
 
-        serviceRequestService.createServiceRequest(callback, fee);
+        ServiceRequestResponse actualResponse = serviceRequestService.createServiceRequest(callback, fee);
 
+        assertEquals(expectedResponse, actualResponse);
         verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
                                                                  serviceTokenCaptor.capture(),
                                                                  serviceRequestRequestArgumentCaptor.capture());
@@ -124,4 +139,37 @@ public class ServiceRequestServiceTest {
         assertEquals(80, actual.getFees()[0].getCalculatedAmount().intValue());
     }
 
+    @Test
+    void should_throw_feign_exception_service_request_api_throws() throws Exception {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
+            .thenReturn(Optional.of(APPELLANT_GIVEN_NAMES));
+        when(asylumCase.read(AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER, String.class))
+            .thenReturn(Optional.of(APPEAL_REFERENCE_NUMBER));
+        when(asylumCase.read(AsylumCaseDefinition.APPELLANT_FAMILY_NAME, String.class))
+            .thenReturn(Optional.of(APPELLANT_FAMILY_NAMES));
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
+            .thenThrow(FeignException.class);
+
+        assertThrows(FeignException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
+        verify(serviceRequestApi, times(1)).createServiceRequest(tokenCaptor.capture(),
+                                                                 serviceTokenCaptor.capture(),
+                                                                 serviceRequestRequestArgumentCaptor.capture());
+
+        assertEquals("token", tokenCaptor.getValue());
+        assertEquals("Bearer serviceToken", serviceTokenCaptor.getValue());
+    }
+
+    @Test
+    void should_return_null_in_recover_method() throws Exception {
+        var ex = mock(FeignException.class);
+        when(ex.getMessage()).thenReturn(ERROR_TEST_MESSAGE);
+        ServiceRequestResponse response = serviceRequestService.recover(ex, callback, fee);
+        assertNull(response);
+    }
 }
