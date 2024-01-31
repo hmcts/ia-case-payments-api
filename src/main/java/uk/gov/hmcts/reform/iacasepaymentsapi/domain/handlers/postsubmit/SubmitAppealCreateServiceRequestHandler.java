@@ -92,6 +92,7 @@ public class SubmitAppealCreateServiceRequestHandler implements PostSubmitCallba
             && paymentStatus != PaymentStatus.PAID
             && isAdmin != YesOrNo.YES) {
             try {
+                // TODO: save payment service request reference in case data
                 serviceRequestService.createServiceRequest(callback, fee);
 
             } catch (Exception e) {
