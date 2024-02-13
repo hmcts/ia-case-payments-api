@@ -122,6 +122,8 @@ public class CcdCaseCreationTest {
         appealReferenceNumber = submitEventDetails.getData().get("appealReferenceNumber").toString();
         responsibleParty = submitEventDetails.getData().get("appellantGivenNames").toString() + " " +
             submitEventDetails.getData().get("appellantFamilyName").toString();
+        System.out.println(paymentReference);
+        System.out.println(caseId);
     }
 
     private void payForAppeal() {
