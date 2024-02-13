@@ -53,5 +53,23 @@ public interface WithIdamStub {
             )
         );
     }
-
+    default void addIdamTokenForServiceRequestStub(WireMockServer server) throws JsonProcessingException {
+        server.addStubMapping(
+            new StubMapping(
+                newRequestPattern(POST, urlEqualTo("/idam/o/token"))
+                    .withHeader(CONTENT_TYPE, containing(APPLICATION_FORM_URLENCODED_VALUE))
+                    .withRequestBody(equalTo("grant_type=password&redirect_uri=http%3A%2F%2Flocalhost%3"
+                                                 + "A3451%2Foauth2redirect&client_id=ia&client_secret=somethi"
+                                                 + "ng&username=ia-system-user%40fake.hmcts.net&password=Lond"
+                                                 + "on05&scope=openid+profile+authorities+acr+roles+create-us"
+                                                 + "er+manage-user+search-user"))
+                    .build(),
+                aResponse()
+                    .withStatus(200)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                    .withBody(new ObjectMapper().writeValueAsString(TokenForTest.generateValid()))
+                    .build()
+            )
+        );
+    }
 }

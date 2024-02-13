@@ -48,7 +48,7 @@ public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTe
         addFeesRegisterStub(server);
         addPaymentStub(server);
         addUserInfoStub(server);
-        addIdamTokenStub(server);
+        addIdamTokenForServiceRequestStub(server);
         addCcdUpdatePaymentStatusGetTokenStub(server);
         addCcdServiceRequestUpdateSubmitEventStub(server);
 
@@ -74,7 +74,7 @@ public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTe
         addFeesRegisterStub(server);
         addPaymentStub(server);
         addUserInfoStub(server);
-        addIdamTokenStub(server);
+        addIdamTokenForServiceRequestStub(server);
         addCcdUpdatePaymentStatusGetTokenStub(server);
         addCcdServiceRequestUpdateSubmitEventStub(server);
 
