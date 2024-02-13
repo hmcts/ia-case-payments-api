@@ -53,14 +53,6 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .put("/payment-updates")
             .then()
             .extract().response();
-        System.out.println(getPaymentRequest().getStatus());
-        System.out.println(getPaymentRequest().getCcdCaseNumber());
-        System.out.println(getPaymentRequest().getReference());
-
-        System.out.println(response.getBody().prettyPrint());
-        System.out.println(response.getBody().toString());
-        System.out.println(response.getBody().print());
-        System.out.println(response.getBody().prettyPeek());
 
         assertEquals(200, response.getStatusCode());
     }

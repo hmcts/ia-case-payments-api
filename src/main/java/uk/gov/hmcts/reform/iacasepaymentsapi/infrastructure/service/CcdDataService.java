@@ -71,14 +71,13 @@ public class CcdDataService {
         } catch (IdentityManagerResponseException ex) {
 
             log.error("Unauthorized access to getCaseById", ex.getMessage());
-            System.out.println("Unauthorized access to getCaseById");
             throw new IdentityManagerResponseException(ex.getMessage(), ex);
         }
 
         // Get case details by Id
         final StartEventDetails startEventDetails = getCase(userToken, s2sToken, uid, jurisdiction, caseType, caseId);
         log.info("Case details found for the caseId: {}", caseId);
-        System.out.println("Case details found for the caseId: " + caseId);
+
         if (!isPaymentReferenceExists(startEventDetails.getCaseDetails().getCaseData(),
                                       caseMetaData.getPaymentReference()) && !isWaysToPay) {
 
@@ -98,7 +97,7 @@ public class CcdDataService {
 
         log.info("Case payment status updated for the caseId: {}, Status: {}, Message: {}", caseId,
                  submitEventDetails.getCallbackResponseStatusCode(), submitEventDetails.getCallbackResponseStatus());
-        System.out.println("Case payment status updated for the caseId: " + caseId + ", Status: " + submitEventDetails.getCallbackResponseStatusCode() + ", Message: " + submitEventDetails.getCallbackResponseStatus());
+
         return submitEventDetails;
     }
 

@@ -105,7 +105,7 @@ public class CcdCaseCreationTest {
 
         MapValueExpander.expandValues(data);
 
-        String eventId = "paymentAppeal";
+        String eventId = "submitAppeal";
         StartEventDetails startEventDetails =
             ccdApi.startEvent(legalRepToken, s2sToken, legalRepUserId, jurisdiction,
                               caseType, String.valueOf(caseId), eventId);
