@@ -44,7 +44,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
     @Test
     public void should_update_payment_status_successfully_with_status_code_200() {
 
-        shouldPayAndSubmitAppeal();
+        shouldSubmitAppeal();
 
         Response response = given(requestSpecification)
             .when()
@@ -54,14 +54,14 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .then()
             .extract().response();
 
-        assertEquals(response.getStatusCode(), 200);
+        assertEquals(200, response.getStatusCode());
     }
 
 
     @Test
     public void should_fail_on_invalid_payment_reference_with_status_code_400() {
 
-        shouldPayAndSubmitAppeal();
+        shouldSubmitAppeal();
 
         PaymentDto paymentDto = getPaymentRequest();
         paymentDto.setReference("RC-1111-2222-3333-4444");
@@ -74,7 +74,7 @@ public class UpdatePaymentStatusTest extends CcdCaseCreationTest {
             .then()
             .extract().response();
 
-        assertEquals(response.getStatusCode(), 400);
+        assertEquals(400, response.getStatusCode());
     }
 
     private PaymentDto getPaymentRequest() {

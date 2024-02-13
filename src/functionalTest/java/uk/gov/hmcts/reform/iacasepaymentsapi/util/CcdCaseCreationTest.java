@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +26,12 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.StartEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.CasePaymentRequestDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 
 public class CcdCaseCreationTest {
 
@@ -43,17 +49,24 @@ public class CcdCaseCreationTest {
     private String legalRepToken;
     private String legalRepUserId;
     public String paymentReference;
+    public String appealReferenceNumber;
+    public String responsibleParty;
+    public String serviceRequestReference;
 
     private static final String jurisdiction = "IA";
     private static final String caseType = "Asylum";
 
     @Autowired
     private CcdDataApi ccdApi;
+    @Autowired
+    private ServiceRequestApi serviceRequestApi;
 
-    public void shouldPayAndSubmitAppeal() {
+    public void shouldSubmitAppeal() {
 
         startAppeal();
         submitAppeal();
+        createServiceRequest();
+        payForAppeal();
     }
 
     private void startAppeal() {
@@ -110,6 +123,65 @@ public class CcdCaseCreationTest {
             ccdApi.submitEvent(legalRepToken, s2sToken, String.valueOf(caseId), content);
 
         paymentReference = submitEventDetails.getData().get("paymentReference").toString();
+        appealReferenceNumber = submitEventDetails.getData().get("appealReferenceNumber").toString();
+        responsibleParty = submitEventDetails.getData().get("appellantGivenNames").toString() + " " +
+            submitEventDetails.getData().get("appellantFamilyName").toString();
+    }
+
+    private void payForAppeal() {
+
+        Map<String, Object> data = new HashMap<>();
+
+        final List<uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value> values = new ArrayList<>();
+        values.add(
+            new uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value("PBA0087412", "PBA0087412"));
+        DynamicList pbaList = new DynamicList(values.get(0), values);
+
+        data.put("paymentAccountList", pbaList);
+        data.put("decisionHearingFeeOption", "decisionWithHearing");
+
+        MapValueExpander.expandValues(data);
+
+        String eventId = "payForAppeal";
+        StartEventDetails startEventDetails =
+            ccdApi.startEvent(legalRepToken, s2sToken, legalRepUserId, jurisdiction,
+                              caseType, String.valueOf(caseId), eventId);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("id", eventId);
+        CaseDataContent content =
+            new CaseDataContent(String.valueOf(caseId), data, event, startEventDetails.getToken(), true);
+
+        SubmitEventDetails submitEventDetails =
+            ccdApi.submitEvent(legalRepToken, s2sToken, String.valueOf(caseId), content);
+
+        paymentReference = submitEventDetails.getData().get("paymentReference").toString();
+        appealReferenceNumber = submitEventDetails.getData().get("appealReferenceNumber").toString();
+        responsibleParty = submitEventDetails.getData().get("appellantGivenNames").toString() + " " +
+            submitEventDetails.getData().get("appellantFamilyName").toString();
+    }
+    private void createServiceRequest() {
+
+        ServiceRequestRequest serviceRequestRequest = ServiceRequestRequest.builder()
+            .callBackUrl("")
+            .casePaymentRequest(
+                CasePaymentRequestDto.builder()
+                    .action("payment")
+                    .responsibleParty(responsibleParty)
+                    .build())
+            .caseReference(appealReferenceNumber)
+            .ccdCaseNumber(String.valueOf(caseId))
+            .fees(new FeeDto[]{
+                FeeDto.builder()
+                    .calculatedAmount(BigDecimal.valueOf(100.00))
+                    .code("Code")
+                    .version("1")
+                    .volume(1).build()
+            })
+            .build();
+        ServiceRequestResponse serviceRequestResponse =
+            serviceRequestApi.createServiceRequest(legalRepToken, s2sToken, serviceRequestRequest);
+        serviceRequestReference = serviceRequestResponse.getServiceRequestReference();
     }
 
     private Map<String, Object> getStartAppealData() {
