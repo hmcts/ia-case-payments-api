@@ -51,21 +51,17 @@ public class CcdCaseCreationTest {
     public String paymentReference;
     public String appealReferenceNumber;
     public String responsibleParty;
-    public String serviceRequestReference;
 
     private static final String jurisdiction = "IA";
     private static final String caseType = "Asylum";
 
     @Autowired
     private CcdDataApi ccdApi;
-    @Autowired
-    private ServiceRequestApi serviceRequestApi;
 
     public void shouldSubmitAppeal() {
 
         startAppeal();
         submitAppeal();
-        createServiceRequest();
         payForAppeal();
     }
 
@@ -159,29 +155,6 @@ public class CcdCaseCreationTest {
         appealReferenceNumber = submitEventDetails.getData().get("appealReferenceNumber").toString();
         responsibleParty = submitEventDetails.getData().get("appellantGivenNames").toString() + " " +
             submitEventDetails.getData().get("appellantFamilyName").toString();
-    }
-    private void createServiceRequest() {
-
-        ServiceRequestRequest serviceRequestRequest = ServiceRequestRequest.builder()
-            .callBackUrl("")
-            .casePaymentRequest(
-                CasePaymentRequestDto.builder()
-                    .action("payment")
-                    .responsibleParty(responsibleParty)
-                    .build())
-            .caseReference(appealReferenceNumber)
-            .ccdCaseNumber(String.valueOf(caseId))
-            .fees(new FeeDto[]{
-                FeeDto.builder()
-                    .calculatedAmount(BigDecimal.valueOf(100.00))
-                    .code("Code")
-                    .version("1")
-                    .volume(1).build()
-            })
-            .build();
-        ServiceRequestResponse serviceRequestResponse =
-            serviceRequestApi.createServiceRequest(legalRepToken, s2sToken, serviceRequestRequest);
-        serviceRequestReference = serviceRequestResponse.getServiceRequestReference();
     }
 
     private Map<String, Object> getStartAppealData() {
