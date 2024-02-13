@@ -88,7 +88,7 @@ public class CcdCaseCreationTest {
 
         final List<uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value> values = new ArrayList<>();
         values.add(
-            new uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value("PBA0087535", "PBA0087535"));
+            new uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value("PBA0087412", "PBA0087412"));
         DynamicList pbaList = new DynamicList(values.get(0), values);
 
         data.put("paymentAccountList", pbaList);
@@ -96,7 +96,7 @@ public class CcdCaseCreationTest {
 
         MapValueExpander.expandValues(data);
 
-        String eventId = "payAndSubmitAppeal";
+        String eventId = "submitAppeal";
         StartEventDetails startEventDetails =
             ccdApi.startEvent(legalRepToken, s2sToken, legalRepUserId, jurisdiction,
                               caseType, String.valueOf(caseId), eventId);
