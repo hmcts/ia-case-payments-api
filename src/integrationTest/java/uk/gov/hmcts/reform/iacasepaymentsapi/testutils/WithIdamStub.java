@@ -40,10 +40,10 @@ public interface WithIdamStub {
                 newRequestPattern(POST, urlEqualTo("/idam/o/token"))
                     .withHeader(CONTENT_TYPE, containing(APPLICATION_FORM_URLENCODED_VALUE))
                     .withRequestBody(equalTo("grant_type=password&redirect_uri=http%3A%2F%2Flocalhost%3"
-                                                 + "A3451%2Foauth2redirect&client_id=ia&client_secret=somethi"
-                                                 + "ng&username=ia-system-user%40fake.hmcts.net&password=Lond"
-                                                 + "on05&scope=openid+profile+authorities+acr+roles+create-us"
-                                                 + "er+manage-user+search-user"))
+                                         + "A3002%2Foauth2%2Fcallback&client_id=ia&client_secret=some"
+                                         + "thing&username=ia-system-user%40fake.hmcts.net&password=s"
+                                         + "omething&scope=openid+profile+authorities+acr+roles+creat"
+                                         + "e-user+manage-user+search-user"))
                     .build(),
                 aResponse()
                     .withStatus(200)
@@ -53,4 +53,5 @@ public interface WithIdamStub {
             )
         );
     }
+
 }
