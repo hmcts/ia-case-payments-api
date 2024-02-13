@@ -11,7 +11,7 @@ properties([
     booleanParam(name: 'skipFortifyScan', defaultValue: true, description: 'Tick the checkbox for skip'),
     booleanParam(name: 'skipSecurityScan', defaultValue: true, description: 'Tick the checkbox for skip'),
     booleanParam(name: 'skipMutationTests', defaultValue: true, description: 'Tick the checkbox for skip'),
-    booleanParam(name: 'skipNonFunctionalTests', defaultValue: true, description: 'Tick the checkbox for skip'),
+    booleanParam(name: 'skipNonFunctionalTests', defaultValue: false, description: 'Tick the checkbox for skip'),
     booleanParam(name: 'skipFullFunctionalTests', defaultValue: false, description: 'Tick the checkbox for skip'),
   ])
 ])
