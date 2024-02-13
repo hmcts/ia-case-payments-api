@@ -125,8 +125,7 @@ public class CcdCaseCreationTest {
 
         assert ("a" == "b") : "paymentReference: " + paymentReference +
             "\n appealReferenceNumber: " + appealReferenceNumber +
-            "\n responsibleParty: " + responsibleParty +
-            "\n state: " + submitEventDetails.getData().get("state").toString();
+            "\n responsibleParty: " + responsibleParty;
     }
 
     private void payForAppeal() {
@@ -140,6 +139,7 @@ public class CcdCaseCreationTest {
 
         data.put("paymentAccountList", pbaList);
         data.put("decisionHearingFeeOption", "decisionWithHearing");
+        data.put("state", "paymentPending");
 
         MapValueExpander.expandValues(data);
 
