@@ -68,7 +68,9 @@ public class UpdatePaymentStatusController {
         @RequestBody PaymentDto paymentDto
     ) {
         String caseId = paymentDto.getCcdCaseNumber();
-
+        log.info(paymentDto.getStatus());
+        log.info(paymentDto.getReference());
+        log.info(caseId);
         CaseMetaData caseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS, JURISDICTION,
                 CASE_TYPE, Long.parseLong(caseId), paymentDto.getStatus(), paymentDto.getReference());

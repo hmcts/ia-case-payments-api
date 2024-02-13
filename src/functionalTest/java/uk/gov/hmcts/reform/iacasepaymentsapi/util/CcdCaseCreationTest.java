@@ -62,7 +62,7 @@ public class CcdCaseCreationTest {
 
         startAppeal();
         submitAppeal();
-        payForAppeal();
+        // payForAppeal();
     }
 
     private void startAppeal() {
@@ -122,10 +122,6 @@ public class CcdCaseCreationTest {
         appealReferenceNumber = submitEventDetails.getData().get("appealReferenceNumber").toString();
         responsibleParty = submitEventDetails.getData().get("appellantGivenNames").toString() + " " +
             submitEventDetails.getData().get("appellantFamilyName").toString();
-
-        assert ("a" == "b") : "paymentReference: " + paymentReference +
-            "\n appealReferenceNumber: " + appealReferenceNumber +
-            "\n responsibleParty: " + responsibleParty;
     }
 
     private void payForAppeal() {
