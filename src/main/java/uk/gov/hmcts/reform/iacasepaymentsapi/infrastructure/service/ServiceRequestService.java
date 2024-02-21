@@ -92,18 +92,18 @@ public class ServiceRequestService {
             );
         } catch (FeignException fe) {
             log.error(
-                "Error in calling Payment Service Request API for case reference {} \n {}",
+                "Error in calling Payment Service Request API for case reference {} \n {}\n Retrying now...",
                 ccdCaseReferenceNumber,
                 fe.getMessage()
             );
-            throw new PaymentServiceRequestException(fe.getMessage(), fe.getCause());
+            throw fe;
         }
         return serviceRequestResponse;
     }
 
     @Recover
-    public ServiceRequestResponse recover(PaymentServiceRequestException pe, Callback<AsylumCase> callback, Fee fee) {
-        log.error("Error in calling Payment Service Request API for 3 retries \n {}", pe.getMessage());
-        return null;
+    public ServiceRequestResponse recover(FeignException fe, Callback<AsylumCase> callback, Fee fee) {
+        log.error("Error in calling Payment Service Request API for 3 retries \n {}", fe.getMessage());
+        throw new PaymentServiceRequestException(fe.getMessage(), fe.getCause());
     }
 }

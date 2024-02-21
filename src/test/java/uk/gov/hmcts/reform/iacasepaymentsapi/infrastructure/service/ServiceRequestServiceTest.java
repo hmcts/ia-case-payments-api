@@ -162,7 +162,7 @@ public class ServiceRequestServiceTest {
 
     @Test
     void should_return_null_in_recover_method() {
-        var ex = mock(PaymentServiceRequestException.class);
+        var ex = mock(FeignException.class);
         when(ex.getMessage()).thenReturn(ERROR_TEST_MESSAGE);
         ServiceRequestResponse response = serviceRequestService.recover(ex, callback, fee);
         Assertions.assertNull(response);
