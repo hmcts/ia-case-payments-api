@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -57,6 +59,8 @@ public class ServiceRequestServiceTest {
     @Mock private AsylumCase asylumCase;
     private String token = "token";
     private String serviceToken = "Bearer serviceToken";
+    private static final String ERROR_TEST_MESSAGE = "error log test message";
+
 
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> serviceTokenCaptor = ArgumentCaptor.forClass(String.class);
@@ -65,6 +69,7 @@ public class ServiceRequestServiceTest {
 
     private Fee fee;
 
+    @InjectMocks
     private ServiceRequestService serviceRequestService;
 
     @BeforeEach
@@ -95,7 +100,7 @@ public class ServiceRequestServiceTest {
     }
 
     @Test
-    void should_create_request_for_service_request_and_get_response_for_service_request() {
+    void should_create_request_for_service_request_and_get_response_for_service_request() throws Exception {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
@@ -135,7 +140,7 @@ public class ServiceRequestServiceTest {
     }
 
     @Test
-    void should_throw_runtime_error_when_service_request_api_fails() {
+    void should_throw_feign_exception_service_request_api_throws() throws Exception {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
         when(asylumCase.read(AsylumCaseDefinition.APPELLANT_GIVEN_NAMES, String.class))
@@ -154,4 +159,11 @@ public class ServiceRequestServiceTest {
         assertThrows(PaymentServiceRequestException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
     }
 
+    @Test
+    void should_return_null_in_recover_method() throws Exception {
+        var ex = mock(FeignException.class);
+        when(ex.getMessage()).thenReturn(ERROR_TEST_MESSAGE);
+        ServiceRequestResponse response = serviceRequestService.recover(ex, callback, fee);
+        assertNull(response);
+    }
 }

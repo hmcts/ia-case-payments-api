@@ -3,6 +3,10 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
@@ -20,6 +24,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.P
 
 @Service
 @Slf4j
+@EnableRetry
 public class ServiceRequestService {
 
     private static final String PAYMENT_ACTION = "payment";
@@ -40,7 +45,8 @@ public class ServiceRequestService {
         this.callBackUrl = callBackUrl;
     }
 
-    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) {
+    @Retryable(retryFor = { FeignException.class }, maxAttempts = 3, backoff = @Backoff(3000))
+    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) throws Exception {
 
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
         AsylumCase asylumCase = caseDetails.getCaseData();
@@ -55,10 +61,8 @@ public class ServiceRequestService {
 
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
-
-        log.info("Calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
         ServiceRequestResponse serviceRequestResponse;
-
+        log.info("Calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
         try {
             serviceRequestResponse = serviceRequestApi.createServiceRequest(
                 userAuth,
@@ -86,7 +90,6 @@ public class ServiceRequestService {
                 ccdCaseReferenceNumber,
                 serviceRequestResponse != null ? serviceRequestResponse.getServiceRequestReference() : ""
             );
-
         } catch (FeignException fe) {
             log.error(
                 "Error in calling Payment Service Request API for case reference {} \n {}",
@@ -96,5 +99,11 @@ public class ServiceRequestService {
             throw new PaymentServiceRequestException(fe.getMessage(), fe.getCause());
         }
         return serviceRequestResponse;
+    }
+
+    @Recover
+    public ServiceRequestResponse recover(PaymentServiceRequestException pe, Callback<AsylumCase> callback, Fee fee) {
+        log.error("Error in calling Payment Service Request API for 3 retries \n {}", pe.getMessage());
+        return null;
     }
 }
