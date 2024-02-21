@@ -46,7 +46,7 @@ public class ServiceRequestService {
     }
 
     @Retryable(retryFor = { FeignException.class }, maxAttempts = 3, backoff = @Backoff(3000))
-    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) throws Exception {
+    public ServiceRequestResponse createServiceRequest(Callback<AsylumCase> callback, Fee fee) {
 
         CaseDetails<AsylumCase> caseDetails = callback.getCaseDetails();
         AsylumCase asylumCase = caseDetails.getCaseData();
