@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.PaymentServiceRequestException;
 
 import java.util.Optional;
 
@@ -82,7 +83,7 @@ public class ServiceRequestRetryTest {
         when(systemTokenGenerator.generate()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
         when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
-                .thenThrow(FeignException.class);
+                .thenThrow(PaymentServiceRequestException.class);
         long start = System.currentTimeMillis();
         ServiceRequestResponse response = serviceRequestService.createServiceRequest(callback, fee);
         long end = System.currentTimeMillis();
