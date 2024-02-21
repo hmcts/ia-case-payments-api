@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 
-import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
