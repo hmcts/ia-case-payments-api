@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import feign.FeignException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -157,14 +156,13 @@ public class ServiceRequestServiceTest {
         when(serviceRequestApi.createServiceRequest(eq(token), eq(serviceToken), any(ServiceRequestRequest.class)))
             .thenThrow(FeignException.FeignClientException.class);
 
-        assertThrows(PaymentServiceRequestException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
+        assertThrows(FeignException.FeignClientException.class, () -> serviceRequestService.createServiceRequest(callback, fee));
     }
 
     @Test
     void should_return_null_in_recover_method() {
         var ex = mock(FeignException.class);
         when(ex.getMessage()).thenReturn(ERROR_TEST_MESSAGE);
-        ServiceRequestResponse response = serviceRequestService.recover(ex, callback, fee);
-        Assertions.assertNull(response);
+        assertThrows(PaymentServiceRequestException.class, () -> serviceRequestService.recover(ex, callback, fee));
     }
 }
