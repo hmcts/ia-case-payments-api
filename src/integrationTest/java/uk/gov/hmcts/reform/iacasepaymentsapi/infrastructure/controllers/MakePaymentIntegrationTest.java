@@ -36,7 +36,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithRefDataStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 
-public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
+class MakePaymentIntegrationTest extends SpringBootIntegrationTest
         implements WithServiceAuthStub, WithFeeStub, WithPaymentStub, WithIdamStub, WithRefDataStub {
 
     @org.springframework.beans.factory.annotation.Value("classpath:organisation-response.json")
@@ -44,9 +44,9 @@ public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
 
     @Test
     @WithMockUser(authorities = {"caseworker-ia-legalrep-solicitor"})
-    public void executionEndpoint() throws Exception {
+    void executionEndpoint() throws Exception {
 
-        addServiceAuthStub(server);
+        addServiceAuthStub(server, "ia");
         addFeesRegisterStub(server);
         addPaymentStub(server);
         addUserInfoStub(server);
@@ -104,5 +104,4 @@ public class MakePaymentIntegrationTest extends SpringBootIntegrationTest
                         .read(FEE_AMOUNT_GBP, String.class).orElse("8000"));
         assertEquals("2", responseNoHearing.getAsylumCase().read(FEE_VERSION, String.class).orElse(""));
     }
-
 }
