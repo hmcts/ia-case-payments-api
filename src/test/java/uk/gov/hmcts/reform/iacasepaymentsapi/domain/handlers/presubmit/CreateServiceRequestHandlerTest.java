@@ -9,13 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType.NO_REMISSION;
 
 import java.math.BigDecimal;
@@ -85,12 +79,15 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -111,12 +108,15 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -137,12 +137,15 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -163,12 +166,15 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -191,6 +197,8 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, never()).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, never()).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, never()).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -252,6 +260,8 @@ class CreateServiceRequestHandlerTest {
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, never()).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, never()).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -294,6 +304,8 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, never()).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, never()).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -319,6 +331,8 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(0)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, never()).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, never()).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -339,12 +353,15 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
     @Test
@@ -365,9 +382,12 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
             createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);

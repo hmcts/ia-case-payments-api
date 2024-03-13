@@ -6,6 +6,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.E
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
@@ -83,6 +84,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
             && paymentStatus != PaymentStatus.PAID) {
             ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
+            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
         }
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
