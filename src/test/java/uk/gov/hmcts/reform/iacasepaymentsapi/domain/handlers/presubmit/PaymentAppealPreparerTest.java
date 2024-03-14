@@ -584,7 +584,7 @@ class PaymentAppealPreparerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
-
+        when(asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
@@ -593,7 +593,6 @@ class PaymentAppealPreparerTest {
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
             .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
-        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 
 
