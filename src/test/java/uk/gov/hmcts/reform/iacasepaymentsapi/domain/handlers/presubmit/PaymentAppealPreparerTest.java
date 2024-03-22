@@ -503,7 +503,6 @@ class PaymentAppealPreparerTest {
 
     @Test
     void handling_should_throw_if_appeal_type_is_wrong() {
-
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
