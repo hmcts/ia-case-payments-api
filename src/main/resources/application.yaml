@@ -123,6 +123,7 @@ security:
       - "editAppeal"
       - "generateServiceRequest"
       - "recordRemissionDecision"
+      - "generateServiceRequest"
     caseworker-ia-system:
       - "updatePaymentStatus"
 
