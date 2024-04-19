@@ -166,15 +166,16 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
         }
 
-        YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
-            .orElse(YesOrNo.NO);
+        Optional<YesOrNo> hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class);
+
+        if (hasServiceRequestAlready.isEmpty()) {
+            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
+        }
 
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
-            && hasServiceRequestAlready != YesOrNo.YES
+            && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
             && hasNoRemission(asylumCase)
             && isAdmin != YesOrNo.YES) {
-
-            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
 
             if (hasNoRemission(asylumCase)) {
                 asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
