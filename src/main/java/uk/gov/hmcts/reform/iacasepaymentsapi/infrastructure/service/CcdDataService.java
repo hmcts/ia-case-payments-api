@@ -85,7 +85,6 @@ public class CcdDataService {
             throw new IdentityManagerResponseException(ex.getMessage(), ex);
         }
 
-//        if not (appealtype is pa and pachoice is pay later) and state is not appealstarted, submitted or pending payment then throw error
         // Get case details by Id
         final StartEventDetails startEventDetails = startEvent(userToken, s2sToken, uid, jurisdiction, caseType, caseId);
         log.info("Case details found for the caseId: {}", caseId);
