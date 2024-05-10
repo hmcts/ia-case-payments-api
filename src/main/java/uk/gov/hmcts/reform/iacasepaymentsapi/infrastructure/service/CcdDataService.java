@@ -5,24 +5,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.StartEventDetails;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.*;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemUserProvider;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.*;
 
 @Service
 @Slf4j
@@ -74,9 +70,12 @@ public class CcdDataService {
             throw new IdentityManagerResponseException(ex.getMessage(), ex);
         }
 
+//        if not (appealtype is pa and pachoice is pay later) and state is not appealstarted, submitted or pending payment then throw error
         // Get case details by Id
-        final StartEventDetails startEventDetails = getCase(userToken, s2sToken, uid, jurisdiction, caseType, caseId);
+        final StartEventDetails startEventDetails = startEvent(userToken, s2sToken, uid, jurisdiction, caseType, caseId);
         log.info("Case details found for the caseId: {}", caseId);
+
+        handleUpdatePaymentStatusValidation(startEventDetails.getCaseDetails(), caseId);
 
         if (!isPaymentReferenceExists(startEventDetails.getCaseDetails().getCaseData(),
                                       caseMetaData.getPaymentReference()) && !isWaysToPay) {
@@ -101,7 +100,7 @@ public class CcdDataService {
         return submitEventDetails;
     }
 
-    private StartEventDetails getCase(
+    private StartEventDetails startEvent(
         String userToken, String s2sToken, String uid, String jurisdiction, String caseType, String caseId) {
 
         return ccdDataApi.startEvent(userToken, s2sToken, uid, jurisdiction, caseType,
@@ -120,5 +119,18 @@ public class CcdDataService {
         Optional<String> paymentReference = asylumCase.read(PAYMENT_REFERENCE, String.class);
 
         return paymentReference.isPresent() && paymentReference.get().equals(reference);
+    }
+
+    private void handleUpdatePaymentStatusValidation(CaseDetails<AsylumCase> caseDetails, String caseId) {
+        State state = caseDetails.getState();
+        AppealType appealType = caseDetails.getCaseData().read(APPEAL_TYPE, AppealType.class).orElseThrow(
+            () -> new IllegalStateException("No appeal type in case data for case: " + caseId)
+        );
+        String paAppealTypePaymentOption = caseDetails.getCaseData().read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class).orElse("");
+        String paAppealTypeAipPaymentOption = caseDetails.getCaseData().read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class).orElse("");
+        List<State> validNonPaStates = List.of(APPEAL_STARTED, APPEAL_SUBMITTED, APPEAL_STARTED_BY_ADMIN, PENDING_PAYMENT);
+        if ((!appealType.equals(AppealType.PA) || !(paAppealTypePaymentOption.equals("payLater") || paAppealTypeAipPaymentOption.equals("payLater"))) && !validNonPaStates.contains(state)) {
+            throw new IllegalStateException(appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
+        }
     }
 }

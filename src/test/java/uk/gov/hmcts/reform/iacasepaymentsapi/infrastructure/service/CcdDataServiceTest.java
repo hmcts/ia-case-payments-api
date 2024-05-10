@@ -4,6 +4,9 @@ import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -11,6 +14,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent;
@@ -26,6 +30,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemToken
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemUserProvider;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,9 +43,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_REFERENCE;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.*;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.PENDING_PAYMENT;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -257,6 +262,103 @@ class CcdDataServiceTest {
         verify(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
     }
 
+    @Test
+    void service_should_throw_exception_if_no_appeal_type() {
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        when(systemUserProvider.getSystemUserId("Bearer " + token)).thenReturn(userId);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        StartEventDetails startEventResponse = new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
+        when(ccdDataApi.startEvent(
+            "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
+            String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
+        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        CaseDataContent caseDataContent = getCaseDataContent("Paid");
+        when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
+                                    caseDataContent)).thenReturn(getSubmitEventResponse());
+
+        assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
+            getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN), "No appeal type in case data for case: " + caseId);
+    }
+
+    @ParameterizedTest
+    @EnumSource(State.class)
+    void service_should_not_throw_exception_if_validation_passes_PA_pay_later(State state) {
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        when(systemUserProvider.getSystemUserId("Bearer " + token)).thenReturn(userId);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        StartEventDetails startEventResponse = new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
+        when(ccdDataApi.startEvent(
+            "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
+            String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
+        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        CaseDataContent caseDataContent = getCaseDataContent("Paid");
+        when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
+                                    caseDataContent)).thenReturn(getSubmitEventResponse());
+        when(caseDetails.getState()).thenReturn(state);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
+        when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
+        when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+        assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
+            getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
+        when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+        when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
+        assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
+            getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = State.class, names = { "APPEAL_STARTED", "APPEAL_SUBMITTED", "APPEAL_STARTED_BY_ADMIN", "PENDING_PAYMENT" })
+    void service_should_not_throw_exception_if_validation_passes_non_PA_pay_later(State state) {
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        when(systemUserProvider.getSystemUserId("Bearer " + token)).thenReturn(userId);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        StartEventDetails startEventResponse = new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
+        when(ccdDataApi.startEvent(
+            "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
+            String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
+        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        CaseDataContent caseDataContent = getCaseDataContent("Paid");
+        when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
+                                    caseDataContent)).thenReturn(getSubmitEventResponse());
+        for (AppealType appealType : AppealType.values() ) {
+            when(caseDetails.getState()).thenReturn(state);
+            when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
+            when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
+                getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = State.class, names = { "APPEAL_STARTED", "APPEAL_SUBMITTED", "APPEAL_STARTED_BY_ADMIN", "PENDING_PAYMENT" }, mode = EnumSource.Mode.EXCLUDE)
+    void service_should_throw_exception_if_validation_fails(State state) {
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+        when(systemUserProvider.getSystemUserId("Bearer " + token)).thenReturn(userId);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        StartEventDetails startEventResponse = new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
+        when(ccdDataApi.startEvent(
+            "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
+            String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
+        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        CaseDataContent caseDataContent = getCaseDataContent("Paid");
+        when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
+                                    caseDataContent)).thenReturn(getSubmitEventResponse());
+        for (AppealType appealType : AppealType.values() ) {
+            when(caseDetails.getState()).thenReturn(state);
+            when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
+            when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
+                 getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN),
+             appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
+        }
+    }
+
     private StartEventDetails getStartEventResponse(String paymentReference) {
 
         when(caseDetails.getId()).thenReturn(caseId);
@@ -267,6 +369,7 @@ class CcdDataServiceTest {
         when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("HU/50004/2021"));
         when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.of(paymentReference));
         when(asylumCase.read(PAYMENT_STATUS, String.class)).thenReturn(Optional.of("Failed"));
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
 
         return new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
     }
