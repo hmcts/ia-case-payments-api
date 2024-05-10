@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
@@ -30,7 +30,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemToken
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemUserProvider;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,9 +42,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.*;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.*;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State.PENDING_PAYMENT;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -140,7 +136,7 @@ class CcdDataServiceTest {
         when(systemTokenGenerator.generate()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
         when(systemUserProvider.getSystemUserId("Bearer " + token)).thenReturn(userId);
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.of("RC-1627-5070-9329-7815"));
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.of("RC-1627-5070-9329-7815"));
 
         StartEventDetails startEventResponse = getStartEventResponse("RC-1627-5070-9329-1234");
         when(
@@ -189,7 +185,7 @@ class CcdDataServiceTest {
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
 
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
 
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
@@ -226,7 +222,7 @@ class CcdDataServiceTest {
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
 
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
 
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
@@ -272,7 +268,7 @@ class CcdDataServiceTest {
         when(ccdDataApi.startEvent(
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
@@ -292,18 +288,18 @@ class CcdDataServiceTest {
         when(ccdDataApi.startEvent(
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
         when(caseDetails.getState()).thenReturn(state);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
-        when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
-        when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+        when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.PA));
+        when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
+        when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
         assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
             getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
-        when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
-        when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
+        when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+        when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("payLater"));
         assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
             getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
     }
@@ -319,15 +315,15 @@ class CcdDataServiceTest {
         when(ccdDataApi.startEvent(
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
         for (AppealType appealType : AppealType.values() ) {
             when(caseDetails.getState()).thenReturn(state);
-            when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
-            when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
-            when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
+            when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
             assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
                 getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN));
         }
@@ -344,15 +340,15 @@ class CcdDataServiceTest {
         when(ccdDataApi.startEvent(
             "Bearer " + token, serviceToken, userId, jurisdiction,  caseType,
             String.valueOf(caseId), eventId)).thenReturn(startEventResponse);
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
         for (AppealType appealType : AppealType.values() ) {
             when(caseDetails.getState()).thenReturn(state);
-            when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
-            when(asylumCase.read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
-            when(asylumCase.read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
+            when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
+            when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
             assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
                  getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN),
              appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
@@ -366,10 +362,10 @@ class CcdDataServiceTest {
         when(caseDetails.getJurisdiction()).thenReturn(jurisdiction);
         when(caseDetails.getCaseData()).thenReturn(asylumCase);
 
-        when(asylumCase.read(APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("HU/50004/2021"));
-        when(asylumCase.read(PAYMENT_REFERENCE, String.class)).thenReturn(Optional.of(paymentReference));
-        when(asylumCase.read(PAYMENT_STATUS, String.class)).thenReturn(Optional.of("Failed"));
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER, String.class)).thenReturn(Optional.of("HU/50004/2021"));
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.of(paymentReference));
+        when(asylumCase.read(AsylumCaseDefinition.PAYMENT_STATUS, String.class)).thenReturn(Optional.of("Failed"));
+        when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
 
         return new StartEventDetails(Event.UPDATE_PAYMENT_STATUS, eventToken, caseDetails);
     }
@@ -379,7 +375,7 @@ class CcdDataServiceTest {
         Map<String, Object> data = new HashMap<>();
         data.put("appealReferenceNumber", "HU/50004/2021");
         data.put("paymentReference", "RC-1627-5070-9329-7815");
-        data.put(PAYMENT_STATUS.value(), "Success");
+        data.put(AsylumCaseDefinition.PAYMENT_STATUS.value(), "Success");
 
         return new SubmitEventDetails(caseId, jurisdiction, State.APPEAL_SUBMITTED, data,
                                       200, "CALLBACK_COMPLETED");
@@ -388,7 +384,7 @@ class CcdDataServiceTest {
     private CaseDataContent getCaseDataContent(String paymentStatus) {
 
         Map<String, Object> data = new HashMap<>();
-        data.put(PAYMENT_STATUS.value(), paymentStatus);
+        data.put(AsylumCaseDefinition.PAYMENT_STATUS.value(), paymentStatus);
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("id", Event.UPDATE_PAYMENT_STATUS.toString());
