@@ -319,7 +319,7 @@ class CcdDataServiceTest {
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
-        for (AppealType appealType : AppealType.values() ) {
+        for (AppealType appealType : AppealType.values()) {
             when(caseDetails.getState()).thenReturn(state);
             when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
             when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
@@ -344,14 +344,14 @@ class CcdDataServiceTest {
         CaseDataContent caseDataContent = getCaseDataContent("Paid");
         when(ccdDataApi.submitEvent("Bearer " + token, serviceToken, String.valueOf(caseId),
                                     caseDataContent)).thenReturn(getSubmitEventResponse());
-        for (AppealType appealType : AppealType.values() ) {
+        for (AppealType appealType : AppealType.values()) {
             when(caseDetails.getState()).thenReturn(state);
             when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(appealType));
             when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
             when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(Optional.of("none"));
             assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
                  getCaseMetaData("Paid", "RC-1627-5070-9329-7815"), true, VALID_S2S_TOKEN),
-             appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
+                         appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
         }
     }
 

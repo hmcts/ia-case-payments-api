@@ -143,7 +143,8 @@ public class CcdDataService {
         String paAppealTypePaymentOption = caseDetails.getCaseData().read(PA_APPEAL_TYPE_PAYMENT_OPTION, String.class).orElse("");
         String paAppealTypeAipPaymentOption = caseDetails.getCaseData().read(PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class).orElse("");
         List<State> validNonPaStates = List.of(APPEAL_STARTED, APPEAL_SUBMITTED, APPEAL_STARTED_BY_ADMIN, PENDING_PAYMENT);
-        if ((!appealType.equals(AppealType.PA) || !(paAppealTypePaymentOption.equals("payLater") || paAppealTypeAipPaymentOption.equals("payLater"))) && !validNonPaStates.contains(state)) {
+        if ((!appealType.equals(AppealType.PA) || !(paAppealTypePaymentOption.equals("payLater") || paAppealTypeAipPaymentOption.equals("payLater")))
+            && !validNonPaStates.contains(state)) {
             throw new IllegalStateException(appealType.getValue() + " appeal payment should not be made at " + state.toString() + " state for case: " + caseId);
         }
     }
