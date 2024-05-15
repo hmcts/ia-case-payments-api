@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.AG;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.EU;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.HU;
@@ -9,6 +10,8 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.P
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_PBA_ACCOUNTS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ACCELERATED_DETAINED_APPEAL;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HELP_WITH_FEES_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
@@ -17,6 +20,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_EJP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption.WILL_PAY_FOR_APPEAL;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption.NO_REMISSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
@@ -90,6 +94,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             || isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase));
     }
 
+    // No payments for EJP Cases
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
                                 Callback<AsylumCase> callback,
                                 boolean isLegalRepJourney) {
@@ -101,9 +106,10 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         );
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-            && waysToPayEvents.contains(callback.getEvent())
-            && isLegalRepJourney
-            && isHuEaEuPa(callback.getCaseDetails().getCaseData());
+               && waysToPayEvents.contains(callback.getEvent())
+               && isLegalRepJourney
+               && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData())
+               && !isEjpCase(callback.getCaseDetails().getCaseData());
     }
 
     @Override
@@ -160,20 +166,24 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             return response;
         }
 
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
+
         if (callback.getEvent() != Event.RECORD_REMISSION_DECISION
             || (callback.getEvent() == Event.RECORD_REMISSION_DECISION
             && asylumCase.read(PAYMENT_STATUS).isEmpty())) {
             asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
         }
 
-        YesOrNo hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)
-            .orElse(YesOrNo.NO);
+        Optional<YesOrNo> hasServiceRequestAlready = asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class);
+
+        if (hasServiceRequestAlready.isEmpty()) {
+            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
+        }
 
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
-            && hasServiceRequestAlready != YesOrNo.YES
-            && hasNoRemission(asylumCase)) {
-
-            asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
+            && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
+            && hasNoRemission(asylumCase)
+            && isAdmin != YesOrNo.YES) {
 
             if (hasNoRemission(asylumCase)) {
                 asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
@@ -190,11 +200,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     }
 
 
-    private boolean isHuEaEuPa(AsylumCase asylumCase) {
+    private boolean isHuEaEuPaAgAda(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
         if (optionalAppealType.isPresent()) {
             AppealType appealType = optionalAppealType.get();
-            return List.of(HU, EA, EU, PA).contains(appealType);
+            boolean isNonAda = asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class)
+                .orElse(YesOrNo.NO).equals(YesOrNo.NO);
+            return isNonAda && (List.of(HU, EA, EU, PA, AG).contains(appealType));
         }
         return false;
     }
@@ -208,6 +220,11 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             || optRemissionType.isEmpty()
             || (optionalRemissionDecision.isPresent()
             && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+    }
+
+    // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
+    private boolean isEjpCase(AsylumCase asylumCase) {
+        return asylumCase.read(IS_EJP, YesOrNo.class).orElse(YesOrNo.NO) == YesOrNo.YES;
     }
 
     private boolean hasAipJourneyRemission(AsylumCase asylumCase) {

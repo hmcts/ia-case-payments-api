@@ -76,14 +76,22 @@ public enum AsylumCaseDefinition {
         "remissionType", new TypeReference<RemissionType>(){}),
     HAS_SERVICE_REQUEST_ALREADY(
         "hasServiceRequestAlready", new TypeReference<YesOrNo>(){}),
+    SERVICE_REQUEST_REFERENCE(
+        "serviceRequestReference", new TypeReference<String>(){}),
     IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS(
         "isServiceRequestTabVisibleConsideringRemissions", new TypeReference<YesOrNo>(){}),
     REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST(
         "requestFeeRemissionFlagForServiceRequest", new TypeReference<YesOrNo>(){}),
+    IS_ACCELERATED_DETAINED_APPEAL(
+        "isAcceleratedDetainedAppeal", new TypeReference<YesOrNo>(){}),
+    IS_ADMIN(
+        "isAdmin", new TypeReference<YesOrNo>(){}),
+    IS_EJP(
+        "isEjp", new TypeReference<YesOrNo>() {}),
     REMISSION_OPTION(
         "remissionOption", new TypeReference<RemissionOption>(){}),
     HELP_WITH_FEES_OPTION(
-        "helpWithFeesOption", new TypeReference<HelpWithFeesOption>(){}),
+        "helpWithFeesOption", new TypeReference<HelpWithFeesOption>(){})
     ;
 
     private final String value;
