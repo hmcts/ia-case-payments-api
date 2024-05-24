@@ -14,8 +14,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
 
         switch (response.status()) {
-            case 400:
-            case 404: {
+            case 400, 404: {
                 log.error("Error in calling Feign client. Status code "
                               + response.status() + ", methodKey = " + methodKey);
                 log.error("Error details: {}", response.body().toString());

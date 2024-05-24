@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +68,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.OrganisationEnt
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.OrganisationResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
@@ -87,18 +85,21 @@ class PaymentAppealPreparerTest {
     @Mock
     private FeeService feeService;
     @Mock
-    private ServiceRequestService serviceRequestService;
-    @Mock
     private OrganisationEntityResponse organisationEntityResponse;
     @Mock
     private OrganisationResponse organisationResponse;
 
     private PaymentAppealPreparer paymentAppealPreparer;
+    private List<String> accountsFromOrg;
 
     @BeforeEach
     public void setUp() {
-        paymentAppealPreparer = new PaymentAppealPreparer(refDataService, feeService, serviceRequestService);
+        paymentAppealPreparer = new PaymentAppealPreparer(refDataService, feeService);
         organisationResponse = new OrganisationResponse(organisationEntityResponse);
+        accountsFromOrg = new ArrayList<>();
+        when(refDataService.getOrganisationResponse())
+            .thenReturn(organisationResponse);
+        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
 
         lenient().when(callback.getCaseDetails()).thenReturn(caseDetails);
         lenient().when(caseDetails.getCaseData()).thenReturn(asylumCase);
@@ -110,48 +111,44 @@ class PaymentAppealPreparerTest {
 
     @Test
     void should_get_payment_accounts_from_refDataService() {
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
         accountsFromOrg.add("PBA1234588");
 
-        List<Value> valueList = new ArrayList<Value>();
-        valueList.add(new Value("PBA1234567", "PBA1234567"));
-        valueList.add(new Value("PBA1234588", "PBA1234588"));
+        List<Value> valueList = new ArrayList<>();
+        addPbaNumbersToValueList(valueList);
 
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
 
-        AsylumCase asylumCase = callbackResponse.getData();
+        AsylumCase asylumCaseData = callbackResponse.getData();
 
-        List<Value> accountListElements = accountsFromOrg
-            .stream()
-            .map(idValue -> new Value(idValue, idValue))
-            .collect(Collectors.toList());
-
-        verify(asylumCase, times(1))
+        verify(asylumCaseData, times(1))
             .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
+    }
+
+    private PreSubmitCallbackResponse<AsylumCase> handlePaymentAppealPreparer() {
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
+            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        return callbackResponse;
+    }
+
+    private static void addPbaNumbersToValueList(List<Value> valueList) {
+        valueList.add(new Value("PBA1234567", "PBA1234567"));
+        valueList.add(new Value("PBA1234588", "PBA1234588"));
     }
 
     @Test
     void handler_should_throw_when_there_issue_with_ref_data_service() {
-
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
         when(refDataService.getOrganisationResponse()).thenThrow(FeignException.class);
 
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
         verify(asylumCase, times(1)).write(HAS_PBA_ACCOUNTS, YesOrNo.NO);
@@ -159,78 +156,59 @@ class PaymentAppealPreparerTest {
 
     @Test
     void should_get_payment_accounts_from_refDataService_when_remission_option_is_empty() {
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
         accountsFromOrg.add("PBA1234588");
 
-        List<Value> valueList = new ArrayList<Value>();
-        valueList.add(new Value("PBA1234567", "PBA1234567"));
-        valueList.add(new Value("PBA1234588", "PBA1234588"));
+        List<Value> valueList = new ArrayList<>();
+        addPbaNumbersToValueList(valueList);
 
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.empty());
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
 
-        AsylumCase asylumCase = callbackResponse.getData();
+        AsylumCase asylumCaseData = callbackResponse.getData();
 
-        verify(asylumCase, times(1))
+        verify(asylumCaseData, times(1))
             .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
     }
 
     @Test
     void should_get_payment_accounts_from_refDataService_when_remission_option_is_ho_waiver() {
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
         accountsFromOrg.add("PBA1234588");
 
-        List<Value> valueList = new ArrayList<Value>();
-        valueList.add(new Value("PBA1234567", "PBA1234567"));
-        valueList.add(new Value("PBA1234588", "PBA1234588"));
+        List<Value> valueList = new ArrayList<>();
+        addPbaNumbersToValueList(valueList);
 
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
 
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(HO_WAIVER_REMISSION));
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
 
-        AsylumCase asylumCase = callbackResponse.getData();
+        AsylumCase asylumCaseData = callbackResponse.getData();
 
-        verify(asylumCase, times(0))
+        verify(asylumCaseData, times(0))
             .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
     }
 
     @Test
     void should_handle_no_payment_accounts() {
-
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
         assertTrue(callbackResponse.getErrors().contains("There are no payment accounts"));
 
-        AsylumCase asylumCase = callbackResponse.getData();
-        verify(asylumCase, times(0))
+        AsylumCase asylumCaseData = callbackResponse.getData();
+        verify(asylumCaseData, times(0))
             .write(PAYMENT_ACCOUNT_LIST, null);
 
     }
@@ -238,104 +216,85 @@ class PaymentAppealPreparerTest {
     @ParameterizedTest
     @MethodSource("paymentStatusParameters")
     void should_write_payment_status_if_empty(
-        Event event, String hearingType, FeeType feeType, Fee fee
+        Event event,
+        String hearingType,
+        FeeType feeType,
+        Fee fee
     ) {
 
         when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
 
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
 
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(PAYMENT_STATUS)).thenReturn(Optional.empty());
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
-            .thenReturn(Optional.of(hearingType));
+        setUpDecisionStubbings(hearingType);
         when(feeService.getFee(feeType)).thenReturn(fee);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        if (feeType == FeeType.FEE_WITH_HEARING) {
-            verify(asylumCase, times(1)).write(FEE_WITH_HEARING, fee.getAmountAsString());
-        } else {
-            verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, fee.getAmountAsString());
-        }
+        verifyHearingInteractions(feeType, fee);
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
-    @ParameterizedTest
-    @MethodSource("paymentStatusPaidParameters")
-    void should_not_write_payment_status_if_not_empty(
-        Event event, String hearingType, FeeType feeType, Fee fee
-    ) {
-
-        when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
-        accountsFromOrg.add("PBA1234567");
-
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
-        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(PAYMENT_STATUS)).thenReturn(Optional.of(PAID));
+    private void setUpDecisionStubbings(String hearingType) {
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
             .thenReturn(Optional.of(hearingType));
-        when(feeService.getFee(feeType)).thenReturn(fee);
+    }
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
-        assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
-
+    private void verifyHearingInteractions(FeeType feeType, Fee fee) {
         if (feeType == FeeType.FEE_WITH_HEARING) {
             verify(asylumCase, times(1)).write(FEE_WITH_HEARING, fee.getAmountAsString());
         } else {
             verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, fee.getAmountAsString());
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("paymentStatusParameters")
+    void should_not_write_payment_status_if_not_empty(
+        Event event,
+        String hearingType,
+        FeeType feeType,
+        Fee fee
+    ) {
+        when(callback.getEvent()).thenReturn(event);
+
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(PAYMENT_STATUS)).thenReturn(Optional.of(PAID));
+        setUpDecisionStubbings(hearingType);
+        when(feeService.getFee(feeType)).thenReturn(fee);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+        assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
+
+        verifyHearingInteractions(feeType, fee);
         verify(asylumCase, times(0)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
     @ParameterizedTest
     @MethodSource("feeOptionParameters")
     void should_return_valid_fee_for_decision_with_hearing(
-        Event event, String hearingType, FeeType feeType, Fee fee
+        Event event,
+        String hearingType,
+        FeeType feeType,
+        Fee fee
     ) {
-
         when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
 
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
-            .thenReturn(Optional.of(hearingType));
+        setUpDecisionStubbings(hearingType);
         when(feeService.getFee(feeType)).thenReturn(fee);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        if (feeType == FeeType.FEE_WITH_HEARING) {
-            verify(asylumCase, times(1)).write(FEE_WITH_HEARING, fee.getAmountAsString());
-        } else {
-            verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, fee.getAmountAsString());
-        }
+        verifyHearingInteractions(feeType, fee);
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
@@ -344,17 +303,9 @@ class PaymentAppealPreparerTest {
     void should_return_valid_fee_for_decision_with_hearing_with_remission_rejected(
         Event event, String hearingType, FeeType feeType, Fee fee
     ) {
-
         when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
 
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(HELP_WITH_FEES));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.of(RemissionDecision.REJECTED));
@@ -362,15 +313,10 @@ class PaymentAppealPreparerTest {
             .thenReturn(Optional.of(hearingType));
         when(feeService.getFee(feeType)).thenReturn(fee);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        if (feeType == FeeType.FEE_WITH_HEARING) {
-            verify(asylumCase, times(1)).write(FEE_WITH_HEARING, fee.getAmountAsString());
-        } else {
-            verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, fee.getAmountAsString());
-        }
+        verifyHearingInteractions(feeType, fee);
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
@@ -388,15 +334,10 @@ class PaymentAppealPreparerTest {
             .thenReturn(Optional.of(hearingType));
         when(feeService.getFee(feeType)).thenReturn(fee);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        if (feeType == FeeType.FEE_WITH_HEARING) {
-            verify(asylumCase, times(1)).write(FEE_WITH_HEARING, fee.getAmountAsString());
-        } else {
-            verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, fee.getAmountAsString());
-        }
+        verifyHearingInteractions(feeType, fee);
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
         verifyNoInteractions(refDataService);
     }
@@ -405,23 +346,6 @@ class PaymentAppealPreparerTest {
 
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        Fee feeWithoutHearing =
-            new Fee("FEE0001", "Fee without hearing", "1", new BigDecimal("80"));
-
-        return Stream.of(
-            Arguments.of(
-                Event.RECORD_REMISSION_DECISION, "decisionWithHearing",
-                FeeType.FEE_WITH_HEARING, feeWithHearing
-            )
-        );
-    }
-
-    private static Stream<Arguments> paymentStatusPaidParameters() {
-
-        Fee feeWithHearing =
-            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        Fee feeWithoutHearing =
-            new Fee("FEE0001", "Fee without hearing", "1", new BigDecimal("80"));
 
         return Stream.of(
             Arguments.of(
@@ -453,25 +377,14 @@ class PaymentAppealPreparerTest {
     @ParameterizedTest
     @MethodSource("feeServiceIsDownParameters")
     void should_return_error_on_fee_service_is_down(Event event, String hearingType, FeeType feeType) {
-
         when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
 
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
-            .thenReturn(Optional.of(hearingType));
+        setUpDecisionStubbings(hearingType);
         when(feeService.getFee(feeType)).thenReturn(null);
 
-        PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
-            .handle(PreSubmitCallbackStage.ABOUT_TO_START, callback);
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getErrors()).isNotEmpty();
         assertThat(callbackResponse.getErrors()).contains("Cannot retrieve the fee from fees-register.");
     }
@@ -550,7 +463,6 @@ class PaymentAppealPreparerTest {
                 ).contains(callback.getEvent())
                     && callbackStage == PreSubmitCallbackStage.ABOUT_TO_START)
                     || isWaysToPay(callbackStage, callback, true)) {
-
                     assertTrue(canHandle);
                 } else {
                     assertFalse(canHandle);
@@ -563,18 +475,9 @@ class PaymentAppealPreparerTest {
     @EnumSource(value = Event.class, names = {"SUBMIT_APPEAL", "GENERATE_SERVICE_REQUEST", "RECORD_REMISSION_DECISION"})
     void should_send_request_for_service_request_if_is_ways_to_pay_submit_appeal(Event event) {
         when(callback.getEvent()).thenReturn(event);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
 
-        List<String> accountsFromOrg = new ArrayList<String>();
         accountsFromOrg.add("PBA1234567");
-
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
-        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
-            .thenReturn(Optional.empty());
+        setUpNoRemissionStubbings();
         when(asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
@@ -587,21 +490,19 @@ class PaymentAppealPreparerTest {
         verify(asylumCase, times(1)).write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
     }
 
-    @Test
-    void should_send_write_has_service_request_no_if_empty() {
-        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-
-        List<String> accountsFromOrg = new ArrayList<String>();
-        accountsFromOrg.add("PBA1234567");
-
-        when(refDataService.getOrganisationResponse())
-            .thenReturn(organisationResponse);
-        when(organisationEntityResponse.getPaymentAccount()).thenReturn(accountsFromOrg);
+    private void setUpNoRemissionStubbings() {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.empty());
+    }
+
+    @Test
+    void should_send_write_has_service_request_no_if_empty() {
+        when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
+
+        accountsFromOrg.add("PBA1234567");
+
+        setUpNoRemissionStubbings();
         when(asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)).thenReturn(Optional.empty());
         Fee feeWithHearing =
             new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
