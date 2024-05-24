@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -26,7 +25,7 @@ class AppealTypeTest {
 
     @Test
     void returns_optional_for_unknown_appeal_type() {
-        assertThat(AppealType.from("some_unknown_type")).isEqualTo(Optional.empty());
+        assertThat(AppealType.from("some_unknown_type")).isNotPresent();
     }
 
     @Test

@@ -26,10 +26,10 @@ class FeeResponseTest {
     @Test
     void should_hold_onto_values() {
 
-        Assertions.assertEquals(feeResponse.getCode(), code);
-        Assertions.assertEquals(feeResponse.getDescription(), description);
-        Assertions.assertEquals(feeResponse.getVersion(), version);
-        Assertions.assertEquals(feeResponse.getAmount(), amount);
+        Assertions.assertEquals(code, feeResponse.getCode());
+        Assertions.assertEquals(description, feeResponse.getDescription());
+        Assertions.assertEquals(version, feeResponse.getVersion());
+        Assertions.assertEquals(amount, feeResponse.getAmount());
     }
 
     @Test

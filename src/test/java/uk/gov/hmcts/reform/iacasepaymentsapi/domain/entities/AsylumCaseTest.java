@@ -30,8 +30,8 @@ class AsylumCaseTest {
         String appealReferenceNumberWithType = maybeAppealReferenceNumberWithType.orElseThrow(() ->
             new AssertionError("Expected value not found"));
 
-        assertThat("PA/50222/2019").isEqualTo(appealReferenceNumberWithoutType);
-        assertThat("PA/50222/2019").isEqualTo(appealReferenceNumberWithType);
+        assertThat(appealReferenceNumberWithoutType).isEqualTo("PA/50222/2019")
+            .isEqualTo(appealReferenceNumberWithType);
     }
 
     @Test

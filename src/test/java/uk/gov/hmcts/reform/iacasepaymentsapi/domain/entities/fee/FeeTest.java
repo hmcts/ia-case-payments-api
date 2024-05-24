@@ -18,22 +18,19 @@ class FeeTest {
 
     @BeforeEach
     public void setUp() {
-
         fee = new Fee(code, description, version, calculatedAmount);
     }
 
     @Test
     void should_hold_onto_values() {
-
-        Assertions.assertEquals(fee.getCode(), code);
-        Assertions.assertEquals(fee.getDescription(), description);
-        Assertions.assertEquals(fee.getVersion(), version);
-        Assertions.assertEquals(fee.getCalculatedAmount(), calculatedAmount);
+        Assertions.assertEquals(code, fee.getCode());
+        Assertions.assertEquals(description, fee.getDescription());
+        Assertions.assertEquals(version, fee.getVersion());
+        Assertions.assertEquals(calculatedAmount, fee.getCalculatedAmount());
     }
 
     @Test
     void should_throw_required_field_exception() {
-
         fee = new Fee(null, null, null, null);
 
         assertThatThrownBy(fee::getCode)
@@ -51,7 +48,6 @@ class FeeTest {
 
     @Test
     void should_format_fee_for_display() {
-
         Assertions.assertEquals("100", new Fee("ABC", "desc", "1", new BigDecimal("100.00")).getAmountAsString());
         Assertions.assertEquals("100.5", new Fee("ABC", "desc", "1", new BigDecimal("100.50")).getAmountAsString());
         Assertions.assertEquals("100.05", new Fee("ABC", "desc", "1", new BigDecimal("100.05")).getAmountAsString());

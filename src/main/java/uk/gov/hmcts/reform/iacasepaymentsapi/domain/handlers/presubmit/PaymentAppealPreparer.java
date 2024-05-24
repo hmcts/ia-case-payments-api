@@ -170,8 +170,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
             && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
             && hasNoRemission(asylumCase)
-            && isAdmin != YesOrNo.YES
-            && hasNoRemission(asylumCase)) {
+            && isAdmin != YesOrNo.YES) {
             asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
         }
 
