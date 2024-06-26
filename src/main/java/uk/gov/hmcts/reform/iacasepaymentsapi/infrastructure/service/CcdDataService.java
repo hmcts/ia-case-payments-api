@@ -81,11 +81,11 @@ public class CcdDataService {
 
         } catch (IdentityManagerResponseException ex) {
 
-            log.error("Unauthorized access to getCaseById", ex.getMessage());
+            log.error("Unauthorized access to getCaseById: " + ex.getMessage());
             throw new IdentityManagerResponseException(ex.getMessage(), ex);
         }
 
-        // Get case details by Id
+        // Get case details by Idxr
         final StartEventDetails startEventDetails = startEvent(userToken, s2sToken, uid, jurisdiction, caseType, caseId);
         log.info("Case details found for the caseId: {}", caseId);
 
@@ -106,7 +106,7 @@ public class CcdDataService {
         eventData.put("id", caseMetaData.getEvent().toString());
 
         SubmitEventDetails submitEventDetails = submitEvent(userToken, s2sToken, caseId, caseData, eventData,
-                                                            startEventDetails.getToken(), true);
+                                                            startEventDetails.getToken());
 
         log.info("Case payment status updated for the caseId: {}, Status: {}, Message: {}", caseId,
                  submitEventDetails.getCallbackResponseStatusCode(), submitEventDetails.getCallbackResponseStatus());
@@ -123,8 +123,8 @@ public class CcdDataService {
 
     private SubmitEventDetails submitEvent(
         String userToken, String s2sToken, String caseId, Map<String, Object> data,
-        Map<String, Object> eventData, String eventToken, boolean ignoreWarning) {
-        CaseDataContent request = new CaseDataContent(caseId, data, eventData, eventToken, ignoreWarning);
+        Map<String, Object> eventData, String eventToken) {
+        CaseDataContent request = new CaseDataContent(caseId, data, eventData, eventToken, true);
         return ccdDataApi.submitEvent(userToken, s2sToken, caseId, request);
     }
 
