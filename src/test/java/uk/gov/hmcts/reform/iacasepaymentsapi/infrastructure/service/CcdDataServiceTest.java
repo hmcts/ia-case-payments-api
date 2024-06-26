@@ -83,6 +83,8 @@ class CcdDataServiceTest {
     private static final String PAYMENT_STATUS_PAID_VALUE = "Paid";
     private static final String PAYMENT_STATUS_FAILED_VALUE = "Failed";
     private static final String CALLBACK_COMPLETED = "CALLBACK_COMPLETED";
+    private final CaseMetaData caseMetaDataSuccess = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
+    private final CaseMetaData caseMetaDataPaid = getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE);
     private CcdDataService ccdDataService;
 
     @BeforeEach
@@ -101,18 +103,16 @@ class CcdDataServiceTest {
     @Test
     void service_should_throw_on_unable_to_generate_system_user_token() {
         when(systemTokenGenerator.generate()).thenThrow(IdentityManagerResponseException.class);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
         assertThrows(IdentityManagerResponseException.class, () -> ccdDataService.updatePaymentStatus(
-            caseMetaData, false, VALID_S2S_TOKEN)
+            caseMetaDataSuccess, false, VALID_S2S_TOKEN)
         );
     }
 
     @Test
     void service_should_throw_on_unable_to_generate_s2s_token() {
         when(serviceAuthorization.generate()).thenThrow(IdentityManagerResponseException.class);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
         assertThrows(IdentityManagerResponseException.class, () -> ccdDataService.updatePaymentStatus(
-            caseMetaData, false, VALID_S2S_TOKEN)
+            caseMetaDataSuccess, false, VALID_S2S_TOKEN)
         );
     }
 
@@ -120,9 +120,8 @@ class CcdDataServiceTest {
     @Test
     void service_should_throw_on_unable_to_fetch_system_user_id() {
         when(systemUserProvider.getSystemUserId(BEARER_TOKEN)).thenThrow(IdentityManagerResponseException.class);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
         assertThrows(IdentityManagerResponseException.class, () -> ccdDataService.updatePaymentStatus(
-            caseMetaData, false, VALID_S2S_TOKEN)
+            caseMetaDataSuccess, false, VALID_S2S_TOKEN)
         );
     }
 
@@ -134,9 +133,10 @@ class CcdDataServiceTest {
     void service_should_update_the_payment_status_for_the_case_id(String paymentStatus, String paymentReference, boolean isWaysToPay) {
         CaseDataContent caseDataContent = getCaseDataContent(paymentStatus);
         setupEventAndSubmitMocks(paymentReference, caseDataContent);
+        CaseMetaData caseMetaData = getCaseMetaData(paymentStatus, paymentReference);
         SubmitEventDetails submitEventDetails =
             assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
-                getCaseMetaData(paymentStatus, paymentReference), isWaysToPay, VALID_S2S_TOKEN));
+                caseMetaData, isWaysToPay, VALID_S2S_TOKEN));
         assertPaymentDetails(submitEventDetails);
         verifyInteractionsWithMocks(caseDataContent);
     }
@@ -166,10 +166,8 @@ class CcdDataServiceTest {
                 BEARER_TOKEN, SERVICE_TOKEN, USER_ID,
                 JURISDICTION, CASE_TYPE, String.valueOf(CASE_ID), EVENT_ID
             )).thenThrow(FeignException.class);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
-
         assertThrows(FeignException.class, () -> ccdDataService.updatePaymentStatus(
-            caseMetaData, false, VALID_S2S_TOKEN));
+            caseMetaDataSuccess, false, VALID_S2S_TOKEN));
         verify(s2STokenValidator).checkIfServiceIsAllowed(VALID_S2S_TOKEN);
     }
 
@@ -181,7 +179,7 @@ class CcdDataServiceTest {
 
         SubmitEventDetails submitEventDetails =
             assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
-                getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN));
+                caseMetaDataPaid, true, VALID_S2S_TOKEN));
         assertPaymentDetails(submitEventDetails);
         verifyInteractionsWithMocks(caseDataContent);
     }
@@ -189,22 +187,19 @@ class CcdDataServiceTest {
     @Test
     void service_should_throw_exception_from_invalid_s2s_token() {
         doThrow(AccessDeniedException.class).when(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
         assertThrows(AccessDeniedException.class, () -> ccdDataService.updatePaymentStatus(
-            caseMetaData, false, INVALID_S2S_TOKEN));
+            caseMetaDataSuccess, false, INVALID_S2S_TOKEN));
         verify(s2STokenValidator).checkIfServiceIsAllowed(INVALID_S2S_TOKEN);
     }
 
     @Test
     void service_should_throw_exception_if_no_appeal_type() {
         CaseDataContent caseDataContent = getCaseDataContent(PAYMENT_STATUS_PAID_VALUE);
-        CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_SUCCESS_VALUE, PAYMENT_REFERENCE_VALUE);
         setupEventAndSubmitMocks(PAYMENT_REFERENCE_VALUE, caseDataContent);
         when(asylumCase.read(AsylumCaseDefinition.APPEAL_TYPE, AppealType.class)).thenReturn(Optional.empty());
         when(asylumCase.read(AsylumCaseDefinition.PAYMENT_REFERENCE, String.class)).thenReturn(Optional.empty());
-
         assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
-                         caseMetaData, true, VALID_S2S_TOKEN),
+            caseMetaDataSuccess, true, VALID_S2S_TOKEN),
                      "No appeal type in case data for case: " + CASE_ID
         );
     }
@@ -227,7 +222,7 @@ class CcdDataServiceTest {
             String.class
         )).thenReturn(Optional.of("none"));
         assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
-            getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN));
+            caseMetaDataPaid, true, VALID_S2S_TOKEN));
 
         when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_PAYMENT_OPTION, String.class)).thenReturn(Optional.of(
             "none"));
@@ -236,7 +231,7 @@ class CcdDataServiceTest {
             String.class
         )).thenReturn(Optional.of("payLater"));
         assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
-            getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN));
+            caseMetaDataPaid, true, VALID_S2S_TOKEN));
     }
 
     @ParameterizedTest
@@ -263,7 +258,7 @@ class CcdDataServiceTest {
             when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class)).thenReturn(
                 Optional.of("none"));
             assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
-                getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN));
+                caseMetaDataPaid, true, VALID_S2S_TOKEN));
         }
     }
 
@@ -288,10 +283,8 @@ class CcdDataServiceTest {
                 .thenReturn(Optional.of("none"));
             when(asylumCase.read(AsylumCaseDefinition.PA_APPEAL_TYPE_AIP_PAYMENT_OPTION, String.class))
                 .thenReturn(Optional.of("none"));
-            CaseMetaData caseMetaData = getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE);
-
             assertThrows(IllegalStateException.class, () -> ccdDataService.updatePaymentStatus(
-                caseMetaData, true, VALID_S2S_TOKEN),
+                caseMetaDataPaid, true, VALID_S2S_TOKEN),
                          appealType.getValue() + " appeal payment should not be made at "
                              + state.toString() + " state for case: " + CASE_ID
             );
