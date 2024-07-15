@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
@@ -52,7 +51,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @Slf4j
 @Component
@@ -60,16 +58,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     private final RefDataService refDataService;
     private final FeeService feeService;
-    private final ServiceRequestService serviceRequestService;
 
     public PaymentAppealPreparer(
         RefDataService refDataService,
-        FeeService feeService,
-        ServiceRequestService serviceRequestService
+        FeeService feeService
     ) {
         this.feeService = feeService;
         this.refDataService = refDataService;
-        this.serviceRequestService = serviceRequestService;
     }
 
     @Override
@@ -146,7 +141,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                 List<Value> accountListElements = accountsFromOrg
                     .stream()
                     .map(idValue -> new Value(idValue, idValue))
-                    .collect(Collectors.toList());
+                    .toList();
 
                 DynamicList accountList = new DynamicList(accountListElements.get(0), accountListElements);
                 asylumCase.write(PAYMENT_ACCOUNT_LIST, accountList);
@@ -184,10 +179,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
             && hasNoRemission(asylumCase)
             && isAdmin != YesOrNo.YES) {
-
-            if (hasNoRemission(asylumCase)) {
-                asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
-            }
+            asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
         }
 
         return new PreSubmitCallbackResponse<>(asylumCase);
