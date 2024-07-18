@@ -17,7 +17,7 @@ management:
 
 spring:
   config:
-    resourceGroup: ia
+    import: "optional:configtree:/mnt/secrets/ia/"
   application:
     name: ia-case-payments-api
   main:
