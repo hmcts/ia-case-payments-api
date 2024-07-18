@@ -16,6 +16,8 @@ management:
       enabled: true
 
 spring:
+  config:
+    resourceGroup: ia
   application:
     name: ia-case-payments-api
   main:
