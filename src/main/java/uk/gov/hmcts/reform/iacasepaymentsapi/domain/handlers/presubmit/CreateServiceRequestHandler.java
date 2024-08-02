@@ -11,9 +11,11 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REFUND_CONFIRMATION_APPLIED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_GENERATED_COUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
 
 import java.util.Arrays;
@@ -86,11 +88,13 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
-            && paymentStatus != PaymentStatus.PAID
+            && (paymentStatus != PaymentStatus.PAID || refundConfirmationCompleted(asylumCase))
             && isAdmin != YesOrNo.YES) {
             ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
+
+            updateRequestedServiceCount(asylumCase);
         }
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
@@ -131,5 +135,24 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
                || optRemissionType.isEmpty()
                || (optionalRemissionDecision.isPresent()
                    && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+    }
+
+    private void updateRequestedServiceCount(AsylumCase asylumCase) {
+        String defaultCount = "0";
+        String serviceRequestCount = asylumCase.read(SERVICE_REQUEST_GENERATED_COUNT, String.class).orElse(defaultCount);
+        try {
+            int serviceReqCount = Integer.parseInt(serviceRequestCount) + 1;
+            asylumCase.write(SERVICE_REQUEST_GENERATED_COUNT, String.valueOf(serviceReqCount));
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Cannot parse serviceRequestCount value", e);
+        }
+    }
+
+    private boolean refundConfirmationCompleted(AsylumCase asylumCase) {
+        final int MAXIMUM_SERVICE_REQUEST_NUMBER_ALLOWED = 2;
+        int serviceReqCount = Integer.parseInt(asylumCase.read(SERVICE_REQUEST_GENERATED_COUNT, String .class).orElse("0"));
+
+        return asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES)
+            && serviceReqCount < MAXIMUM_SERVICE_REQUEST_NUMBER_ALLOWED;
     }
 }

@@ -87,7 +87,11 @@ public enum AsylumCaseDefinition {
     IS_ADMIN(
         "isAdmin", new TypeReference<YesOrNo>(){}),
     IS_EJP(
-        "isEjp", new TypeReference<YesOrNo>() {})
+        "isEjp", new TypeReference<YesOrNo>() {}),
+    SERVICE_REQUEST_GENERATED_COUNT(
+        "serviceRequestGeneratedCount", new TypeReference<String>(){}),
+    REFUND_CONFIRMATION_APPLIED(
+        "refundConfirmationApplied", new TypeReference<YesOrNo>(){}),
     ;
 
     private final String value;
