@@ -92,10 +92,10 @@ public enum AsylumCaseDefinition {
         "remissionOption", new TypeReference<RemissionOption>(){}),
     HELP_WITH_FEES_OPTION(
         "helpWithFeesOption", new TypeReference<HelpWithFeesOption>(){}),
-    SERVICE_REQUEST_GENERATED_COUNT(
-        "serviceRequestGeneratedCount", new TypeReference<String>(){}),
     REFUND_CONFIRMATION_APPLIED(
         "refundConfirmationApplied", new TypeReference<YesOrNo>(){}),
+    DECISION_TYPE_CHANGED_WITH_REFUND_FLAG(
+        "decisionTypeChangedWithRefundFlag", new TypeReference<YesOrNo>(){}),
     ;
 
     private final String value;
