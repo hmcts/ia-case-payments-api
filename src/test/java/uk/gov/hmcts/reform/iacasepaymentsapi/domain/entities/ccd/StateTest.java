@@ -13,6 +13,7 @@ class StateTest {
         assertEquals("appealStartedByAdmin", State.APPEAL_STARTED_BY_ADMIN.toString());
         assertEquals("appealSubmitted", State.APPEAL_SUBMITTED.toString());
         assertEquals("pendingPayment", State.PENDING_PAYMENT.toString());
+        assertEquals("ended", State.ENDED.toString());
         assertEquals("unknown", Event.UNKNOWN.toString());
     }
 
