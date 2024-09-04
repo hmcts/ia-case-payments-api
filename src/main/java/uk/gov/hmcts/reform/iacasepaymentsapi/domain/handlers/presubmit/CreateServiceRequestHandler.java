@@ -18,9 +18,10 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
@@ -40,6 +41,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @Component
+@Slf4j
 public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
     private final ServiceRequestService serviceRequestService;
@@ -58,9 +60,8 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
     ) {
         requireNonNull(callback, "callback must not be null");
 
-        return Arrays.asList(
-            Event.GENERATE_SERVICE_REQUEST
-        ).contains(callback.getEvent());
+        return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
+            && callback.getEvent() == Event.GENERATE_SERVICE_REQUEST;
     }
 
     @Override
@@ -84,7 +85,6 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
-
         if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
@@ -94,12 +94,16 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
             ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
-
             //Reseting the flag after service request is made. To make another service request decision type need to
             //be changed and 'refund' as fee tribunal action selected.
             asylumCase.clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
             asylumCase.clear(REFUND_CONFIRMATION_APPLIED);
+        } else {
+            log.warn("Skipping Service Request creation for the appeal. case reference: {}, paymentStatus: {}, "
+                         + "requestFeeRemissionFlagForServiceRequest: {}", callback.getCaseDetails().getId(),
+                     paymentStatus, requestFeeRemissionFlagForServiceRequest);
         }
+
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
 
