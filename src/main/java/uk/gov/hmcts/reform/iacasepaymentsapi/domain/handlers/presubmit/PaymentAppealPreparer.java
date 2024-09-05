@@ -84,15 +84,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             Event.PAY_AND_SUBMIT_APPEAL,
             Event.PAY_FOR_APPEAL,
             Event.RECORD_REMISSION_DECISION
-        ).contains(callback.getEvent())
-            && isLegalRepJourney(asylumCase))
-            || isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase));
+        ).contains(callback.getEvent()))
+            || isWaysToPay(callbackStage, callback);
     }
 
     // No payments for EJP Cases
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
-                                Callback<AsylumCase> callback,
-                                boolean isLegalRepJourney) {
+                                Callback<AsylumCase> callback) {
 
         List<Event> waysToPayEvents = List.of(
             Event.SUBMIT_APPEAL,
@@ -102,7 +100,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
-               && isLegalRepJourney
                && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData())
                && !isEjpCase(callback.getCaseDetails().getCaseData());
     }
@@ -125,7 +122,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         PreSubmitCallbackResponse<AsylumCase> response =
             new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
 
-        if (hasNoRemission(asylumCase)) {
+        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase)) {
 
             try {
 
@@ -175,7 +172,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
         }
 
-        if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
+        if (isWaysToPay(callbackStage, callback)
             && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
             && hasNoRemission(asylumCase)
             && isAdmin != YesOrNo.YES) {
@@ -190,7 +187,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             .map(journey -> journey == JourneyType.REP)
             .orElse(true);
     }
-
 
     private boolean isHuEaEuPaAgAda(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
@@ -208,15 +204,19 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         Optional<RemissionDecision> optionalRemissionDecision =
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
-        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION && !hasAipJourneyRemission(asylumCase))
-            || optRemissionType.isEmpty()
+        return (!isRemissionExists(optRemissionType) && !hasAipJourneyRemission(asylumCase))
             || (optionalRemissionDecision.isPresent()
-            && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+                && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
     }
 
     // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
     private boolean isEjpCase(AsylumCase asylumCase) {
         return asylumCase.read(IS_EJP, YesOrNo.class).orElse(YesOrNo.NO) == YesOrNo.YES;
+    }
+
+    private boolean isRemissionExists(Optional<RemissionType> remissionType) {
+        return remissionType.isPresent()
+            && remissionType.get() != RemissionType.NO_REMISSION;
     }
 
     private boolean hasAipJourneyRemission(AsylumCase asylumCase) {

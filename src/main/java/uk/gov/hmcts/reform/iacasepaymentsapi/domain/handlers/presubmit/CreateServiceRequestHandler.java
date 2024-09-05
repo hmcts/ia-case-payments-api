@@ -9,14 +9,17 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.P
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_TYPE_CHANGED_WITH_REFUND_FLAG;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HELP_WITH_FEES_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REFUND_CONFIRMATION_APPLIED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption.WILL_PAY_FOR_APPEAL;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption.NO_REMISSION;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.JourneyType;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
@@ -85,7 +89,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
-        if (isWaysToPay(callback, isLegalRepJourney(asylumCase))
+        if (isWaysToPay(callback)
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
             && (paymentStatus != PaymentStatus.PAID
@@ -107,15 +111,13 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         return new PreSubmitCallbackResponse<>(asylumCase);
     }
 
-    private boolean isWaysToPay(Callback<AsylumCase> callback,
-                                boolean isLegalRepJourney) {
+    private boolean isWaysToPay(Callback<AsylumCase> callback) {
 
         List<Event> waysToPayEvents = List.of(Event.SUBMIT_APPEAL,
                                               Event.GENERATE_SERVICE_REQUEST,
                                               Event.RECORD_REMISSION_DECISION);
 
         return waysToPayEvents.contains(callback.getEvent())
-               && isLegalRepJourney
                && isHuEaEuPaAg(callback.getCaseDetails().getCaseData());
     }
 
@@ -128,20 +130,25 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         return false;
     }
 
-    private boolean isLegalRepJourney(AsylumCase asylumCase) {
-        return asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
-            .orElse(true);
-    }
-
     private boolean hasNoRemission(AsylumCase asylumCase) {
         Optional<RemissionType> optRemissionType = asylumCase.read(REMISSION_TYPE, RemissionType.class);
         Optional<RemissionDecision> optionalRemissionDecision =
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
-        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
-               || optRemissionType.isEmpty()
-               || (optionalRemissionDecision.isPresent()
-                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+        return (!isRemissionExists(optRemissionType) && !hasAipJourneyRemission(asylumCase))
+            || (optionalRemissionDecision.isPresent()
+                && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+    }
+
+    private boolean isRemissionExists(Optional<RemissionType> remissionType) {
+        return remissionType.isPresent() && remissionType.get() != RemissionType.NO_REMISSION;
+    }
+
+    private boolean hasAipJourneyRemission(AsylumCase asylumCase) {
+        Optional<RemissionOption> remissionOption = asylumCase.read(REMISSION_OPTION, RemissionOption.class);
+        Optional<HelpWithFeesOption> helpWithFeesOption = asylumCase.read(HELP_WITH_FEES_OPTION, HelpWithFeesOption.class);
+
+        return (remissionOption.isPresent() && remissionOption.get() != NO_REMISSION)
+            || (helpWithFeesOption.isPresent() && helpWithFeesOption.get() != WILL_PAY_FOR_APPEAL);
     }
 }
