@@ -136,8 +136,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
         return (!isRemissionExists(optRemissionType) && !hasAipJourneyRemission(asylumCase))
-            || (optionalRemissionDecision.isPresent()
-                && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+            || isDecisionPartiallyApprovedOrRejected(optionalRemissionDecision);
     }
 
     private boolean isRemissionExists(Optional<RemissionType> remissionType) {
@@ -150,5 +149,11 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         return (remissionOption.isPresent() && remissionOption.get() != NO_REMISSION)
             || (helpWithFeesOption.isPresent() && helpWithFeesOption.get() != WILL_PAY_FOR_APPEAL);
+    }
+
+    private boolean isDecisionPartiallyApprovedOrRejected(Optional<RemissionDecision> remissionDecision) {
+        return remissionDecision
+            .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED
+            ).orElse(false);
     }
 }

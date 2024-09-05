@@ -205,8 +205,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
         return (!isRemissionExists(optRemissionType) && !hasAipJourneyRemission(asylumCase))
-            || (optionalRemissionDecision.isPresent()
-                && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+            || isDecisionPartiallyApprovedOrRejected(optionalRemissionDecision);
     }
 
     // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
@@ -225,5 +224,11 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         return (remissionOption.isPresent() && remissionOption.get() != NO_REMISSION)
             || (helpWithFeesOption.isPresent() && helpWithFeesOption.get() != WILL_PAY_FOR_APPEAL);
+    }
+
+    private boolean isDecisionPartiallyApprovedOrRejected(Optional<RemissionDecision> remissionDecision) {
+        return remissionDecision
+            .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED
+        ).orElse(false);
     }
 }

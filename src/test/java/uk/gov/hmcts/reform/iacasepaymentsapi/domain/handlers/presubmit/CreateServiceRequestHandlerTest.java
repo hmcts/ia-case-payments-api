@@ -37,7 +37,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.JourneyType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
@@ -357,6 +356,39 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(RemissionType.HO_WAIVER_REMISSION));
         when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
             .thenReturn(Optional.of(RemissionDecision.REJECTED));
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)).thenReturn(Optional.of(paymentStatus));
+        when(asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class)).thenReturn(Optional.of(refundConfirmationApplied));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
+        verify(asylumCase, times(1)).clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
+        verify(asylumCase, times(1)).clear(REFUND_CONFIRMATION_APPLIED);
+    }
+
+    @ParameterizedTest
+    @MethodSource("providePaymentParameterValues")
+    void should_generate_service_request_when_remission_is_partially_approved(PaymentStatus paymentStatus, YesOrNo refundConfirmationApplied) {
+
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(RemissionType.HO_WAIVER_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
+            .thenReturn(Optional.of(RemissionDecision.PARTIALLY_APPROVED));
         when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
             YesOrNo.NO));
         when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)).thenReturn(Optional.of(paymentStatus));
