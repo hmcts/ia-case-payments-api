@@ -228,7 +228,7 @@ pact {
   publish {
     pactDirectory = 'pacts'
     tags = [System.getenv("PACT_BRANCH_NAME") ?:'Dev']
-    version = project.pacticipantVersion
+    version = project.pacticipantVersion + '_' + System.nanoTime().toString()
   }
 }
 // before committing a change, make sure task still works
