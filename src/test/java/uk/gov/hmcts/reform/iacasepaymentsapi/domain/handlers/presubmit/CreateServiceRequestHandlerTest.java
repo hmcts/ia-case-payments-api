@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_TYPE_CHANGED_WITH_REFUND_FLAG;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_UPDATE_TRIBUNAL_ACTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
@@ -37,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.FeeTribunalAction;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
@@ -442,6 +444,38 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
+        verify(asylumCase, times(1)).clear(REFUND_CONFIRMATION_APPLIED);
+    }
+
+    @Test
+    void should_generate_service_request_when_additional_payment_requested() {
+
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
+            .thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
+            YesOrNo.NO));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
+
+        Fee feeWithHearing =
+            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
+        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
+        when(asylumCase.read(FEE_UPDATE_TRIBUNAL_ACTION, FeeTribunalAction.class))
+            .thenReturn(Optional.of(FeeTribunalAction.ADDITIONAL_PAYMENT));
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
         verify(asylumCase, times(1)).clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
         verify(asylumCase, times(1)).clear(REFUND_CONFIRMATION_APPLIED);
     }

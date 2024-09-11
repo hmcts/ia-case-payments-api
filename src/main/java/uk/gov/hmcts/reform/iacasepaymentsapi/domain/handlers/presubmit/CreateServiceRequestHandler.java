@@ -8,6 +8,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.H
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType.PA;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_TYPE_CHANGED_WITH_REFUND_FLAG;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_UPDATE_TRIBUNAL_ACTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HELP_WITH_FEES_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
@@ -18,6 +19,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.SERVICE_REQUEST_REFERENCE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.FeeTribunalAction.ADDITIONAL_PAYMENT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption.WILL_PAY_FOR_APPEAL;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption.NO_REMISSION;
 
@@ -28,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.FeeTribunalAction;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption;
@@ -89,11 +92,16 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
+        boolean additionalPaymentRequested = asylumCase.read(FEE_UPDATE_TRIBUNAL_ACTION, FeeTribunalAction.class)
+            .map(action -> ADDITIONAL_PAYMENT == action)
+            .orElse(false);
+
         if (isWaysToPay(callback)
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
             && (paymentStatus != PaymentStatus.PAID
-            || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES))
+            || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES)
+            || additionalPaymentRequested)
             && isAdmin != YesOrNo.YES) {
             ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
