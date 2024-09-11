@@ -106,7 +106,9 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
             || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES)
             || additionalPaymentRequested)
             && isAdmin != YesOrNo.YES) {
+            log.info("Updating additional fee amount");
             updateFeeAmount(asylumCase, fee, paymentStatus, additionalPaymentRequested);
+            log.info("Finished updating additional fee amount");
             ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
@@ -177,6 +179,9 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
                 .orElseThrow(() -> new IllegalStateException("manageFeeRequestedAmount is not present"));
             fee.setCalculatedAmount(new BigDecimal(String.valueOf(Double.parseDouble(feeRequestedGbp) / 100))
                                         .setScale(2, RoundingMode.DOWN));
+            log.info("Additional fee amount has been updated.{}", fee);
+            return;
         }
+        log.info("NO fee amount has been updated.{}", fee);
     }
 }
