@@ -5,12 +5,15 @@ import static java.util.Objects.requireNonNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Fee {
 
+    @Setter
     private BigDecimal calculatedAmount;
     private String description;
     private String version;
