@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.presubmit;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +15,6 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_UPDATE_TRIBUNAL_ACTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
-import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.MANAGE_FEE_REQUESTED_AMOUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REFUND_CONFIRMATION_APPLIED;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
@@ -468,8 +466,6 @@ class CreateServiceRequestHandlerTest {
         when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
         when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
         when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
-        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)).thenReturn(Optional.of(PaymentStatus.PAID));
-        when(asylumCase.read(MANAGE_FEE_REQUESTED_AMOUNT, String.class)).thenReturn(Optional.of("6000"));
         when(asylumCase.read(FEE_UPDATE_TRIBUNAL_ACTION, FeeTribunalAction.class))
             .thenReturn(Optional.of(FeeTribunalAction.ADDITIONAL_PAYMENT));
 
@@ -482,34 +478,6 @@ class CreateServiceRequestHandlerTest {
         verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
         verify(asylumCase, times(1)).clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
         verify(asylumCase, times(1)).clear(REFUND_CONFIRMATION_APPLIED);
-        assertThat(feeWithHearing.getCalculatedAmount()).isEqualTo(new BigDecimal("60.00"));
-    }
-
-    @Test
-    void should_throw_when_manage_fee_request_amount_is_not_present() {
-
-        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
-        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.HU));
-        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
-        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class))
-            .thenReturn(Optional.empty());
-        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)).thenReturn(Optional.of(
-            YesOrNo.NO));
-        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
-
-        Fee feeWithHearing =
-            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
-        when(serviceRequestService.createServiceRequest(callback, feeWithHearing)).thenReturn(serviceRequestResponse);
-        when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
-        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)).thenReturn(Optional.of(PaymentStatus.PAID));
-        when(asylumCase.read(FEE_UPDATE_TRIBUNAL_ACTION, FeeTribunalAction.class))
-            .thenReturn(Optional.of(FeeTribunalAction.ADDITIONAL_PAYMENT));
-
-        assertThatThrownBy(() -> createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback))
-            .hasMessage("manageFeeRequestedAmount is not present")
-            .isExactlyInstanceOf(IllegalStateException.class);
     }
 
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
