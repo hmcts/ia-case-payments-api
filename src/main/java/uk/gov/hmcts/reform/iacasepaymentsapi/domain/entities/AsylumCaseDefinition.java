@@ -96,10 +96,6 @@ public enum AsylumCaseDefinition {
         "refundConfirmationApplied", new TypeReference<YesOrNo>(){}),
     DECISION_TYPE_CHANGED_WITH_REFUND_FLAG(
         "decisionTypeChangedWithRefundFlag", new TypeReference<YesOrNo>(){}),
-    FEE_UPDATE_TRIBUNAL_ACTION(
-        "feeUpdateTribunalAction", new TypeReference<FeeTribunalAction>(){}),
-    MANAGE_FEE_REQUESTED_AMOUNT(
-        "manageFeeRequestedAmount", new TypeReference<String>(){}),
     ;
 
     private final String value;
