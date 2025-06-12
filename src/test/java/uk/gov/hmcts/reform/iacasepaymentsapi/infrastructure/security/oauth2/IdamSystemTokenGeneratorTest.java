@@ -14,7 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.IdamApi;
+import org.springframework.util.MultiValueMap;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.IdamService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,7 +23,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.T
 class IdamSystemTokenGeneratorTest {
 
     @Mock
-    private IdamApi idamApi;
+    private IdamService idamService;
 
     @Mock
     private Token token;
@@ -40,7 +41,7 @@ class IdamSystemTokenGeneratorTest {
         String expectedToken = "systemUserTokenHash";
 
         when(token.getAccessToken()).thenReturn(expectedToken);
-        when(idamApi.token(any(Map.class))).thenReturn(token);
+        when(idamService.getUserToken(any(MultiValueMap.class))).thenReturn(token);
 
         IdamSystemTokenGenerator idamSystemTokenGenerator = new IdamSystemTokenGenerator(
             systemUserName,
@@ -49,15 +50,15 @@ class IdamSystemTokenGeneratorTest {
             systemUserScope,
             idamClientId,
             idamClientSecret,
-            idamApi
+            idamService
         );
 
         String idamToken = idamSystemTokenGenerator.generate();
 
         assertEquals(expectedToken, idamToken);
 
-        ArgumentCaptor<Map<String, ?>> requestFormCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(idamApi).token(requestFormCaptor.capture());
+        ArgumentCaptor<MultiValueMap<String, String>> requestFormCaptor = ArgumentCaptor.forClass(MultiValueMap.class);
+        verify(idamService).getUserToken(requestFormCaptor.capture());
 
         Map<String, ?> actualRequestEntity = requestFormCaptor.getValue();
 
@@ -74,7 +75,7 @@ class IdamSystemTokenGeneratorTest {
     @Test
     void should_throw_exception_when_auth_service_unavailable() {
 
-        when(idamApi.token(any(Map.class))).thenThrow(FeignException.class);
+        when(idamService.getUserToken(any(MultiValueMap.class))).thenThrow(FeignException.class);
 
         IdamSystemTokenGenerator idamSystemTokenGenerator = new IdamSystemTokenGenerator(
             systemUserName,
@@ -83,7 +84,7 @@ class IdamSystemTokenGeneratorTest {
             systemUserScope,
             idamClientId,
             idamClientSecret,
-            idamApi
+            idamService
         );
 
         IdentityManagerResponseException thrown = assertThrows(

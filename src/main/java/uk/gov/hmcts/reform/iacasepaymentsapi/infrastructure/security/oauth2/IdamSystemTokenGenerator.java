@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.IdamApi;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.IdamService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 
@@ -18,7 +18,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
     private final String systemUserScope;
     private final String idamClientId;
     private final String idamClientSecret;
-    private final IdamApi idamApi;
+    private final IdamService idamService;
 
     public IdamSystemTokenGenerator(
         @Value("${idam.system.username}") String systemUserName,
@@ -27,7 +27,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         @Value("${idam.scope}") String systemUserScope,
         @Value("${spring.security.oauth2.client.registration.oidc.client-id}") String idamClientId,
         @Value("${spring.security.oauth2.client.registration.oidc.client-secret}") String idamClientSecret,
-        IdamApi idamApi
+        IdamService idamService
     ) {
         this.systemUserName = systemUserName;
         this.systemUserPass = systemUserPass;
@@ -35,7 +35,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         this.systemUserScope = systemUserScope;
         this.idamClientId = idamClientId;
         this.idamClientSecret = idamClientSecret;
-        this.idamApi = idamApi;
+        this.idamService = idamService;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
         try {
 
-            Token tokenResponse = idamApi.token(map);
+            Token tokenResponse = idamService.getUserToken(map);
 
             return tokenResponse.getAccessToken();
 
