@@ -1,10 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.oauth2;
 
 import feign.FeignException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.IdamService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
@@ -12,52 +9,18 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemToken
 @Component
 public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
-    private final String systemUserName;
-    private final String systemUserPass;
-    private final String idamRedirectUrl;
-    private final String systemUserScope;
-    private final String idamClientId;
-    private final String idamClientSecret;
     private final IdamService idamService;
 
-    public IdamSystemTokenGenerator(
-        @Value("${idam.system.username}") String systemUserName,
-        @Value("${idam.system.password}") String systemUserPass,
-        @Value("${idam.redirectUrl}") String idamRedirectUrl,
-        @Value("${idam.scope}") String systemUserScope,
-        @Value("${spring.security.oauth2.client.registration.oidc.client-id}") String idamClientId,
-        @Value("${spring.security.oauth2.client.registration.oidc.client-secret}") String idamClientSecret,
-        IdamService idamService
-    ) {
-        this.systemUserName = systemUserName;
-        this.systemUserPass = systemUserPass;
-        this.idamRedirectUrl = idamRedirectUrl;
-        this.systemUserScope = systemUserScope;
-        this.idamClientId = idamClientId;
-        this.idamClientSecret = idamClientSecret;
+    public IdamSystemTokenGenerator(IdamService idamService) {
         this.idamService = idamService;
     }
 
     @Override
     public String generate() {
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "password");
-        map.add("redirect_uri", idamRedirectUrl);
-        map.add("client_id", idamClientId);
-        map.add("client_secret", idamClientSecret);
-        map.add("username", systemUserName);
-        map.add("password", systemUserPass);
-        map.add("scope", systemUserScope);
-
         try {
-
-            Token tokenResponse = idamService.getUserToken(map);
-
+            Token tokenResponse = idamService.getServiceUserToken();
             return tokenResponse.getAccessToken();
-
         } catch (FeignException ex) {
-
             throw new IdentityManagerResponseException("Could not get system user token from IDAM", ex);
         }
     }

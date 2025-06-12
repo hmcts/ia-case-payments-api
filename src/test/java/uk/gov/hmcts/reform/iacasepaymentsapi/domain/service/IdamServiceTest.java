@@ -8,22 +8,31 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.IdamApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.UserInfo;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class IdamServiceTest {
     @Mock
     private IdamApi idamApi;
 
     private IdamService idamService;
+
+    private final String systemUserName = "systemUserName";
+    private final String systemUserPass = "systemUserPass";
+    private final String idamRedirectUrl = "http://idamRedirectUrl";
+    private final String systemUserScope = "systemUserScope";
+    private final String idamClientId = "idamClientId";
+    private final String idamClientSecret = "idamClientSecret";
 
     @Test
     void getUserDetails() {
@@ -36,9 +45,15 @@ class IdamServiceTest {
         String expectedSurname = "Doe";
         String expectedName = expectedForename + " " + expectedSurname;
 
-        idamService = new IdamService(idamApi);
+        idamService = new IdamService(systemUserName,
+                                      systemUserPass,
+                                      idamRedirectUrl,
+                                      systemUserScope,
+                                      idamClientId,
+                                      idamClientSecret,
+                                      idamApi);
 
-        UserInfo expecteduUerInfo = new UserInfo(
+        UserInfo expectedUserInfo = new UserInfo(
                 expectedEmailAddress,
                 expectedId,
                 expectedRoles,
@@ -46,7 +61,7 @@ class IdamServiceTest {
                 expectedForename,
                 expectedSurname
         );
-        when(idamApi.userInfo(anyString())).thenReturn(expecteduUerInfo);
+        when(idamApi.userInfo(anyString())).thenReturn(expectedUserInfo);
 
         UserInfo actualUserInfo = idamService.getUserInfo(expectedAccessToken);
         verify(idamApi).userInfo(expectedAccessToken);
@@ -62,23 +77,34 @@ class IdamServiceTest {
     void getUserToken() {
         String expectedAccessToken = "ABCDEFG";
         String expectedScope = "systemUserScope";
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "password");
-        map.add("redirect_uri", "idamRedirectUrl");
-        map.add("client_id", "idamClientId");
-        map.add("client_secret", "idamClientSecret");
-        map.add("username", "systemUserName");
-        map.add("password", "systemUserPass");
-        map.add("scope", expectedScope);
 
-        idamService = new IdamService(idamApi);
+        idamService = new IdamService(systemUserName,
+                                      systemUserPass,
+                                      idamRedirectUrl,
+                                      systemUserScope,
+                                      idamClientId,
+                                      idamClientSecret,
+                                      idamApi);
         Token expectedToken = new Token(expectedAccessToken, expectedScope);
         when(idamApi.token(anyMap())).thenReturn(expectedToken);
 
-        Token actualUserToken = idamService.getUserToken(map);
-        verify(idamApi).token(map);
+        Token actualUserToken = idamService.getServiceUserToken();
+        ArgumentCaptor<ConcurrentHashMap<String, String>> requestFormCaptor =
+            ArgumentCaptor.forClass(ConcurrentHashMap.class);
+        verify(idamApi).token(requestFormCaptor.capture());
 
         assertEquals(expectedAccessToken, actualUserToken.getAccessToken());
         assertEquals(expectedScope, actualUserToken.getScope());
+
+        Map<String, ?> actualRequestEntity = requestFormCaptor.getValue();
+
+        assertEquals("password", actualRequestEntity.get("grant_type"));
+        assertEquals(idamRedirectUrl, actualRequestEntity.get("redirect_uri"));
+        assertEquals(idamClientId, actualRequestEntity.get("client_id"));
+        assertEquals(idamClientSecret, actualRequestEntity.get("client_secret"));
+        assertEquals(systemUserName, actualRequestEntity.get("username"));
+        assertEquals(systemUserPass, actualRequestEntity.get("password"));
+        assertEquals(systemUserScope, actualRequestEntity.get("scope"));
+
     }
 }
