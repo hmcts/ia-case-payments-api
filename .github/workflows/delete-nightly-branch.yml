@@ -3,7 +3,6 @@ name: Delete Nightly Dev Branch
 on:
   schedule:
     - cron: '0 6 * * 1-5' # At 6:00 AM UTC, Monday through Friday
-  pull_request:
   workflow_dispatch: # Optional: allows manual triggering
 
 jobs:
