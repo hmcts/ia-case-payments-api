@@ -37,9 +37,10 @@ spring:
         jwt:
           jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
   cache:
-    cache-names: userInfoCache, systemTokenCache
+    cache-names: userInfoCache
     caffeine:
       spec: expireAfterAccess=3600s
+
 
 idam:
   baseUrl: ${IDAM_URL:http://127.0.0.1:5000}
