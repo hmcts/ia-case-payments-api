@@ -272,7 +272,7 @@ def versions = [
   junitPlatform   : '1.13.2',
   reformLogging   : '5.1.7',
   springDoc       : '1.8.0',
-  pact_version    : '4.6.17',
+  pact_version    : '4.4.9',
   serenity        : '3.9.8',
   sonarPitest     : '0.5',
   restAssured     : '5.5.5'
@@ -499,14 +499,14 @@ dependencies {
 
 
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: '4.1.43'
+  contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: versions.pact_version
 
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
 
-  contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.13.2'
+  contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
 
-  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.9'
+  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.8'
   contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-netflix-ribbon', version: '2.2.10.RELEASE'
 }
 

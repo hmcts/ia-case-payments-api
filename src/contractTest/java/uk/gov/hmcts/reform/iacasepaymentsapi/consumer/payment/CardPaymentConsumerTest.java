@@ -6,7 +6,7 @@ import au.com.dius.pact.consumer.dsl.DslPart;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +50,7 @@ public class CardPaymentConsumerTest {
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
 
     @Pact(provider = "payment_cardPayment", consumer = "ia_casePaymentsApi")
-    public RequestResponsePact generateCreatePaymentPactFragment(
+    public V4Pact generateCreatePaymentPactFragment(
         PactDslWithProvider builder) throws JSONException, IOException {
 
         Map<String, Object> paymentMap = new HashMap<>();
@@ -74,7 +74,7 @@ public class CardPaymentConsumerTest {
                                                    + "65888814-3a93-48cf-8e6b-fc78536eb7ad", "GET"),
                                            null, null)
             ))
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Test
