@@ -499,7 +499,7 @@ dependencies {
 
 
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact_version
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: '4.1.43'
 
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
