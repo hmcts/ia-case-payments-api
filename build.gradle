@@ -420,7 +420,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.13'
 
-  implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.0.2'
+  implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.1.1'
 
   implementation group: 'org.bouncycastle', name: 'bcprov-jdk18on', version: '1.74'
 
@@ -498,7 +498,7 @@ dependencies {
 
   contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
 
-  contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.9'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.9'
   contractTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-netflix-ribbon', version: '2.2.10.RELEASE'
 }
 
