@@ -380,9 +380,6 @@ dependencies {
     exclude group: "org.bouncycastle", module: "bcprov-jdk15on"
   }
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2021.0.8'
-  implementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE') {
-    exclude group: "org.bouncycastle", module: "bcprov-jdk15on"
-  }
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client'
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
