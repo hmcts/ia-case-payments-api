@@ -3,11 +3,11 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.roleassignm
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
 
+import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.roleassignment.QueryRequest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.roleassignment.RoleAssignmentResource;
 
 @FeignClient(
@@ -19,6 +19,6 @@ public interface RoleAssignmentApi {
     RoleAssignmentResource queryRoleAssignments(
         @RequestHeader(AUTHORIZATION) String userToken,
         @RequestHeader(SERVICE_AUTHORIZATION) String s2sToken,
-        @RequestBody QueryRequest queryRequest
+        @RequestBody Map<String, Object> queryRequest
     );
 }
