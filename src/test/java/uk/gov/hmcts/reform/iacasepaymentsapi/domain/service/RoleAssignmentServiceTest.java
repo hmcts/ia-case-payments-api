@@ -67,7 +67,7 @@ class RoleAssignmentServiceTest {
             .build();
         Map<String, Object> requestBody = Map.of(
             "actorId", Collections.singletonList(userId),
-            "roleType", Collections.singletonList("ORGANISATION"),
+            "roleType", Collections.singletonList(RoleType.ORGANISATION),
             "attributes", Collections.singletonMap("jurisdiction", Collections.singletonList("IA"))
         );
 
