@@ -12,13 +12,17 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HAS_SERVICE_REQUEST_ALREADY;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ACCELERATED_DETAINED_APPEAL;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.HELP_WITH_FEES_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_STATUS;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_DECISION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_OPTION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.REMISSION_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_EJP;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption.WILL_PAY_FOR_APPEAL;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption.NO_REMISSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
 import feign.FeignException;
@@ -26,15 +30,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.JourneyType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionDecision;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
@@ -46,7 +51,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.handlers.PreSubmitCallbackHandler;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.FeeService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.ServiceRequestService;
 
 @Slf4j
 @Component
@@ -54,16 +58,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     private final RefDataService refDataService;
     private final FeeService feeService;
-    private final ServiceRequestService serviceRequestService;
 
     public PaymentAppealPreparer(
         RefDataService refDataService,
-        FeeService feeService,
-        ServiceRequestService serviceRequestService
+        FeeService feeService
     ) {
         this.feeService = feeService;
         this.refDataService = refDataService;
-        this.serviceRequestService = serviceRequestService;
     }
 
     @Override
@@ -78,28 +79,27 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
 
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
-               && Arrays.asList(
-                   Event.PAYMENT_APPEAL,
-                   Event.PAY_AND_SUBMIT_APPEAL,
-                   Event.PAY_FOR_APPEAL,
-                   Event.RECORD_REMISSION_DECISION
-                ).contains(callback.getEvent())
-               && isLegalRepJourney(asylumCase))
-               || isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase));
+            && Arrays.asList(
+            Event.PAYMENT_APPEAL,
+            Event.PAY_AND_SUBMIT_APPEAL,
+            Event.PAY_FOR_APPEAL,
+            Event.RECORD_REMISSION_DECISION
+        ).contains(callback.getEvent()))
+            || isWaysToPay(callbackStage, callback);
     }
 
     // No payments for EJP Cases
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
-                                Callback<AsylumCase> callback,
-                                boolean isLegalRepJourney) {
+                                Callback<AsylumCase> callback) {
 
-        List<Event> waysToPayEvents = List.of(Event.SUBMIT_APPEAL,
-                                              Event.GENERATE_SERVICE_REQUEST,
-                                              Event.RECORD_REMISSION_DECISION);
+        List<Event> waysToPayEvents = List.of(
+            Event.SUBMIT_APPEAL,
+            Event.GENERATE_SERVICE_REQUEST,
+            Event.RECORD_REMISSION_DECISION
+        );
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
-               && isLegalRepJourney
                && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData())
                && !isEjpCase(callback.getCaseDetails().getCaseData());
     }
@@ -122,7 +122,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         PreSubmitCallbackResponse<AsylumCase> response =
             new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
 
-        if (hasNoRemission(asylumCase)) {
+        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase)) {
 
             try {
 
@@ -138,7 +138,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                 List<Value> accountListElements = accountsFromOrg
                     .stream()
                     .map(idValue -> new Value(idValue, idValue))
-                    .collect(Collectors.toList());
+                    .toList();
 
                 DynamicList accountList = new DynamicList(accountListElements.get(0), accountListElements);
                 asylumCase.write(PAYMENT_ACCOUNT_LIST, accountList);
@@ -162,7 +162,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         if (callback.getEvent() != Event.RECORD_REMISSION_DECISION
             || (callback.getEvent() == Event.RECORD_REMISSION_DECISION
-                && asylumCase.read(PAYMENT_STATUS).isEmpty())) {
+            && asylumCase.read(PAYMENT_STATUS).isEmpty())) {
             asylumCase.write(PAYMENT_STATUS, PAYMENT_PENDING);
         }
 
@@ -172,14 +172,11 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.NO);
         }
 
-        if (isWaysToPay(callbackStage, callback, isLegalRepJourney(asylumCase))
+        if (isWaysToPay(callbackStage, callback)
             && hasServiceRequestAlready.orElse(YesOrNo.NO) != YesOrNo.YES
             && hasNoRemission(asylumCase)
             && isAdmin != YesOrNo.YES) {
-
-            if (hasNoRemission(asylumCase)) {
-                asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
-            }
+            asylumCase.write(IS_SERVICE_REQUEST_TAB_VISIBLE_CONSIDERING_REMISSIONS, YesOrNo.YES);
         }
 
         return new PreSubmitCallbackResponse<>(asylumCase);
@@ -190,7 +187,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             .map(journey -> journey == JourneyType.REP)
             .orElse(true);
     }
-
 
     private boolean isHuEaEuPaAgAda(AsylumCase asylumCase) {
         Optional<AppealType> optionalAppealType = asylumCase.read(APPEAL_TYPE, AppealType.class);
@@ -208,10 +204,32 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         Optional<RemissionDecision> optionalRemissionDecision =
             asylumCase.read(REMISSION_DECISION, RemissionDecision.class);
 
-        return (optRemissionType.isPresent() && optRemissionType.get() == RemissionType.NO_REMISSION)
-               || optRemissionType.isEmpty()
-               || (optionalRemissionDecision.isPresent()
-                   && optionalRemissionDecision.get() == RemissionDecision.REJECTED);
+        return (!isRemissionExists(optRemissionType) && !hasAipJourneyRemission(asylumCase))
+            || isDecisionPartiallyApprovedOrRejected(optionalRemissionDecision);
+    }
+
+    // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
+    private boolean isEjpCase(AsylumCase asylumCase) {
+        return asylumCase.read(IS_EJP, YesOrNo.class).orElse(YesOrNo.NO) == YesOrNo.YES;
+    }
+
+    private boolean isRemissionExists(Optional<RemissionType> remissionType) {
+        return remissionType.isPresent()
+            && remissionType.get() != RemissionType.NO_REMISSION;
+    }
+
+    private boolean hasAipJourneyRemission(AsylumCase asylumCase) {
+        Optional<RemissionOption> remissionOption = asylumCase.read(REMISSION_OPTION, RemissionOption.class);
+        Optional<HelpWithFeesOption> helpWithFeesOption = asylumCase.read(HELP_WITH_FEES_OPTION, HelpWithFeesOption.class);
+
+        return (remissionOption.isPresent() && remissionOption.get() != NO_REMISSION)
+            || (helpWithFeesOption.isPresent() && helpWithFeesOption.get() != WILL_PAY_FOR_APPEAL);
+    }
+
+    private boolean isDecisionPartiallyApprovedOrRejected(Optional<RemissionDecision> remissionDecision) {
+        return remissionDecision
+            .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED
+        ).orElse(false);
     }
 
     // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form

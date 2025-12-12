@@ -4,10 +4,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 
+@Slf4j
 public class CcdEventAuthorizor {
 
     private final Map<String, List<Event>> roleEventAccess;
@@ -29,7 +30,8 @@ public class CcdEventAuthorizor {
         if (requiredRoles.isEmpty()
             || userRoles.isEmpty()
             || Collections.disjoint(requiredRoles, userRoles)) {
-
+            log.error("User has roles: {}\nBut requires roles: {}", String.join(",", userRoles),
+                      String.join(",", requiredRoles));
             throw new AccessDeniedException("Event '" + event.toString() + "' not allowed");
         }
     }
@@ -41,6 +43,6 @@ public class CcdEventAuthorizor {
             .stream()
             .filter(entry -> entry.getValue().contains(event))
             .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
+            .toList();
     }
 }
