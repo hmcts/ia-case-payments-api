@@ -231,4 +231,9 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED
         ).orElse(false);
     }
+
+    // This method uses the isEjp field which is set yes for EJP when a case is saved or no if paper form
+    private boolean isEjpCase(AsylumCase asylumCase) {
+        return asylumCase.read(IS_EJP, YesOrNo.class).orElse(YesOrNo.NO) == YesOrNo.YES;
+    }
 }
