@@ -49,34 +49,6 @@ public class CardPaymentConsumerTest {
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
 
-    @Pact(provider = "payment_cardPayment", consumer = "ia_casePaymentsApi")
-    public V4Pact generateCreatePaymentPactFragment(
-        PactDslWithProvider builder) throws JSONException, IOException {
-
-        Map<String, Object> paymentMap = new HashMap<>();
-        paymentMap.put("amount", "140");
-        paymentMap.put("calculatedAmount", "140");
-
-        return builder
-            .given("The appeal payment amount and fee amount should be equal", paymentMap)
-            .uponReceiving("A request for card payment")
-            .path("/card-payments")
-            .method("POST")
-            .headers("Authorization", AUTHORIZATION_TOKEN)
-            .body(objectMapper.writeValueAsString(getCardPaymentRequest()))
-            .willRespondWith()
-            .status(201)
-            .body(buildCreatePaymentResponse("RC-1638-1892-5327-5886", "Initiated",
-                                       "9s7g2j2q3fvia0u4kneq0l7dvf",
-                                       new PaymentDto.LinksDto(
-                                           new PaymentDto.LinkDto(
-                                               "secure/"
-                                                   + "65888814-3a93-48cf-8e6b-fc78536eb7ad", "GET"),
-                                           null, null)
-            ))
-            .toPact(V4Pact.class);
-    }
-
     @Test
     @PactTestFor(pactMethod = "generateCreatePaymentPactFragment")
     public void createPayment() {

@@ -16,13 +16,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentResp
 @FeignClient(name = "payment-api", url = "${payment.api.url}")
 public interface CardPaymentApi {
 
-    @PostMapping(value = "/card-payments", consumes = "application/json")
-    PaymentResponse cardPaymentRequest(
-        @RequestHeader(AUTHORIZATION) String authorization,
-        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestBody CardPaymentRequest request
-    );
-
     @GetMapping(value = "/card-payments/{ref}")
     PaymentDto getPayment(@RequestHeader(AUTHORIZATION) String authorization,
                           @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
