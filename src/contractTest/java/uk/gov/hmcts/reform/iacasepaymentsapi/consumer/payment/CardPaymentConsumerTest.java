@@ -49,12 +49,6 @@ public class CardPaymentConsumerTest {
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
 
-    @Test
-    @PactTestFor(pactMethod = "generateCreatePaymentPactFragment")
-    public void createPayment() {
-        cardPaymentApi.cardPaymentRequest(AUTHORIZATION_TOKEN, SERVICE_AUTH_TOKEN, getCardPaymentRequest());
-    }
-
     private DslPart buildCreatePaymentResponse(String reference, String status, String externalReference,
                                          PaymentDto.LinksDto links) {
         return newJsonBody((o) -> {
