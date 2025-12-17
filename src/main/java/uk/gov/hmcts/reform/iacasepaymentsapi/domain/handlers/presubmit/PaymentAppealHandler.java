@@ -55,17 +55,20 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProper
 public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
     private final FeeService feeService;
+    private final PaymentService paymentService;
     private final RefDataService refDataService;
     private final PaymentProperties paymentProperties;
     private final ObjectMapper objectMapper;
 
     public PaymentAppealHandler(
         FeeService feeService,
+        PaymentService paymentService,
         RefDataService refDataService,
         PaymentProperties paymentProperties,
         ObjectMapper objectMapper
     ) {
         this.feeService = feeService;
+        this.paymentService = paymentService;
         this.refDataService = refDataService;
         this.paymentProperties = paymentProperties;
         this.objectMapper = objectMapper;
