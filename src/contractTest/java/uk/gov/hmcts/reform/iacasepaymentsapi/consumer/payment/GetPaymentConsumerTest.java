@@ -28,7 +28,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 
 @ExtendWith(PactConsumerTestExt.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@PactTestFor(providerName = "payment_getPayment", port = "8991")
+@PactTestFor(providerName = "payment_cardPayment", port = "8991")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(
     classes = {PaymentConsumerApplication.class}
@@ -45,7 +45,7 @@ public class GetPaymentConsumerTest {
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
 
-    @Pact(provider = "payment_getPayment", consumer = "ia_casePaymentsApi")
+    @Pact(provider = "payment_cardPayment", consumer = "ia_casePaymentsApi")
     public V4Pact generateGetPaymentPactFragment(
         PactDslWithProvider builder) throws JSONException, IOException {
         Map<String, Object> paymentMap = new HashMap<>();
@@ -54,7 +54,7 @@ public class GetPaymentConsumerTest {
         PaymentDto response = getPaymentResponse();
 
         return builder
-            .given("The payment reference should not be empty or null", paymentMap)
+            .given("A payment reference exists", paymentMap)
             .uponReceiving("A request for card payment")
             .path("/card-payments/" + paymentMap.get("paymentReference"))
             .method("GET")
