@@ -1,7 +1,13 @@
 targetInstance: ${TEST_URL:http://localhost:8096}
 
 spring:
-  cache:
-    cache-names: userInfoCache, accessTokenCache, systemTokenCache, legalRepTokenCache, legalRepOrgDeletedTokenCache, legalRepOrgSuccessTokenCache, citizenTokenCache
-    caffeine:
-      spec: expireAfterAccess=3600s
+#  cache:
+#    cache-names: userInfoCache, accessTokenCache, systemTokenCache, legalRepTokenCache, legalRepOrgDeletedTokenCache, legalRepOrgSuccessTokenCache, citizenTokenCache
+#    caffeine:
+#      spec: expireAfterAccess=3600s
+  data:
+    redis:
+      url: ${IA_REDIS_CONNECTION_STRING:}
+      secret: ${IA_REDIS_ACCESS_KEY:}
+      ssl:
+        enabled: true
