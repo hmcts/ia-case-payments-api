@@ -20,8 +20,6 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.IdamApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.CacheConfiguration;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemUserProvider;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.oauth2.IdamSystemTokenGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
