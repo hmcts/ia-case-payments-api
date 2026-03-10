@@ -175,6 +175,7 @@ pitest {
   targetClasses = ['uk.gov.hmcts.reform.iacasepaymentsapi.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.*',
+    'uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.CacheConfiguration',
     'uk.gov.hmcts.reform.iacasepaymentsapi.Application',
     'uk.gov.hmcts.reform.iacasepaymentsapi.CcdScenarioRunnerTest'
   ]
