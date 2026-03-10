@@ -57,7 +57,7 @@ public class CacheConfiguration {
             // only systemTokenCache goes to Redis, rest stay as Caffeine
             return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(tokenCacheConfig)
-                .withCacheConfiguration("systemUserTokenCache",
+                .withCacheConfiguration("accessTokenCache",
                                         tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
                 .withCacheConfiguration("userInfoCache",
                                         tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
