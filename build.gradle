@@ -175,7 +175,6 @@ pitest {
   targetClasses = ['uk.gov.hmcts.reform.iacasepaymentsapi.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.*',
-    'uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.CacheConfiguration',
     'uk.gov.hmcts.reform.iacasepaymentsapi.Application',
     'uk.gov.hmcts.reform.iacasepaymentsapi.CcdScenarioRunnerTest'
   ]
@@ -197,6 +196,7 @@ sonarqube {
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/iacasepaymentsnapi/infrastructure/config/**," +
+                                 "src/main/java/uk/gov/hmcts/reform/iacasepaymentsnapi/infrastructure/config/CacheConfiguration.java," +
                                  "src/main/java/uk/gov/hmcts/reform/iacasepaymentsnapi/Application.java"
   }
 }
