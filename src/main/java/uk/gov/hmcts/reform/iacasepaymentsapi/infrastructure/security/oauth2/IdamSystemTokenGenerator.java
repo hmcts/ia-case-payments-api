@@ -39,7 +39,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         this.idamApi = idamApi;
     }
 
-    @Cacheable(value = "accessTokenCache", key = "'accessTokenCache'")
+    @Cacheable(value = "systemUserTokenCache", key = "'systemUserTokenCache'")
     public String generate() {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
