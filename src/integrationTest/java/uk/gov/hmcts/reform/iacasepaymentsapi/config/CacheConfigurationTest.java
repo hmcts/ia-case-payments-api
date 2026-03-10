@@ -1,42 +1,45 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.config;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.IdamService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RoleAssignmentService;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.IdamApi;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.CacheConfiguration;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-@Import({ CacheConfiguration.class, SystemTokenGenerator.class, IdamService.class })
+@Import({ CacheConfiguration.class })
 @ExtendWith(SpringExtension.class)
 @EnableCaching
-@Disabled
 class CacheConfigurationTest {
 
-    private static final String BEARER_AUTH = "Bearer ";
-    private static final String TOKEN = "SOME_TOKEN";
+    private CacheConfiguration cacheConfiguration;
 
-    // need these static so container starts before spring application context
+    @Mock
+    private RedisConnectionFactory redisConnectionFactory;
+
+    @Mock
+    private RedisConnection redisConnection;
+
+    private static final String REDIS_URL_WITH_TLS = "redis://SOME_KEY@hostname.redis.cache.windows.net:6380?tls=true";
+    private static final String REDIS_URL_SSL = "rediss://SOME_KEY@hostname.redis.cache.windows.net:6380";
+    private static final String ACCESS_KEY = "some-access-key";
+
+
     static GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
         .withExposedPorts(6379);
 
@@ -51,41 +54,132 @@ class CacheConfigurationTest {
         );
     }
 
-    @Autowired
-    private IdamService idamService;
-
-    @Autowired
-    private SystemTokenGenerator idamSystemTokenGenerator;
-
-    @Autowired
-    private CacheManager cacheManager;
-
-    @MockBean
-    private IdamApi idamApi;
-
-    @MockBean
-    private RoleAssignmentService ras;
-
     @BeforeEach
     void setUp() {
-        given(idamApi.token(any()))
-            .willReturn(new Token(TOKEN, BEARER_AUTH));
-    }
-
-    @AfterAll
-    static void tearDown() {
-        redis.stop();
+        cacheConfiguration = new CacheConfiguration();
     }
 
     @Test
-    void givenRedisCaching_whenFindItemById_thenItemReturnedFromCache() {
-        String itemCacheMiss = idamSystemTokenGenerator.generate();
-        String itemCacheHit = idamSystemTokenGenerator.generate();
+    void cacheManager_shouldReturnRedisCacheManager_whenRedisAvailable() {
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.ping()).thenReturn("PONG");
 
-        assertThat(itemCacheMiss).isEqualTo(BEARER_AUTH + TOKEN);
-        assertThat(itemCacheHit).isEqualTo(BEARER_AUTH + TOKEN);
+        CacheManager result = cacheConfiguration.cacheManager(redisConnectionFactory);
 
-        verify(idamApi, times(1)).token(any());
+        assertThat(result).isInstanceOf(RedisCacheManager.class);
+        verify(redisConnectionFactory).getConnection();
     }
 
+    @Test
+    void cacheManager_shouldReturnNoOpCacheManager_whenRedisUnavailable() {
+        when(redisConnectionFactory.getConnection()).thenThrow(new RuntimeException("Redis unavailable"));
+
+        CacheManager result = cacheConfiguration.cacheManager(redisConnectionFactory);
+
+        assertThat(result).isInstanceOf(NoOpCacheManager.class);
+    }
+
+    @Test
+    void cacheManager_redisCacheManager_shouldContainAllCacheNames() {
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.ping()).thenReturn("PONG");
+
+        CacheManager result = cacheConfiguration.cacheManager(redisConnectionFactory);
+        result.getCache("systemUserTokenCache");
+        result.getCache("userInfoCache");
+
+        assertThat(result.getCacheNames())
+            .contains("systemUserTokenCache", "userInfoCache");
+    }
+
+    @Test
+    void cacheManager_shouldReturnNoOpCacheManager_whenPingThrowsException() {
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.ping()).thenThrow(new RuntimeException("Ping failed"));
+
+        CacheManager result = cacheConfiguration.cacheManager(redisConnectionFactory);
+
+        assertThat(result).isInstanceOf(NoOpCacheManager.class);
+    }
+
+    @Test
+    void redisConnectionFactory_shouldReturnDefaultLettuceFactory_whenUrlIsBlank() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory("", ACCESS_KEY);
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+    }
+
+    @Test
+    void redisConnectionFactory_shouldReturnDefaultLettuceFactory_whenUrlIsNull() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(null, ACCESS_KEY);
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+    }
+
+    @Test
+    void redisConnectionFactory_shouldCreateFactory_withTlsParameter() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(
+            REDIS_URL_WITH_TLS, ACCESS_KEY
+        );
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+        LettuceConnectionFactory factory = (LettuceConnectionFactory) result;
+        assertThat(factory.isUseSsl()).isTrue();
+    }
+
+    @Test
+    void redisConnectionFactory_shouldCreateFactory_withRedissScheme() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(
+            REDIS_URL_SSL, ACCESS_KEY
+        );
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+        LettuceConnectionFactory factory = (LettuceConnectionFactory) result;
+        assertThat(factory.isUseSsl()).isTrue();
+    }
+
+    @Test
+    void redisConnectionFactory_shouldCreateFactory_withAccessKey() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(
+            REDIS_URL_WITH_TLS, ACCESS_KEY
+        );
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+        LettuceConnectionFactory factory = (LettuceConnectionFactory) result;
+        // password is set - verify factory was created with standalone config
+        assertThat(factory.getHostName()).isEqualTo("hostname.redis.cache.windows.net");
+        assertThat(factory.getPort()).isEqualTo(6380);
+    }
+
+    @Test
+    void redisConnectionFactory_shouldCreateFactory_withoutAccessKey() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(
+            REDIS_URL_WITH_TLS, ""
+        );
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+    }
+
+    @Test
+    void redisConnectionFactory_shouldCreateFactory_withNullAccessKey() {
+        RedisConnectionFactory result = cacheConfiguration.redisConnectionFactory(
+            REDIS_URL_WITH_TLS, null
+        );
+
+        assertThat(result).isInstanceOf(LettuceConnectionFactory.class);
+    }
+
+    // ───────────────────────────────────────────────
+    // cacheManagerCustomizer tests
+    // ───────────────────────────────────────────────
+
+    @Test
+    void cacheManagerCustomizer_shouldDisableNullValues() {
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+        caffeineCacheManager.setAllowNullValues(true); // set to true first
+
+        cacheConfiguration.cacheManagerCustomizer().customize(caffeineCacheManager);
+
+        assertThat(caffeineCacheManager.isAllowNullValues()).isFalse();
+    }
 }
