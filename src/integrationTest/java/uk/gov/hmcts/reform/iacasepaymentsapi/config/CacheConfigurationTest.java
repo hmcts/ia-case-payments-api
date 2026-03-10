@@ -20,7 +20,9 @@ import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.CacheConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+
 
 @Import({ CacheConfiguration.class })
 @ExtendWith(SpringExtension.class)
