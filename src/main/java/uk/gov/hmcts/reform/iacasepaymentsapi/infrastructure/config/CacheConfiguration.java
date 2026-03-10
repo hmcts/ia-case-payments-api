@@ -61,6 +61,10 @@ public class CacheConfiguration {
                                         tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
                 .withCacheConfiguration("userInfoCache",
                                         tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
+                .withCacheConfiguration("legalRepTokenCache",
+                                        tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
+                .withCacheConfiguration("legalRepOrgDeletedTokenCache",
+                                        tokenCacheConfig.entryTtl(Duration.ofSeconds(3300)))
                 .build();
 
         } catch (Exception e) {
