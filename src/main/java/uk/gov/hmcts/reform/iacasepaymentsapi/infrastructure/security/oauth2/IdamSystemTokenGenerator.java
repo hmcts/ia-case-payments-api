@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.oauth2;
 
 import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.T
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 
 @Component
+@Slf4j
 public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
     private final String systemUserName;
@@ -39,7 +41,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         this.idamApi = idamApi;
     }
 
-    @Cacheable(value = "accessTokenCache")
+    @Cacheable(value = "systemUserTokenCache", key = "'systemUserTokenCache'")
     public String generate() {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -53,6 +55,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
         try {
 
+            log.info("System user token expired. Getting a new token in ia-case-payments-api");
             Token tokenResponse = idamApi.token(map);
 
             return tokenResponse.getAccessToken();
