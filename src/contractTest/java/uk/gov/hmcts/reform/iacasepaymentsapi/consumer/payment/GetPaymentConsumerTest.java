@@ -30,12 +30,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @PactTestFor(providerName = "payment_cardPayment", port = "8991")
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(
-    classes = {PaymentConsumerApplication.class}
-)
-@TestPropertySource(
-    properties = {"payment.api.url=localhost:8991"}
-)
+@ContextConfiguration(classes = {PaymentConsumerApplication.class})
+@TestPropertySource(properties = {"payment.api.url=localhost:8991"})
 @PactFolder("pacts")
 public class GetPaymentConsumerTest {
 
@@ -44,18 +40,18 @@ public class GetPaymentConsumerTest {
 
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
+    private static final String PAYMENT_REFERENCE = "654321ABC";
 
     @Pact(provider = "payment_cardPayment", consumer = "ia_casePaymentsApi")
-    public V4Pact generateGetPaymentPactFragment(
-        PactDslWithProvider builder) throws JSONException, IOException {
+    public V4Pact generateGetPaymentPactFragment(PactDslWithProvider builder) throws JSONException, IOException {
         Map<String, Object> paymentMap = new HashMap<>();
-        paymentMap.put("paymentReference", "RC-1638-1892-5327-5886");
+        paymentMap.put("paymentReference", PAYMENT_REFERENCE);
 
         PaymentDto response = getPaymentResponse();
 
         return builder
             .given("A payment reference exists", paymentMap)
-            .uponReceiving("A request for card payment")
+            .uponReceiving("A request for card payment details by reference")
             .path("/card-payments/" + paymentMap.get("paymentReference"))
             .method("GET")
             .headers("Authorization", AUTHORIZATION_TOKEN)
@@ -69,36 +65,34 @@ public class GetPaymentConsumerTest {
     @Test
     @PactTestFor(pactMethod = "generateGetPaymentPactFragment")
     public void getPayment() {
-        cardPaymentApi.getPayment(AUTHORIZATION_TOKEN, SERVICE_AUTH_TOKEN, "RC-1638-1892-5327-5886");
+        cardPaymentApi.getPayment(AUTHORIZATION_TOKEN, SERVICE_AUTH_TOKEN, PAYMENT_REFERENCE);
     }
 
     private DslPart buildGetPaymentResponse(PaymentDto paymentDto) {
-
         return newJsonBody((o) -> {
-            o.stringType("amount", paymentDto.getAmount().toString())
+            o.numberType("amount", paymentDto.getAmount()) // numeric, not string
                 .stringType("description", paymentDto.getDescription())
                 .stringType("reference", paymentDto.getReference())
                 .stringType("currency", paymentDto.getCurrency())
                 .stringType("ccd_case_number", paymentDto.getCcdCaseNumber())
                 .stringType("channel", paymentDto.getChannel())
                 .stringType("status", paymentDto.getStatus())
-                .stringType("service", paymentDto.getService().toString())
+                .stringType("service_name", paymentDto.getService()) // provider uses service_name
                 .stringType("external_reference", paymentDto.getExternalReference());
         }).build();
     }
 
     private PaymentDto getPaymentResponse() {
-
         return PaymentDto.builder()
-            .amount(new BigDecimal("140"))
-            .description("A card payment for appeal with hearing")
-            .reference("RC-1638-1892-5327-5886")
+            .amount(new BigDecimal("100"))              // numeric example compatible with provider
+            .description("description")
+            .reference(PAYMENT_REFERENCE)
             .currency("GBP")
-            .ccdCaseNumber("1633693806322587")
+            .ccdCaseNumber("ccdCaseNumber1")
             .channel("online")
-            .service("IAC")
+            .service("Divorce")                         // matches service_name sample
             .status("Initiated")
-            .externalReference("9s7g2j2q3fvia0u4kneq0l7dvf")
+            .externalReference("paymentId")
             .build();
     }
 }
