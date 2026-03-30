@@ -52,6 +52,7 @@ def secrets = [
 
     secret('ia-redis-access-key', 'IA_REDIS_ACCESS_KEY'),
     secret('ia-redis-connection-string', 'IA_REDIS_CONNECTION_STRING'),
+    secret('ia-redis-encryption-key', 'IA_REDIS_ENCRYPTION_KEY'),
 
   ]
 ]
