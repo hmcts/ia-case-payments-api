@@ -55,7 +55,6 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
         try {
 
-            log.info("System user token expired. Getting a new token in ia-case-payments-api");
             Token tokenResponse = idamApi.token(map);
 
             return "Bearer " + tokenResponse.getAccessToken();

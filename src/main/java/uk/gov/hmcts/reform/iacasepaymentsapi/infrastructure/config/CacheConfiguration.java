@@ -46,7 +46,6 @@ public class CacheConfiguration {
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         try {
             redisConnectionFactory.getConnection().ping();
-            log.info("Redis connection successful - using Redis for systemTokenCache and userTokenCache");
 
             // Idam user info config
             AesEncryptingRedisSerializer<UserInfo> userInfoSerializer =
@@ -99,8 +98,6 @@ public class CacheConfiguration {
         @Value("${spring.data.redis.url}") String redisUrl,
         @Value("${spring.data.redis.secret}") String accessKey) {
 
-        log.info("redis url: " + redisUrl);
-
         if (redisUrl == null || redisUrl.isBlank()) {
             log.warn("No Redis URL configured - falling back to Caffeine");
             // return a dummy factory - cacheManager will catch the ping failure and fall back
@@ -111,7 +108,6 @@ public class CacheConfiguration {
             RedisURI redisUri = RedisURI.create(redisUrl);
 
             boolean useSsl = redisUrl.contains("tls=true") || redisUrl.startsWith("rediss://");
-            log.info("Redis SSL enabled: {}", useSsl);
 
             // checked azure portal,
             if (useSsl) {
@@ -126,7 +122,6 @@ public class CacheConfiguration {
             config.setPort(redisUri.getPort());
             if (accessKey != null && !accessKey.isBlank()) {
                 config.setPassword(RedisPassword.of(accessKey));
-                log.info("adding password to redis");
             }
 
             LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
@@ -135,13 +130,7 @@ public class CacheConfiguration {
                 .disablePeerVerification()
                 .build();
 
-            LettuceConnectionFactory factory = new LettuceConnectionFactory(
-                config,
-                clientConfig
-            );
-
-            log.info("Successful Redis connection.");
-            return factory;
+            return new LettuceConnectionFactory(config, clientConfig);
         } catch (Exception e) {
             log.error("Failed to create Redis connection factory: {}", e.getMessage());
             throw e;
