@@ -108,6 +108,7 @@ public class CacheConfiguration {
             RedisURI redisUri = RedisURI.create(redisUrl);
 
             boolean useSsl = redisUrl.contains("tls=true") || redisUrl.startsWith("rediss://");
+            log.info("Redis SSL enabled: {}", useSsl);
 
             // checked azure portal,
             if (useSsl) {
@@ -130,7 +131,13 @@ public class CacheConfiguration {
                 .disablePeerVerification()
                 .build();
 
-            return new LettuceConnectionFactory(config, clientConfig);
+            LettuceConnectionFactory factory = new LettuceConnectionFactory(
+                config,
+                clientConfig
+            );
+
+            log.info("Successful Redis connection.");
+            return factory;
         } catch (Exception e) {
             log.error("Failed to create Redis connection factory: {}", e.getMessage());
             throw e;
