@@ -63,7 +63,7 @@ public class CcdDataService {
         String s2sToken;
         String uid;
         try {
-            userToken = systemTokenGenerator.generate();
+            userToken = "Bearer " + systemTokenGenerator.generate();
             log.info("System user token has been generated for event: {}, caseId: {}.", event, caseId);
 
             s2sToken = serviceAuthorization.generate();
