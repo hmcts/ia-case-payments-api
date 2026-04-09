@@ -39,7 +39,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
         this.idamApi = idamApi;
     }
 
-    @Cacheable(value = "accessTokenCache")
+    @Cacheable(value = "systemUserTokenCache", key = "'systemUserTokenCache'")
     public String generate() {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -55,7 +55,7 @@ public class IdamSystemTokenGenerator implements SystemTokenGenerator {
 
             Token tokenResponse = idamApi.token(map);
 
-            return tokenResponse.getAccessToken();
+            return "Bearer " + tokenResponse.getAccessToken();
 
         } catch (FeignException ex) {
 
