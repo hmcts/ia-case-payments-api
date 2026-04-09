@@ -207,7 +207,6 @@ project.ext {
   } else {
     pacticipantVersion = getCheckedOutGitCommitHash()
   }
-  set('springCloudVersion', "2021.0.9")
 }
 
 def getCheckedOutGitCommitHash() {
@@ -264,24 +263,9 @@ dependencyCheck {
   }
 }
 
-
-def versions = [
-  pitest          : '1.15.3',
-  gradlePitest    : '1.15.0',
-  junit           : '5.13.3',
-  junitPlatform   : '1.13.3',
-  reformLogging   : '5.1.7',
-  springDoc       : '1.8.0',
-  pact_version    : '4.4.9',
-  serenity        : '3.9.8',
-  sonarPitest     : '0.5',
-  restAssured     : '5.5.5'
-]
-
-
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2021.0.9"
   }
   dependencies {
     // CVE-2018-10237 - Unbounded memory allocation
@@ -327,12 +311,12 @@ repositories {
 
 ext.libraries = [
   junit5: [
-    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
-    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
-    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}",
-    "org.junit.platform:junit-platform-launcher:${versions.junitPlatform}"
+    "org.junit.jupiter:junit-jupiter-api:5.13.3",
+    "org.junit.jupiter:junit-jupiter-engine:5.13.3",
+    "org.junit.jupiter:junit-jupiter-params:5.13.3",
+    "org.junit.platform:junit-platform-commons:1.13.3",
+    "org.junit.platform:junit-platform-engine:1.13.3",
+    "org.junit.platform:junit-platform-launcher:1.13.3"
   ]
 ]
 
@@ -404,7 +388,7 @@ dependencies {
   // CVE-2021-27568
   implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.8.0'
 
   implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.9'
 
@@ -422,7 +406,7 @@ dependencies {
   implementation(group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.1.2') {
     exclude group: "org.bouncycastle", module: "bcprov-jdk15on"
   }
-  implementation group:  'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
+  implementation group:  'org.springdoc', name: 'springdoc-openapi-ui', version: '1.8.0'
 
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.13'
@@ -458,12 +442,12 @@ dependencies {
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.12.4'
-  testImplementation group: 'io.rest-assured', name: 'rest-assured-all', version: versions.restAssured
-  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
-  testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  testImplementation group: 'io.rest-assured', name: 'rest-assured-all', version: '5.5.5'
+  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '5.5.5'
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: '3.9.8'
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: '3.9.8'
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: '3.9.8'
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: '3.9.8'
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.18.0'
@@ -473,9 +457,9 @@ dependencies {
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
 
-  testImplementation group: 'org.pitest', name: 'pitest', version: versions.pitest
-  testImplementation "info.solidsoft.gradle.pitest:gradle-pitest-plugin:${versions.gradlePitest}"
-  testImplementation "org.codehaus.sonar-plugins:sonar-pitest-plugin:${versions.sonarPitest}"
+  testImplementation group: 'org.pitest', name: 'pitest', version: '1.15.3'
+  testImplementation "info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.15.0"
+  testImplementation "org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5"
 
   testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.19.4'
 
@@ -499,11 +483,11 @@ dependencies {
   contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
 
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
-  contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: versions.pact_version
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.4.9'
+  contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.4.9'
 
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
+  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.13.3'
+  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.3'
 
   contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
 
