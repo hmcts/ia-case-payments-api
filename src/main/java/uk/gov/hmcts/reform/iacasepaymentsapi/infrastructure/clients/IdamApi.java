@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.Token;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.model.idam.UserInfo;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.FeignConfiguration;
 
 
 @FeignClient(
     name = "idam-api",
-    url = "${idam.baseUrl}"
+    url = "${idam.baseUrl}",
+    configuration = FeignConfiguration.class
 )
 public interface IdamApi {
 
