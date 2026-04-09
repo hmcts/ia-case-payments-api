@@ -377,38 +377,51 @@ dependencies {
   }
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
 
-  integrationTestImplementation 'org.springframework.security:spring-security-oauth2-client'
+  implementation 'org.springframework.security:spring-security-oauth2-client'
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose'
 
+  implementation group: 'org.springframework', name: 'spring-aspects'
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
   implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
 
   implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
+  implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
+
+  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.9'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.9'
+  implementation group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.0.0'
 
-  implementation group: "jakarta.servlet", name: "jakarta.servlet-api", version: "6.0.0"
+  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.1'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.9'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: '6.1.9'
+
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.14'
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.14'
+  implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.1.1'
+  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
 
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '10.1.54'
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '10.1.54'
 
+  implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
+
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
+
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine'
 
   annotationProcessor 'org.projectlombok:lombok:1.18.44'
   implementation 'org.projectlombok:lombok:1.18.44'
 
-  integrationTestImplementation 'org.springframework.security:spring-security-test'
+  testImplementation 'org.springframework.security:spring-security-test'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
@@ -449,13 +462,16 @@ dependencies {
 
   contractTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   contractTestImplementation libraries.junit5
+  contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   contractTestImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+  contractTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
 
 
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.4.9'
   contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.4.9'
 
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.13.3'
+  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.3'
 
   contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
 
