@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,8 +65,8 @@ public class CcdScenarioRunnerTest {
         loadPropertiesIntoMapValueExpander();
 
         assertFalse(
-            "Verifiers are configured",
-            verifiers.isEmpty()
+            verifiers.isEmpty(),
+            "Verifiers are configured"
         );
 
         String scenarioPattern = System.getProperty("scenario");
@@ -95,16 +95,16 @@ public class CcdScenarioRunnerTest {
 
             if (scenarioEnabled == null) {
                 scenarioEnabled = true;
-            } else if (scenarioEnabled instanceof String) {
-                scenarioEnabled = Boolean.valueOf((String) scenarioEnabled);
+            } else if (scenarioEnabled instanceof String string) {
+                scenarioEnabled = Boolean.valueOf(string);
             }
 
             Object scenarioDisabled = MapValueExtractor.extract(scenario, "disabled");
 
             if (scenarioDisabled == null) {
                 scenarioDisabled = false;
-            } else if (scenarioDisabled instanceof String) {
-                scenarioDisabled = Boolean.valueOf((String) scenarioDisabled);
+            } else if (scenarioDisabled instanceof String string) {
+                scenarioDisabled = Boolean.valueOf(string);
             }
 
             if (((Boolean) scenarioEnabled) == false || ((Boolean) scenarioDisabled) == true) {
@@ -140,7 +140,7 @@ public class CcdScenarioRunnerTest {
                 SerenityRest
                     .given()
                     .headers(authorizationHeaders)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(requestBody)
                     .when()
                     .post(requestUri)

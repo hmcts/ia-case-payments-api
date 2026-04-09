@@ -1,49 +1,49 @@
-server:
-  port: 8096
+server.port: 8096
 
 management:
-  endpoint:
-    health:
-      show-details: "always"
-  endpoints:
-    web:
-      base-path: /
-      exposure:
-        include: health, info, prometheus
+  endpoint.health.show-details: "always"
+  endpoints.web:
+    base-path: /
+    exposure.include: health, info, prometheus
 
-  health:
-    probes:
-      enabled: true
+  health.probes.enabled: true
 
 spring:
-  config:
-    import: "optional:configtree:/mnt/secrets/ia/"
-  application:
-    name: ia-case-payments-api
-  main:
-    allow-bean-definition-overriding: true
+  config.import: "optional:configtree:/mnt/secrets/ia/"
+  application.name: ia-case-payments-api
+  main.allow-bean-definition-overriding: true
   jackson.date-format: yyyy-MM-dd
-  security:
-    oauth2:
-      client:
-        provider:
-          oidc:
-            issuer-uri: ${IDAM_URL:http://127.0.0.1:5000}/o
-        registration:
-          oidc:
-            client-id: ${IA_IDAM_CLIENT_ID:ia}
-            client-secret: ${IA_IDAM_SECRET:something}
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
+  security.oauth2:
+    client:
+      provider.oidc.issuer-uri: ${IDAM_URL:http://127.0.0.1:5000}/o
+      registration.oidc:
+        client-id: ${IA_IDAM_CLIENT_ID:ia}
+        client-secret: ${IA_IDAM_SECRET:something}
+    resourceserver.jwt.jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
   cache:
     cache-names: userInfoCache, accessTokenCache
-    caffeine:
-      spec: expireAfterAccess=3600s
+    caffeine.spec: expireAfterAccess=3600s
+  cloud.propertiesvolume:
+    prefixed: false
+    paths: /mnt/secrets/ia
+    aliases:
+      idam-client-id: IA_IDAM_CLIENT_ID
+      idam-secret: IA_IDAM_SECRET
+      idam-redirect-uri: IA_IDAM_REDIRECT_URI
+      s2s-secret: IA_S2S_SECRET
+      s2s-microservice: IA_S2S_MICROSERVICE
+      system-username: IA_SYSTEM_USERNAME
+      system-password: IA_SYSTEM_PASSWORD
+      AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key
+      ia-config-validator-secret: IA_CONFIG_VALIDATOR_SECRET
 
-role-assignment-service:
-  url: ${ROLE_ASSIGNMENT_URL:http://localhost:8991}
 
+  cloud:
+    openfeign:
+      autoconfiguration:
+        jackson:
+          enabled: true
+role-assignment-service.url: ${ROLE_ASSIGNMENT_URL:http://localhost:8991}
 idam:
   baseUrl: ${IDAM_URL:http://127.0.0.1:5000}
   redirectUrl: ${IA_IDAM_REDIRECT_URI:http://localhost:3002/oauth2/callback}
@@ -55,12 +55,10 @@ idam:
     totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
     microservice: ${IA_S2S_MICROSERVICE:ia}
     url: ${S2S_URL:http://127.0.0.1:4502}
-  s2s-authorised:
-    services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
+  s2s-authorised.services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
 
 fees-register:
-  api:
-    url: ${FEES_REGISTER_API_URL:http://localhost:8991}
+  api.url: ${FEES_REGISTER_API_URL:http://localhost:8991}
   fees:
     feeWithHearing:
       channel: default
@@ -77,9 +75,7 @@ fees-register:
       keyword: HearingPaper
       service: other
 
-rd-professional:
-  api:
-    url: ${PROF_REF_DATA_URL:http://localhost:8991}
+rd-professional.api.url: ${PROF_REF_DATA_URL:http://localhost:8991}
 
 payment:
   api:
@@ -89,9 +85,7 @@ payment:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
 
-core-case-data:
-  api:
-    url: ${CCD_URL:http://127.0.0.1:4452}
+core-case-data.api.url: ${CCD_URL:http://127.0.0.1:4452}
 
 security:
   anonymousPaths:
@@ -159,18 +153,14 @@ security:
       - "generateServiceRequest"
     caseworker-ia-system:
       - "updatePaymentStatus"
-
-### dependency configuration
-auth.idam.client.baseUrl: ${IDAM_URL:http://127.0.0.1:4501}
-auth.idam.client.detailsUri: "/details"
-auth.idam.client.id: ${IA_IDAM_CLIENT_ID:ia}
-auth.idam.client.secret: ${IA_IDAM_SECRET:something}
-auth.idam.client.redirectUri: ${IA_IDAM_REDIRECT_URI:http://localhost}
-auth.provider.service.client.baseUrl: ${S2S_URL:http://127.0.0.1:4502}
-idam.s2s-auth.totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
-idam.s2s-auth.microservice: ${IA_S2S_MICROSERVICE:something}
-idam.s2s-auth.url: ${S2S_URL:http://127.0.0.1:4502}
-
-ia.config.validator.secret: ${IA_CONFIG_VALIDATOR_SECRET:}
-
-ia.payment.debug.logs.enabled: ${ENABLE_DEBUG_PAYMENT_LOGS:false}
+auth:
+  idam.client:
+    baseUrl: ${IDAM_URL:http://127.0.0.1:4501}
+    detailsUri: "/details"
+    id: ${IA_IDAM_CLIENT_ID:ia}
+    secret: ${IA_IDAM_SECRET:something}
+    redirectUri: ${IA_IDAM_REDIRECT_URI:http://localhost}
+  provider.service.client.baseUrl: ${S2S_URL:http://127.0.0.1:4502}
+ia:
+  config.validator.secret: ${IA_CONFIG_VALIDATOR_SECRET:}
+  payment.debug.logs.enabled: ${ENABLE_DEBUG_PAYMENT_LOGS:false}
