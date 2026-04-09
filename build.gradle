@@ -385,6 +385,7 @@ dependencies {
 
   implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
 
+  implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
@@ -395,6 +396,12 @@ dependencies {
 
   implementation group: "jakarta.servlet", name: "jakarta.servlet-api", version: "6.0.0"
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
+
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.14'
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.14'
+
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '10.1.54'
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '10.1.54'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
 
