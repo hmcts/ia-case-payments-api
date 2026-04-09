@@ -63,7 +63,7 @@ class CcdDataServiceTest {
     @Mock
     private S2STokenValidator s2STokenValidator;
 
-    // private static final String TOKEN = "Bearer token";
+    private static final String TOKEN = "token";
     private static final String BAD_REQUEST_ERROR_MESSAGE =
         "400 BAD_REQUEST \"Payment reference not found for the caseId: 1234\"";
     private static final String BEARER_TOKEN = "Bearer token";
@@ -232,7 +232,7 @@ class CcdDataServiceTest {
     }
 
     private void setupCommonMocks() {
-        when(systemTokenGenerator.generate()).thenReturn(BEARER_TOKEN);
+        when(systemTokenGenerator.generate()).thenReturn(TOKEN);
         when(serviceAuthorization.generate()).thenReturn(SERVICE_TOKEN);
         when(systemUserProvider.getSystemUserId(BEARER_TOKEN)).thenReturn(USER_ID);
     }
