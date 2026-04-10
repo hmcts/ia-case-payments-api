@@ -23,7 +23,8 @@ plugins {
 }
 
 rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_5")
+  activeRecipe("org.openrewrite.java.migrate.UpgradeToJava21")
+  setExportDatatables(true)
 }
 
 apply plugin: 'java'
@@ -35,7 +36,7 @@ version = '0.0.1'
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(17)
+    languageVersion = JavaLanguageVersion.of(21)
   }
 }
 
@@ -273,7 +274,7 @@ dependencyManagement {
   }
   dependencies {
     // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '32.1.3-jre') {
+    dependencySet(group: 'com.google.guava', version: '29.0-jre') {
       entry 'guava'
     }
 
@@ -350,7 +351,7 @@ configurations {
 }
 
 dependencies {
-  rewrite("org.openrewrite.recipe:rewrite-spring:6.29.0")
+  rewrite("org.openrewrite.recipe:rewrite-migrate-java:3.32.0")
 
   modules {
     module("org.codehaus.groovy:groovy") {
