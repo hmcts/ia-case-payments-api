@@ -12,7 +12,7 @@ plugins {
   id 'jacoco'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '3.3.13'
+  id 'org.springframework.boot' version '3.4.13'
   id 'uk.gov.hmcts.java' version '0.12.67'
   id 'org.owasp.dependencycheck' version '10.0.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
@@ -23,7 +23,7 @@ plugins {
 }
 
 rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_3")
+  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_4")
 }
 
 apply plugin: 'java'
@@ -270,7 +270,7 @@ dependencyCheck {
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.6"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.3"
   }
   dependencies {
     // CVE-2018-10237 - Unbounded memory allocation
@@ -372,7 +372,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2023.0.6'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2024.0.3'
   implementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE') {
   }
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
@@ -384,7 +384,7 @@ dependencies {
   implementation group: 'org.springframework', name: 'spring-aspects'
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
-  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
+  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.16'
 
   implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
   implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
@@ -446,7 +446,7 @@ dependencies {
 
   testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.19.4'
 
-  testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.1.6') {
+  testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.2.3') {
     exclude group: "com.github.tomakehurst", module: "wiremock-standalone"
   }
 
