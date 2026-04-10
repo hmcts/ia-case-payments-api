@@ -12,7 +12,7 @@ plugins {
   id 'jacoco'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '3.2.12'
+  id 'org.springframework.boot' version '3.3.13'
   id 'uk.gov.hmcts.java' version '0.12.67'
   id 'org.owasp.dependencycheck' version '10.0.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
@@ -23,7 +23,7 @@ plugins {
 }
 
 rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_2")
+  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_3")
 }
 
 apply plugin: 'java'
@@ -384,7 +384,7 @@ dependencies {
   implementation group: 'org.springframework', name: 'spring-aspects'
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
-  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
+  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 
   implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
   implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
@@ -404,8 +404,8 @@ dependencies {
 
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
-  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.14'
-  implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.14'
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.32'
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.32'
   implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.1.1'
 
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '10.1.54'
