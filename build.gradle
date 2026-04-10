@@ -1,6 +1,5 @@
 buildscript {
   dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:3.6.22")
     classpath("au.com.dius.pact:au.com.dius.pact.gradle.plugin:4.4.0-beta.1")
   }
 }
@@ -14,12 +13,13 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.springframework.boot' version '3.5.13'
   id 'uk.gov.hmcts.java' version '0.12.68'
-  id 'org.owasp.dependencycheck' version '10.0.4'
+  id 'org.owasp.dependencycheck' version '12.2.0'
   id 'com.github.ben-manes.versions' version '0.51.0'
-  id 'org.sonarqube' version '4.4.1.3373'
+  id 'org.sonarqube' version '7.2.3.7755'
   id 'au.com.dius.pact' version '4.6.20'
-  id 'com.adarshr.test-logger' version '3.2.0'
+  id 'com.adarshr.test-logger' version '4.0.0'
   id 'org.openrewrite.rewrite' version '7.30.0'
+  id "net.serenity-bdd.serenity-gradle-plugin" version "3.6.22"
 }
 
 rewrite {
@@ -27,7 +27,6 @@ rewrite {
 }
 
 apply plugin: 'java'
-apply plugin: 'net.serenity-bdd.serenity-gradle-plugin'
 apply plugin: 'project-report'
 apply plugin: 'idea'
 
@@ -372,9 +371,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2025.0.2'
-  implementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE') {
-  }
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
 
   implementation 'org.springframework.security:spring-security-oauth2-client'
@@ -386,10 +383,10 @@ dependencies {
 
   implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.16'
 
-  implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
+  implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '10.9'
   implementation group: 'net.minidev', name: 'json-smart', version: '2.6.0'
 
-  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.9'
+  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '4.0.7'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
@@ -398,9 +395,8 @@ dependencies {
 
   implementation group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
 
-  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.1'
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.9'
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: '6.1.9'
+  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '9.0'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '7.0.0'
 
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
@@ -426,9 +422,6 @@ dependencies {
 
   testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.23.0'
 
-  testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
-  }
-
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.23.0'
   testImplementation 'io.rest-assured:rest-assured:5.5.5'
@@ -444,7 +437,7 @@ dependencies {
 
   testImplementation "org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5"
 
-  testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '3.19.4'
+  testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '4.4.2'
 
   testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.3') {
     exclude group: "com.github.tomakehurst", module: "wiremock-standalone"
@@ -473,8 +466,6 @@ dependencies {
   contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.3'
 
   contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
-
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.iacasepaymentsapi.Application'
