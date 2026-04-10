@@ -75,9 +75,8 @@ public class SecurityConfiguration  {
             .logout(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
             .oauth2ResourceServer(server -> server
-                .jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter)
-                .and())
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter)))
             .oauth2Client(withDefaults());
 
         return http.build();

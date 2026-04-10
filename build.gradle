@@ -12,7 +12,7 @@ plugins {
   id 'jacoco'
   id "info.solidsoft.pitest" version '1.15.0'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '3.0.13'
+  id 'org.springframework.boot' version '3.1.12'
   id 'uk.gov.hmcts.java' version '0.12.67'
   id 'org.owasp.dependencycheck' version '10.0.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
@@ -23,7 +23,7 @@ plugins {
 }
 
 rewrite {
-  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0")
+  activeRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1")
 }
 
 apply plugin: 'java'
@@ -384,7 +384,7 @@ dependencies {
   implementation group: 'org.springframework', name: 'spring-aspects'
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
-  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
+  implementation group:  'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 
   implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.48'
   implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
@@ -407,7 +407,6 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.14'
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.4.14'
   implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.1.1'
-  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
 
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '10.1.54'
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '10.1.54'
@@ -425,13 +424,13 @@ dependencies {
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.11.0'
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.23.0'
 
   testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
   }
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
-  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '4.11.0'
+  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.23.0'
   testImplementation 'io.rest-assured:rest-assured:5.5.5'
   testImplementation 'net.serenity-bdd:serenity-rest-assured:3.9.8'
   testImplementation 'net.serenity-bdd:serenity-spring:3.9.8'
