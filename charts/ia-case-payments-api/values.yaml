@@ -37,3 +37,9 @@ java:
           alias: app-insights-connection-string
         - name: ia-config-validator-secret
           alias: IA_CONFIG_VALIDATOR_SECRET
+        - name: ia-redis-connection-string
+          alias: IA_REDIS_CONNECTION_STRING
+        - name: ia-redis-access-key
+          alias: IA_REDIS_ACCESS_KEY
+        - name: ia-redis-encryption-key
+          alias: IA_REDIS_ENCRYPTION_KEY
