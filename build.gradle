@@ -18,13 +18,7 @@ plugins {
   id 'org.sonarqube' version '7.2.3.7755'
   id 'au.com.dius.pact' version '4.6.20'
   id 'com.adarshr.test-logger' version '4.0.0'
-  id 'org.openrewrite.rewrite' version '7.30.0'
   id 'net.serenity-bdd.serenity-gradle-plugin' version '3.6.22'
-}
-
-rewrite {
-  activeRecipe('org.openrewrite.java.migrate.UpgradeToJava21')
-  setExportDatatables(true)
 }
 
 apply plugin: 'java'
@@ -365,8 +359,6 @@ configurations {
 }
 
 dependencies {
-  rewrite('org.openrewrite.recipe:rewrite-migrate-java:3.32.0')
-
   modules {
     module('org.codehaus.groovy:groovy') {
       replacedBy('org.apache.groovy:groovy', 'conflicts in current rest-assured version')
