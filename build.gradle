@@ -442,9 +442,7 @@ dependencies {
 
   testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '4.4.2'
 
-  testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.3') {
-    exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
-  }
+  testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
