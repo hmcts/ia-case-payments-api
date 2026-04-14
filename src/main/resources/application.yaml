@@ -8,6 +8,14 @@ management:
 
   endpoint.health.probes.enabled: true
 
+  health:
+    redis:
+      enabled: false  # don't let Redis affect pod health
+    group:
+      readiness:
+        include: ping
+      liveness:
+        include: ping
 spring:
   config.import: "optional:configtree:/mnt/secrets/ia/"
   application.name: ia-case-payments-api
@@ -20,9 +28,14 @@ spring:
         client-id: ${IA_IDAM_CLIENT_ID:ia}
         client-secret: ${IA_IDAM_SECRET:something}
     resourceserver.jwt.jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
-  cache:
-    cache-names: userInfoCache, accessTokenCache
-    caffeine.spec: expireAfterAccess=3600s
+  data:
+    redis:
+      url: ${IA_REDIS_CONNECTION_STRING:}
+      secret: ${IA_REDIS_ACCESS_KEY:}
+      encryption:
+        key: ${IA_REDIS_ENCRYPTION_KEY:}
+      ssl:
+        enabled: true
   cloud.propertiesvolume:
     prefixed: false
     paths: /mnt/secrets/ia
