@@ -414,6 +414,8 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-cache'
 
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
+
   implementation 'com.github.ben-manes.caffeine:caffeine'
 
   testImplementation 'org.springframework.security:spring-security-test'
