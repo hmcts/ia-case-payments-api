@@ -1,12 +1,17 @@
-server.port: 8096
+server:
+  port: 8096
 
 management:
-  endpoint.health.show-details: "always"
-  endpoints.web:
-    base-path: /
-    exposure.include: health, info, prometheus
-
-  endpoint.health.probes.enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: "always"
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health, info, prometheus
 
   health:
     redis:
@@ -16,18 +21,28 @@ management:
         include: ping
       liveness:
         include: ping
+
 spring:
-  config.import: "optional:configtree:/mnt/secrets/ia/"
-  application.name: ia-case-payments-api
-  main.allow-bean-definition-overriding: true
+  config:
+    import: "optional:configtree:/mnt/secrets/ia/"
+  application:
+    name: ia-case-payments-api
+  main:
+    allow-bean-definition-overriding: true
   jackson.date-format: yyyy-MM-dd
-  security.oauth2:
-    client:
-      provider.oidc.issuer-uri: ${IDAM_URL:http://127.0.0.1:5000}/o
-      registration.oidc:
-        client-id: ${IA_IDAM_CLIENT_ID:ia}
-        client-secret: ${IA_IDAM_SECRET:something}
-    resourceserver.jwt.jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: ${IDAM_URL:http://127.0.0.1:5000}/o
+        registration:
+          oidc:
+            client-id: ${IA_IDAM_CLIENT_ID:ia}
+            client-secret: ${IA_IDAM_SECRET:something}
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${IDAM_URL:http://127.0.0.1:5000}/o/jwks
   data:
     redis:
       url: ${IA_REDIS_CONNECTION_STRING:}
@@ -56,7 +71,8 @@ spring:
       autoconfiguration:
         jackson:
           enabled: true
-role-assignment-service.url: ${ROLE_ASSIGNMENT_URL:http://localhost:8991}
+role-assignment-service:
+  url: ${ROLE_ASSIGNMENT_URL:http://localhost:8991}
 idam:
   baseUrl: ${IDAM_URL:http://127.0.0.1:5000}
   redirectUrl: ${IA_IDAM_REDIRECT_URI:http://localhost:3002/oauth2/callback}
@@ -68,10 +84,12 @@ idam:
     totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
     microservice: ${IA_S2S_MICROSERVICE:ia}
     url: ${S2S_URL:http://127.0.0.1:4502}
-  s2s-authorised.services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
+  s2s-authorised:
+    services: ${IA_S2S_AUTHORIZED_SERVICES:iac,payment_app}
 
 fees-register:
-  api.url: ${FEES_REGISTER_API_URL:http://localhost:8991}
+  api:
+    url: ${FEES_REGISTER_API_URL:http://localhost:8991}
   fees:
     feeWithHearing:
       channel: default
@@ -88,7 +106,9 @@ fees-register:
       keyword: HearingPaper
       service: other
 
-rd-professional.api.url: ${PROF_REF_DATA_URL:http://localhost:8991}
+rd-professional:
+  api:
+    url: ${PROF_REF_DATA_URL:http://localhost:8991}
 
 payment:
   api:
@@ -98,7 +118,9 @@ payment:
     organisationUrn: immigration and asylum chamber
     siteId: BFA1
 
-core-case-data.api.url: ${CCD_URL:http://127.0.0.1:4452}
+core-case-data:
+  api:
+    url: ${CCD_URL:http://127.0.0.1:4452}
 
 security:
   anonymousPaths:
@@ -166,6 +188,7 @@ security:
       - "generateServiceRequest"
     caseworker-ia-system:
       - "updatePaymentStatus"
+### dependency configuration
 auth:
   idam.client:
     baseUrl: ${IDAM_URL:http://127.0.0.1:4501}
