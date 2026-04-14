@@ -22,6 +22,8 @@ management:
       liveness:
         include: ping
 
+redis.enabled: true
+
 spring:
   config:
     import: "optional:configtree:/mnt/secrets/ia/"

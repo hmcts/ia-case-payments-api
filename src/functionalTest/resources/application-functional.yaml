@@ -5,3 +5,4 @@ spring:
     cache-names: userInfoCache, accessTokenCache, systemTokenCache, legalRepTokenCache, legalRepOrgDeletedTokenCache, legalRepOrgSuccessTokenCache, citizenTokenCache
     caffeine:
       spec: expireAfterAccess=3600s
+redis.enabled: false
