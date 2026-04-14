@@ -12,7 +12,7 @@ plugins {
   id 'org.sonarqube' version '7.2.3.7755'
   id 'au.com.dius.pact' version '4.6.20'
   id 'com.adarshr.test-logger' version '4.0.0'
-  id 'net.serenity-bdd.serenity-gradle-plugin' version '3.6.22'
+  id 'net.serenity-bdd.serenity-gradle-plugin' version '5.3.9'
 }
 
 apply plugin: 'java'
@@ -276,6 +276,19 @@ dependencyManagement {
       entry 'guava'
     }
 
+    dependencySet(group: 'org.junit.jupiter', version: '5.13.4') {
+      entry 'junit-jupiter'
+      entry 'junit-jupiter-api'
+      entry 'junit-jupiter-engine'
+      entry 'junit-jupiter-params'
+    }
+
+    dependencySet(group: 'org.junit.platform', version: '1.13.4') {
+      entry 'junit-platform-commons'
+      entry 'junit-platform-engine'
+      entry 'junit-platform-launcher'
+    }
+
     dependencySet(group: 'commons-fileupload', version: '1.6.0') {
       entry 'commons-fileupload'
     }
@@ -311,17 +324,6 @@ repositories {
     url 'https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1'
   }
 }
-
-ext.libraries = [
-  junit5: [
-    'org.junit.jupiter:junit-jupiter-api:5.13.3',
-    'org.junit.jupiter:junit-jupiter-engine:5.13.3',
-    'org.junit.jupiter:junit-jupiter-params:5.13.3',
-    'org.junit.platform:junit-platform-commons:1.13.3',
-    'org.junit.platform:junit-platform-engine:1.13.3',
-    'org.junit.platform:junit-platform-launcher:1.13.3'
-  ]
-]
 
 idea {
   module {
@@ -425,17 +427,18 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.23.0'
   testImplementation 'io.rest-assured:rest-assured:5.5.5'
-  testImplementation 'net.serenity-bdd:serenity-rest-assured:3.9.8'
-  testImplementation 'net.serenity-bdd:serenity-spring:3.9.8'
+  testImplementation 'net.serenity-bdd:serenity-rest-assured:5.3.9'
+  testImplementation 'net.serenity-bdd:serenity-spring:5.3.9'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
+
+  testImplementation "org.junit.jupiter:junit-jupiter"
+  testImplementation "org.junit.jupiter:junit-jupiter-params" // optional
 
   testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.10', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-
-  testImplementation 'org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5'
 
   testImplementation group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: '4.4.2'
 
@@ -453,21 +456,12 @@ dependencies {
   smokeTestImplementation sourceSets.test.runtimeClasspath
 
   contractTestImplementation 'org.springframework.boot:spring-boot-starter-test'
-  libraries.junit5.each { dep ->
-    add("contractTestImplementation", dep)
-  }
   contractTestImplementation 'com.fasterxml.jackson.core:jackson-core'
   contractTestImplementation 'com.fasterxml.jackson.core:jackson-databind'
   contractTestImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.6.20'
   contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.6.20'
-
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.13.3'
-  contractTestImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.3'
-
-  contractTestRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.10.1'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.iacasepaymentsapi.Application'
