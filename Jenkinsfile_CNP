@@ -1,7 +1,7 @@
 #!groovy
 properties([
-    [$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/ia-case-payments-api.git'],
-    pipelineTriggers([[$class: 'GitHubPushTrigger']])
+  [$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/ia-case-payments-api.git'],
+  pipelineTriggers([[$class: 'GitHubPushTrigger']])
 ])
 
 
@@ -14,71 +14,78 @@ def product = "ia"
 def component = "case-payments-api"
 
 def secrets = [
-    'ia-${env}': [
+  'ia-${env}': [
 
-        secret('test-law-firm-a-username', 'TEST_LAW_FIRM_A_USERNAME'),
-        secret('test-law-firm-a-password', 'TEST_LAW_FIRM_A_PASSWORD'),
+    secret('test-law-firm-a-username', 'TEST_LAW_FIRM_A_USERNAME'),
+    secret('test-law-firm-a-password', 'TEST_LAW_FIRM_A_PASSWORD'),
 
-        secret('test-law-firm-share-case-a-username', 'TEST_LAW_FIRM_ORG_SUCCESS_USERNAME'),
-        secret('test-law-firm-share-case-a-password', 'TEST_LAW_FIRM_ORG_SUCCESS_PASSWORD'),
+    secret('test-law-firm-share-case-a-username', 'TEST_LAW_FIRM_ORG_SUCCESS_USERNAME'),
+    secret('test-law-firm-share-case-a-password', 'TEST_LAW_FIRM_ORG_SUCCESS_PASSWORD'),
 
-        secret('test-law-firm-org-deleted-username', 'TEST_LAW_FIRM_ORG_DELETED_USERNAME'),
-        secret('test-law-firm-org-deleted-password', 'TEST_LAW_FIRM_ORG_DELETED_PASSWORD'),
+    secret('test-law-firm-org-deleted-username', 'TEST_LAW_FIRM_ORG_DELETED_USERNAME'),
+    secret('test-law-firm-org-deleted-password', 'TEST_LAW_FIRM_ORG_DELETED_PASSWORD'),
 
-        secret('test-citizen-username', 'TEST_CITIZEN_USERNAME'),
-        secret('test-citizen-password', 'TEST_CITIZEN_PASSWORD'),
+    secret('test-citizen-username', 'TEST_CITIZEN_USERNAME'),
+    secret('test-citizen-password', 'TEST_CITIZEN_PASSWORD'),
 
-        secret('system-username', 'IA_SYSTEM_USERNAME'),
-        secret('system-password', 'IA_SYSTEM_PASSWORD'),
+    secret('system-username', 'IA_SYSTEM_USERNAME'),
+    secret('system-password', 'IA_SYSTEM_PASSWORD'),
 
-        secret('idam-redirect-uri', 'IA_IDAM_REDIRECT_URI'),
-        secret('idam-client-id', 'IA_IDAM_CLIENT_ID'),
-        secret('idam-secret', 'IA_IDAM_SECRET'),
-        secret('s2s-secret', 'IA_S2S_SECRET'),
-        secret('s2s-microservice', 'IA_S2S_MICROSERVICE'),
-        secret('ia-config-validator-secret', 'IA_CONFIG_VALIDATOR_SECRET'),
-        secret('ia-redis-access-key', 'IA_REDIS_ACCESS_KEY'),
-        secret('ia-redis-connection-string', 'IA_REDIS_CONNECTION_STRING'),
-        secret('ia-redis-encryption-key', 'IA_REDIS_ENCRYPTION_KEY')
-    ]
+    secret('idam-redirect-uri', 'IA_IDAM_REDIRECT_URI'),
+    secret('idam-client-id', 'IA_IDAM_CLIENT_ID'),
+    secret('idam-secret', 'IA_IDAM_SECRET'),
+    secret('s2s-secret', 'IA_S2S_SECRET'),
+    secret('s2s-microservice', 'IA_S2S_MICROSERVICE'),
+    secret('ia-config-validator-secret', 'IA_CONFIG_VALIDATOR_SECRET'),
+    secret('ia-redis-access-key', 'IA_REDIS_ACCESS_KEY'),
+    secret('ia-redis-connection-string', 'IA_REDIS_CONNECTION_STRING'),
+    secret('ia-redis-encryption-key', 'IA_REDIS_ENCRYPTION_KEY')
+  ]
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
-    [$class     : 'AzureKeyVaultSecret',
-     secretType : 'Secret',
-     name       : secretName,
-     version    : '',
-     envVariable: envVar
-    ]
+  [$class     : 'AzureKeyVaultSecret',
+   secretType : 'Secret',
+   name       : secretName,
+   version    : '',
+   envVariable: envVar
+  ]
 }
 
 withPipeline(type, product, component) {
 
-    env.IDAM_URL = "https://idam-web-public.aat.platform.hmcts.net"
-    env.S2S_URL = "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-    env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-    env.CCD_URL = "http://ccd-data-store-api-aat.service.core-compute-aat.internal"
-    env.ROLE_ASSIGNMENT_URL = "http://am-role-assignment-service-aat.service.core-compute-aat.internal"
+  env.IDAM_URL = "https://idam-web-public.aat.platform.hmcts.net"
+  env.S2S_URL = "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
+  env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+  env.CCD_URL = "http://ccd-data-store-api-aat.service.core-compute-aat.internal"
+  env.ROLE_ASSIGNMENT_URL = "http://am-role-assignment-service-aat.service.core-compute-aat.internal"
 
-    enableAksStagingDeployment()
-    disableLegacyDeployment()
-    loadVaultSecrets(secrets)
+  enableAksStagingDeployment()
+  disableLegacyDeployment()
+  loadVaultSecrets(secrets)
 
+  afterAlways('functionalTest:preview') {
+    publishHTML([
+      allowMissing         : true,
+      alwaysLinkToLastBuild: true,
+      keepAll              : true,
+      reportDir            : "build/reports/tests/functional",
+      reportFiles          : 'index.html',
+      reportName           : 'Functional Test Report'
+    ])
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+  }
 
-    afterAlways('functionalTest:preview') {
-        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-    }
+  afterAlways('functionalTest:aat') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
+  }
 
-    afterAlways('functionalTest:aat') {
-        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-    }
+  enableSlackNotifications('#ia-tech')
 
-    enableSlackNotifications('#ia-tech')
-
-    onMaster() {
-        enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
-    }
-    onPR() {
-        enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
-    }
+  onMaster() {
+    enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
+  }
+  onPR() {
+    enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
+  }
 }
