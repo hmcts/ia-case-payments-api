@@ -37,11 +37,6 @@ public class CacheConfiguration {
     private String redisEncryptionKey;
 
     @Bean
-    public CacheManagerCustomizer<CaffeineCacheManager> cacheManagerCustomizer() {
-        return cacheManager -> cacheManager.setAllowNullValues(false);
-    }
-
-    @Bean
     @Primary
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         try {
@@ -84,6 +79,12 @@ public class CacheConfiguration {
                 .cacheDefaults(tokenCacheConfig)
                 .withCacheConfiguration("systemUserTokenCache", tokenCacheConfig)
                 .withCacheConfiguration("userInfoCache", userInfoCacheConfig)
+                // functional tests
+                .withCacheConfiguration("legalRepTokenCache", userInfoCacheConfig)
+                .withCacheConfiguration("legalRepOrgDeletedTokenCache", userInfoCacheConfig)
+                .withCacheConfiguration("legalRepOrgSuccessTokenCache", userInfoCacheConfig)
+                .withCacheConfiguration("citizenTokenCache", userInfoCacheConfig)
+
                 .build();
 
         } catch (Exception e) {
