@@ -68,8 +68,10 @@ public class CcdScenarioRunnerTest {
 
     private Map<String, Object> actualResponse = null;
 
+    private Collection<String> scenarioSources;
+
     @BeforeAll
-    public void beforeAll() {
+    public void beforeAll() throws IOException {
         MapSerializer.setObjectMapper(objectMapper);
         RestAssured.baseURI = targetInstance;
         RestAssured.useRelaxedHTTPSValidation();
@@ -78,9 +80,6 @@ public class CcdScenarioRunnerTest {
             "Verifiers are configured",
             verifiers.isEmpty()
         );
-    }
-
-    private Stream<Arguments> scenarioSources() throws IOException {
         String scenarioPattern = System.getProperty("scenario");
         if (scenarioPattern == null) {
             scenarioPattern = "*.json";
@@ -88,13 +87,16 @@ public class CcdScenarioRunnerTest {
             scenarioPattern = "*" + scenarioPattern + "*.json";
         }
 
-        Collection<String> scenarioSources =
+        scenarioSources =
             StringResourceLoader
                 .load("/scenarios/" + scenarioPattern)
                 .values();
         System.out.println((char) 27 + "[36m" + "-------------------------------------------------------------------");
         System.out.println((char) 27 + "[33m" + "RUNNING " + scenarioSources.size() + " SCENARIOS");
         System.out.println((char) 27 + "[36m" + "-------------------------------------------------------------------");
+    }
+
+    private Stream<Arguments> scenarioSources() {
         return scenarioSources.stream().map(scenarioSource -> {
             try {
                 Map<String, Object> scenario = MapSerializer.deserialize(scenarioSource);
