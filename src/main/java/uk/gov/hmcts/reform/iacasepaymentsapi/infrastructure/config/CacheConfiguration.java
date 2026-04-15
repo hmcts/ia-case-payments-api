@@ -80,10 +80,10 @@ public class CacheConfiguration {
                 .withCacheConfiguration("systemUserTokenCache", tokenCacheConfig)
                 .withCacheConfiguration("userInfoCache", userInfoCacheConfig)
                 // functional tests
-                .withCacheConfiguration("legalRepTokenCache", userInfoCacheConfig)
-                .withCacheConfiguration("legalRepOrgDeletedTokenCache", userInfoCacheConfig)
-                .withCacheConfiguration("legalRepOrgSuccessTokenCache", userInfoCacheConfig)
-                .withCacheConfiguration("citizenTokenCache", userInfoCacheConfig)
+                .withCacheConfiguration("legalRepTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("legalRepOrgDeletedTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("legalRepOrgSuccessTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("citizenTokenCache", tokenCacheConfig)
 
                 .build();
 
