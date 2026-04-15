@@ -317,29 +317,16 @@ public class CcdScenarioRunnerTest {
     }
 
     private Headers getAuthorizationHeaders(String credentials) {
-        if (credentials.equalsIgnoreCase("LegalRepresentative")) {
-
-            return authorizationHeadersProvider
+        return switch (credentials.toLowerCase()) {
+            case "legalrepresentative" -> authorizationHeadersProvider
                 .getLegalRepresentativeAuthorization();
-        }
-
-        if (credentials.equalsIgnoreCase("LegalRepresentativeOrgSuccess")) {
-
-            return authorizationHeadersProvider
+            case "legalrepresentativeorgsuccess" -> authorizationHeadersProvider
                 .getLegalRepresentativeOrgSuccessAuthorization();
-        }
-
-        if (credentials.equalsIgnoreCase("LegalRepresentativeOrgDeleted")) {
-
-            return authorizationHeadersProvider
+            case "legalrepresentativeorgdeleted" -> authorizationHeadersProvider
                 .getLegalRepresentativeOrgDeletedAuthorization();
-        }
-
-        if (credentials.equalsIgnoreCase("Citizen")) {
-            return authorizationHeadersProvider
+            case "citizen" -> authorizationHeadersProvider
                 .getCitizenAuthorization();
-        }
-
-        return new Headers();
+            default -> new Headers();
+        };
     }
 }
