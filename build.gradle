@@ -80,7 +80,7 @@ processContractTestResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-  options.compilerArgs << '-Xlint:unchecked' << '-Werror'
+  options.compilerArgs << '-parameters' << '-Xlint:unchecked' << '-Werror'
 }
 
 tasks.withType(Test).configureEach {
