@@ -1,6 +1,5 @@
 {
   "description": "RIA-3163 Success for make a payment without a hearing (PA appeal type) at case building state - PBA0087412",
-  "enabled": true,
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
     "credentials": "LegalRepresentativeOrgSuccess",

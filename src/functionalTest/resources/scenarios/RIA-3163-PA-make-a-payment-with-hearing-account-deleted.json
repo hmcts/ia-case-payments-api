@@ -1,6 +1,5 @@
 {
   "description": "RIA-3163 Account deleted for make a payment with a hearing (EA appeal type) at respondent review state - PBA0087240",
-  "enabled": true,
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
     "credentials": "LegalRepresentativeOrgDeleted",

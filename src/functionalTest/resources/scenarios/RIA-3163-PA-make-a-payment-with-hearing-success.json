@@ -1,6 +1,5 @@
 {
   "description": "RIA-3163 Success for make a payment with a hearing (EA appeal type) at listing state - PBA0087412",
-  "enabled": true,
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
     "credentials": "LegalRepresentativeOrgSuccess",

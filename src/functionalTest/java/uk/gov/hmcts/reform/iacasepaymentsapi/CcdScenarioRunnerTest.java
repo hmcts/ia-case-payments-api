@@ -64,6 +64,9 @@ public class CcdScenarioRunnerTest {
     @Autowired
     private AuthorizationHeadersProvider authorizationHeadersProvider;
 
+    private String actualResponseBody = null;
+    private String expectedResponseBody = null;
+
     @BeforeEach
     public void setUp() {
         MapSerializer.setObjectMapper(objectMapper);
@@ -98,24 +101,9 @@ public class CcdScenarioRunnerTest {
 
                 String description = MapValueExtractor.extract(scenario, "description");
 
-                Object scenarioEnabled = MapValueExtractor.extract(scenario, "enabled");
-
-                if (scenarioEnabled == null) {
-                    scenarioEnabled = true;
-                } else if (scenarioEnabled instanceof String) {
-                    scenarioEnabled = Boolean.valueOf((String) scenarioEnabled);
-                }
-
-                Object scenarioDisabled = MapValueExtractor.extract(scenario, "disabled");
-
-                if (scenarioDisabled == null) {
-                    scenarioDisabled = false;
-                } else if (scenarioDisabled instanceof String) {
-                    scenarioDisabled = Boolean.valueOf((String) scenarioDisabled);
-                }
-
-                if (!((Boolean) scenarioEnabled) || ((Boolean) scenarioDisabled)) {
-                    return Arguments.of("Disabled: " + description, null, null, null, 0, null, 0);
+                Object scenarioDisabled = MapValueExtractor.extractOrDefault(scenario, "disabled", false);
+                if (Boolean.parseBoolean(scenarioDisabled.toString())) {
+                    return Arguments.of("Disabled: " + description, null, null, null, null, 0, null, 0);
                 }
 
                 System.out.println((char) 27 + "[33m" + "SCENARIO: " + description);
@@ -140,9 +128,12 @@ public class CcdScenarioRunnerTest {
 
                 final String requestUri = MapValueExtractor.extract(scenario, "request.uri");
                 final int expectedStatus = MapValueExtractor.extractOrDefault(scenario, "expectation.status", 200);
+                String credentials = MapValueExtractor.extract(scenario, "request.credentials");
+
                 return Arguments.of(
                     description,
                     scenario,
+                    credentials,
                     requestBody,
                     requestUri,
                     expectedStatus,
@@ -157,10 +148,11 @@ public class CcdScenarioRunnerTest {
         });
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0}")
     @MethodSource("scenarioSources")
     public void scenarios_should_behave_as_specified(String description,
                                                      Map<String, Object> scenario,
+                                                     String credentials,
                                                      String requestBody,
                                                      String requestUri,
                                                      int expectedStatus,
@@ -171,8 +163,10 @@ public class CcdScenarioRunnerTest {
                     "Test skipped because description starts with 'Disabled:'");
         for (int i = 0; i < maxRetries; i++) {
             try {
-                final Headers authorizationHeaders = getAuthorizationHeaders(scenario);
-                String actualResponseBody =
+                actualResponseBody = null;
+                expectedResponseBody = null;
+                final Headers authorizationHeaders = getAuthorizationHeaders(credentials);
+                actualResponseBody =
                     SerenityRest
                         .given()
                         .headers(authorizationHeaders)
@@ -187,14 +181,11 @@ public class CcdScenarioRunnerTest {
                         .body()
                         .asString();
 
-                System.out.println("Response body: " + actualResponseBody);
-
-                String expectedResponseBody = buildCallbackResponseBody(
+                Map<String, Object> actualResponse = MapSerializer.deserialize(actualResponseBody);
+                expectedResponseBody = buildCallbackResponseBody(
                     MapValueExtractor.extract(scenario, "expectation"),
                     templatesByFilename
                 );
-
-                Map<String, Object> actualResponse = MapSerializer.deserialize(actualResponseBody);
                 Map<String, Object> expectedResponse = MapSerializer.deserialize(expectedResponseBody);
 
                 verifiers.forEach(verifier ->
@@ -208,6 +199,10 @@ public class CcdScenarioRunnerTest {
                 break;
             } catch (Error | RetryableException | NullPointerException e) {
                 System.out.println("Scenario failed with error " + e.getMessage());
+                if (actualResponseBody != null) {
+                    System.out.println("actualResponseBody: " + actualResponseBody);
+                    System.out.println("expectedResponseBody: " + expectedResponseBody);
+                }
                 if (i == maxRetries - 1) {
                     throw e;
                 }
@@ -324,10 +319,7 @@ public class CcdScenarioRunnerTest {
         }
     }
 
-    private Headers getAuthorizationHeaders(Map<String, Object> scenario) {
-
-        String credentials = MapValueExtractor.extractOrDefault(scenario, "request.credentials", "none");
-
+    private Headers getAuthorizationHeaders(String credentials) {
         if (credentials.equalsIgnoreCase("LegalRepresentative")) {
 
             return authorizationHeadersProvider
