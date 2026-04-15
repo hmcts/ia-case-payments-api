@@ -66,8 +66,7 @@ public class CcdScenarioRunnerTest {
     @Autowired
     private AuthorizationHeadersProvider authorizationHeadersProvider;
 
-    private String actualResponseBody = null;
-    private String expectedResponseBody = null;
+    private Map<String, Object> actualResponse = null;
 
     @BeforeAll
     public void beforeAll() {
@@ -81,7 +80,7 @@ public class CcdScenarioRunnerTest {
         );
     }
 
-    private static Stream<Arguments> scenarioSources() throws IOException {
+    private Stream<Arguments> scenarioSources() throws IOException {
         String scenarioPattern = System.getProperty("scenario");
         if (scenarioPattern == null) {
             scenarioPattern = "*.json";
@@ -104,7 +103,7 @@ public class CcdScenarioRunnerTest {
 
                 Object scenarioDisabled = MapValueExtractor.extractOrDefault(scenario, "disabled", false);
                 if (Boolean.parseBoolean(scenarioDisabled.toString())) {
-                    return Arguments.of("Disabled: " + description, null, null, null, null, 0, null, 0);
+                    return Arguments.of("Disabled: " + description, null, null, null, null, 0, 0, null);
                 }
 
                 System.out.println((char) 27 + "[33m" + "SCENARIO: " + description);
@@ -129,17 +128,22 @@ public class CcdScenarioRunnerTest {
 
                 final String requestUri = MapValueExtractor.extract(scenario, "request.uri");
                 final int expectedStatus = MapValueExtractor.extractOrDefault(scenario, "expectation.status", 200);
-                String credentials = MapValueExtractor.extract(scenario, "request.credentials");
-
+                final String credentials = MapValueExtractor.extractOrDefault(scenario, "request.credentials", "none");
+                final Headers authorizationHeaders = getAuthorizationHeaders(credentials);
+                String expectedResponseBody = buildCallbackResponseBody(
+                    MapValueExtractor.extract(scenario, "expectation"),
+                    templatesByFilename
+                );
+                Map<String, Object> expectedResponse = MapSerializer.deserialize(expectedResponseBody);
                 return Arguments.of(
                     description,
                     scenario,
-                    credentials,
+                    authorizationHeaders,
                     requestBody,
                     requestUri,
                     expectedStatus,
-                    templatesByFilename,
-                    testCaseId
+                    testCaseId,
+                    expectedResponse
                 );
 
             } catch (IOException e) {
@@ -153,21 +157,19 @@ public class CcdScenarioRunnerTest {
     @MethodSource("scenarioSources")
     public void scenarios_should_behave_as_specified(String description,
                                                      Map<String, Object> scenario,
-                                                     String credentials,
+                                                     Headers authorizationHeaders,
                                                      String requestBody,
                                                      String requestUri,
                                                      int expectedStatus,
-                                                     Map<String, String> templatesByFilename,
-                                                     long testCaseId) throws IOException {
+                                                     long testCaseId,
+                                                     Map<String, Object> expectedResponse) throws IOException {
         int maxRetries = 3;
         assumeFalse(description.startsWith("Disabled:"),
                     "Test skipped because description starts with 'Disabled:'");
         for (int i = 0; i < maxRetries; i++) {
             try {
-                actualResponseBody = null;
-                expectedResponseBody = null;
-                final Headers authorizationHeaders = getAuthorizationHeaders(credentials);
-                actualResponseBody =
+                actualResponse = null;
+                String actualResponseBody =
                     SerenityRest
                         .given()
                         .headers(authorizationHeaders)
@@ -182,12 +184,7 @@ public class CcdScenarioRunnerTest {
                         .body()
                         .asString();
 
-                Map<String, Object> actualResponse = MapSerializer.deserialize(actualResponseBody);
-                expectedResponseBody = buildCallbackResponseBody(
-                    MapValueExtractor.extract(scenario, "expectation"),
-                    templatesByFilename
-                );
-                Map<String, Object> expectedResponse = MapSerializer.deserialize(expectedResponseBody);
+                actualResponse = MapSerializer.deserialize(actualResponseBody);
 
                 verifiers.forEach(verifier ->
                                       verifier.verify(
@@ -200,9 +197,9 @@ public class CcdScenarioRunnerTest {
                 break;
             } catch (Error | RetryableException | NullPointerException e) {
                 System.out.println("Scenario failed with error " + e.getMessage());
-                if (actualResponseBody != null) {
-                    System.out.println("actualResponseBody: " + actualResponseBody);
-                    System.out.println("expectedResponseBody: " + expectedResponseBody);
+                if (actualResponse != null) {
+                    System.out.println("actualResponse: " + objectMapper.writeValueAsString(actualResponse));
+                    System.out.println("expectedResponse: " + objectMapper.writeValueAsString(expectedResponse));
                 }
                 if (i == maxRetries - 1) {
                     throw e;
@@ -223,7 +220,7 @@ public class CcdScenarioRunnerTest {
             .forEach(name -> MapValueExpander.ENVIRONMENT_PROPERTIES.setProperty(name, environment.getProperty(name)));
     }
 
-    private static Map<String, Object> buildCaseData(
+    private Map<String, Object> buildCaseData(
         Map<String, Object> caseDataInput,
         Map<String, String> templatesByFilename
     ) throws IOException {
@@ -239,7 +236,7 @@ public class CcdScenarioRunnerTest {
         return caseData;
     }
 
-    private static String buildCallbackBody(
+    private String buildCallbackBody(
         long testCaseId,
         Map<String, Object> input,
         Map<String, String> templatesByFilename
