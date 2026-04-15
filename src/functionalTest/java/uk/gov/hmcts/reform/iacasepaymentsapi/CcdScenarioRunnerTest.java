@@ -66,8 +66,6 @@ public class CcdScenarioRunnerTest {
 
     @Autowired
     private AuthorizationHeadersProvider authorizationHeadersProvider;
-    private static boolean haveAllPassed = true;
-    private static final ArrayList<String> failedScenarios = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -80,17 +78,6 @@ public class CcdScenarioRunnerTest {
             "Verifiers are configured",
             verifiers.isEmpty()
         );
-    }
-
-    @AfterAll
-    static void afterAll() {
-        System.out.println((char) 27 + "[36m" + "-------------------------------------------------------------------");
-        System.out.println((char) 27 + "[0m");
-        if (!haveAllPassed) {
-            throw new AssertionError("Not all scenarios passed.\nFailed scenarios are:\n" + failedScenarios.stream().map(
-                Object::toString).collect(
-                Collectors.joining(";\n")));
-        }
     }
 
     private static Stream<Arguments> scenarioSources() throws IOException {
@@ -131,15 +118,7 @@ public class CcdScenarioRunnerTest {
                 }
 
                 if (!((Boolean) scenarioEnabled) || ((Boolean) scenarioDisabled)) {
-                    return Arguments.of(
-                        "Disabled: " + description,
-                        null,
-                        null,
-                        null,
-                        0,
-                        null,
-                        0
-                    );
+                    return Arguments.of("Disabled: " + description, null, null, null, 0, null, 0);
                 }
 
                 System.out.println((char) 27 + "[33m" + "SCENARIO: " + description);
@@ -233,8 +212,6 @@ public class CcdScenarioRunnerTest {
             } catch (Error | RetryableException | NullPointerException e) {
                 System.out.println("Scenario failed with error " + e.getMessage());
                 if (i == maxRetries - 1) {
-                    failedScenarios.add(description);
-                    haveAllPassed = false;
                     throw e;
                 }
             }
@@ -243,7 +220,7 @@ public class CcdScenarioRunnerTest {
 
     private void loadPropertiesIntoMapValueExpander() {
 
-        MutablePropertySources propertySources = ((AbstractEnvironment) this.environment).getPropertySources();
+        MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
         StreamSupport
             .stream(propertySources.spliterator(), false)
             .filter(propertySource -> propertySource instanceof EnumerablePropertySource)
