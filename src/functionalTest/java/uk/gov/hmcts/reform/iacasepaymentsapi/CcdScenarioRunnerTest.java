@@ -106,8 +106,6 @@ public class CcdScenarioRunnerTest {
                     return Arguments.of("Disabled: " + description, null, null, null, null, 0, 0, null);
                 }
 
-                System.out.println((char) 27 + "[33m" + "SCENARIO: " + description);
-
                 Map<String, String> templatesByFilename = StringResourceLoader.load("/templates/*.json");
 
                 final long scenarioTestCaseId = MapValueExtractor.extractOrDefault(
