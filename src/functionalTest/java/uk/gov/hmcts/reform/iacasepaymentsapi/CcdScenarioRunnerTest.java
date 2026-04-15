@@ -20,7 +20,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import net.serenitybdd.rest.SerenityRest;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,6 +50,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.verifiers.Verifier;
 @SpringBootTest
 @ActiveProfiles("functional")
 @DirtiesContext
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CcdScenarioRunnerTest {
 
     @Value("${targetInstance}")
@@ -67,13 +69,12 @@ public class CcdScenarioRunnerTest {
     private String actualResponseBody = null;
     private String expectedResponseBody = null;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public void beforeAll() {
         MapSerializer.setObjectMapper(objectMapper);
         RestAssured.baseURI = targetInstance;
         RestAssured.useRelaxedHTTPSValidation();
         loadPropertiesIntoMapValueExpander();
-
         assertFalse(
             "Verifiers are configured",
             verifiers.isEmpty()
