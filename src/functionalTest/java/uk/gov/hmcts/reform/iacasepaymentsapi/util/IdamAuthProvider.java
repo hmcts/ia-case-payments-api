@@ -48,7 +48,7 @@ public class IdamAuthProvider {
         }
     }
 
-    @Cacheable(value = "legalRepTokenCache")
+    @Cacheable(value = "legalRepTokenCache", key = "'legalRepTokenCache'")
     public String getLegalRepToken() {
         return getUserToken(
             System.getenv("TEST_LAW_FIRM_A_USERNAME"),
@@ -56,7 +56,7 @@ public class IdamAuthProvider {
         );
     }
 
-    @Cacheable(value = "legalRepOrgDeletedTokenCache")
+    @Cacheable(value = "legalRepOrgDeletedTokenCache", key = "'legalRepOrgDeletedTokenCache'")
     public String getLegalRepOrgDeletedToken() {
         return getUserToken(
             System.getenv("TEST_LAW_FIRM_ORG_DELETED_USERNAME"),
@@ -64,7 +64,7 @@ public class IdamAuthProvider {
         );
     }
 
-    @Cacheable(value = "legalRepOrgSuccessTokenCache")
+    @Cacheable(value = "legalRepOrgSuccessTokenCache", key = "'legalRepOrgSuccessTokenCache'")
     public String getLegalRepOrgSuccessToken() {
         return getUserToken(
             System.getenv("TEST_LAW_FIRM_ORG_SUCCESS_USERNAME"),
@@ -72,7 +72,7 @@ public class IdamAuthProvider {
         );
     }
 
-    @Cacheable(value = "citizenTokenCache")
+    @Cacheable(value = "citizenTokenCache", key = "'citizenTokenCache'")
     public String getCitizenToken() {
         return getUserToken(
             System.getenv("TEST_CITIZEN_USERNAME"),
