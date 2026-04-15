@@ -4,10 +4,8 @@ import io.lettuce.core.RedisURI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,11 +33,6 @@ public class CacheConfiguration {
 
     @Value("${spring.data.redis.encryption.key}") // Base64-encoded 32-byte key
     private String redisEncryptionKey;
-
-    @Bean
-    public CacheManagerCustomizer<CaffeineCacheManager> cacheManagerCustomizer() {
-        return cacheManager -> cacheManager.setAllowNullValues(false);
-    }
 
     @Bean
     @Primary
@@ -84,6 +77,12 @@ public class CacheConfiguration {
                 .cacheDefaults(tokenCacheConfig)
                 .withCacheConfiguration("systemUserTokenCache", tokenCacheConfig)
                 .withCacheConfiguration("userInfoCache", userInfoCacheConfig)
+                // functional tests
+                .withCacheConfiguration("legalRepTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("legalRepOrgDeletedTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("legalRepOrgSuccessTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("citizenTokenCache", tokenCacheConfig)
+
                 .build();
 
         } catch (Exception e) {
@@ -99,7 +98,7 @@ public class CacheConfiguration {
         @Value("${spring.data.redis.secret}") String accessKey) {
 
         if (redisUrl == null || redisUrl.isBlank()) {
-            log.warn("No Redis URL configured - falling back to Caffeine");
+            log.warn("No Redis URL configured");
             // return a dummy factory - cacheManager will catch the ping failure and fall back
             return new LettuceConnectionFactory();
         }
