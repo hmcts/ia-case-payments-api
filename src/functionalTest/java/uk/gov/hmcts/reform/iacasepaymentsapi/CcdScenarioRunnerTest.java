@@ -322,6 +322,8 @@ public class CcdScenarioRunnerTest {
                 .getLegalRepresentativeAuthorization();
             case "legalrepresentativeorgsuccess" -> authorizationHeadersProvider
                 .getLegalRepresentativeOrgSuccessAuthorization();
+            case "legalrepresentativesharecasea" -> authorizationHeadersProvider
+                .getLegalRepresentativeShareCaseAuthorization();
             case "legalrepresentativeorgdeleted" -> authorizationHeadersProvider
                 .getLegalRepresentativeOrgDeletedAuthorization();
             case "citizen" -> authorizationHeadersProvider

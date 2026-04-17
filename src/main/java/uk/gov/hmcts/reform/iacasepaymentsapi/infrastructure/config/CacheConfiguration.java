@@ -80,6 +80,7 @@ public class CacheConfiguration {
                 // functional tests
                 .withCacheConfiguration("legalRepTokenCache", tokenCacheConfig)
                 .withCacheConfiguration("legalRepOrgDeletedTokenCache", tokenCacheConfig)
+                .withCacheConfiguration("legalRepShareCaseATokenCache", tokenCacheConfig)
                 .withCacheConfiguration("legalRepOrgSuccessTokenCache", tokenCacheConfig)
                 .withCacheConfiguration("citizenTokenCache", tokenCacheConfig)
 

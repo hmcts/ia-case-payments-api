@@ -72,6 +72,14 @@ public class IdamAuthProvider {
         );
     }
 
+    @Cacheable(value = "legalRepShareCaseATokenCache", key = "'legalRepShareCaseATokenCache'")
+    public String getLegalRepShareCaseAToken() {
+        return getUserToken(
+            System.getenv("TEST_LAW_FIRM_SHARE_CASE_A_USERNAME"),
+            System.getenv("TEST_LAW_FIRM_SHARE_CASE_A_PASSWORD")
+        );
+    }
+
     @Cacheable(value = "citizenTokenCache", key = "'citizenTokenCache'")
     public String getCitizenToken() {
         return getUserToken(

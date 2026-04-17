@@ -2,7 +2,7 @@
   "description": "RIA-4465 Success for event pay for appeal with a hearing - PBA0087412",
   "request": {
     "uri": "/asylum/ccdAboutToSubmit",
-    "credentials": "LegalRepresentativeOrgSuccess",
+    "credentials": "LegalRepresentativeShareCaseA",
     "input": {
       "eventId": "payForAppeal",
       "state": "pendingPayment",
@@ -17,7 +17,7 @@
           "homeOfficeReferenceNumber": "123456789",
           "paymentDescription": "An IA pba test payment",
           "customerReference": "543232",
-          "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_ORG_SUCCESS_USERNAME}"
+          "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_SHARE_CASE_A_USERNAME}"
         }
       }
     }
@@ -32,7 +32,7 @@
         "appealReferenceNumber": "PA/50001/2020",
         "homeOfficeDecisionDate": "{$TODAY-14}",
         "homeOfficeReferenceNumber": "123456789",
-        "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_ORG_SUCCESS_USERNAME}",
+        "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_SHARE_CASE_A_USERNAME}",
         "paymentAccountList": "PBA0087412",
         "feeCode": "FEE0238",
         "feeVersion": "3",
