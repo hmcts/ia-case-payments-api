@@ -64,10 +64,19 @@ public class IdamAuthProvider {
         );
     }
 
+    @Cacheable(value = "legalRepOrgSuccessTokenCache", key = "'legalRepOrgSuccessTokenCache'")
     public String getLegalRepOrgSuccessToken() {
         return getUserToken(
             System.getenv("TEST_LAW_FIRM_ORG_SUCCESS_USERNAME"),
             System.getenv("TEST_LAW_FIRM_ORG_SUCCESS_PASSWORD")
+        );
+    }
+
+    @Cacheable(value = "legalRepShareCaseATokenCache", key = "'legalRepShareCaseATokenCache'")
+    public String getLegalRepShareCaseAToken() {
+        return getUserToken(
+            System.getenv("TEST_LAW_FIRM_SHARE_CASE_A_USERNAME"),
+            System.getenv("TEST_LAW_FIRM_SHARE_CASE_A_PASSWORD")
         );
     }
 

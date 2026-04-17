@@ -40,6 +40,17 @@ public class AuthorizationHeadersProvider {
         );
     }
 
+    public Headers getLegalRepresentativeShareCaseAuthorization() {
+
+        String serviceToken = tokens.computeIfAbsent("ServiceAuth", user -> serviceAuthTokenGenerator.generate());
+        String accessToken = idamAuthProvider.getLegalRepShareCaseAToken();
+
+        return new Headers(
+            new Header("Authorization", accessToken),
+            new Header("ServiceAuthorization", serviceToken)
+        );
+    }
+
     public Headers getLegalRepresentativeOrgDeletedAuthorization() {
 
         String serviceToken = tokens.computeIfAbsent("ServiceAuth", user -> serviceAuthTokenGenerator.generate());
