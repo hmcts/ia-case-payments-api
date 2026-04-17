@@ -38,7 +38,8 @@ class EventTest {
             Arguments.of("payForAppeal", Event.PAY_FOR_APPEAL.toString()),
             Arguments.of("recordRemissionDecision", Event.RECORD_REMISSION_DECISION.toString()),
             Arguments.of("updatePaymentStatus", Event.UPDATE_PAYMENT_STATUS.toString()),
-            Arguments.of("generateServiceRequest", Event.GENERATE_SERVICE_REQUEST.toString())
+            Arguments.of("generateServiceRequest", Event.GENERATE_SERVICE_REQUEST.toString()),
+            Arguments.of("unknown", Event.UNKNOWN.toString())
         );
     }
 }
