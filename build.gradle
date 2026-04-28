@@ -276,49 +276,48 @@ dependencyManagement {
     mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.0.2'
   }
   dependencies {
-    // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '29.0-jre') {
-      entry 'guava'
-    }
-
-    dependencySet(group: 'org.junit.jupiter', version: '5.13.4') {
+    dependencySet(group: 'org.junit.jupiter', version: '5.14.4') {
       entry 'junit-jupiter'
       entry 'junit-jupiter-api'
       entry 'junit-jupiter-engine'
       entry 'junit-jupiter-params'
     }
 
-    dependencySet(group: 'org.junit.platform', version: '1.13.4') {
+    dependencySet(group: 'org.junit.platform', version: '1.14.4') {
       entry 'junit-platform-commons'
       entry 'junit-platform-engine'
       entry 'junit-platform-launcher'
     }
 
-    dependencySet(group: 'commons-fileupload', version: '1.6.0') {
-      entry 'commons-fileupload'
-    }
+    dependency group: 'io.rest-assured', name: 'rest-assured', version: '5.5.7'
 
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.19.1') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.21.2') {
       entry 'jackson-databind'
       entry 'jackson-core'
+    }
+
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.21') {
       entry 'jackson-annotations'
     }
 
-    dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.19.1') {
+    dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.21.2') {
       entry 'jackson-dataformat-yaml'
     }
 
-    dependencySet(group: 'com.fasterxml.jackson.datatype', version: '2.19.1') {
+    dependencySet(group: 'com.fasterxml.jackson.datatype', version: '2.21.2') {
       entry 'jackson-datatype-jsr310'
       entry 'jackson-datatype-jdk8'
     }
 
-    dependencySet(group: 'com.fasterxml.jackson.module', version: '2.19.1') {
+    dependencySet(group: 'com.fasterxml.jackson.module', version: '2.21.2') {
       entry 'jackson-module-parameter-names'
       entry 'jackson-module-afterburner'
     }
 
-    dependency group: 'org.yaml', name: 'snakeyaml', version: '2.4'
+    dependencySet(group: 'org.mockito', version: '5.23.0') {
+      entry 'mockito-core'
+      entry 'mockito-junit-jupiter'
+    }
   }
 }
 
@@ -360,17 +359,6 @@ configurations {
 }
 
 dependencies {
-  modules {
-    module('org.codehaus.groovy:groovy') {
-      replacedBy('org.apache.groovy:groovy', 'conflicts in current rest-assured version')
-    }
-    module('org.codehaus.groovy:groovy-xml') {
-      replacedBy('org.apache.groovy:groovy-xml', 'conflicts in current rest-assured version')
-    }
-    module('org.codehaus.groovy:groovy-json') {
-      replacedBy('org.apache.groovy:groovy-json', 'conflicts in current rest-assured version')
-    }
-  }
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -388,10 +376,7 @@ dependencies {
   implementation 'org.springframework:spring-aspects'
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.16'
-
-  implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '10.9'
-  implementation group: 'net.minidev', name: 'json-smart', version: '2.6.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.17'
 
   implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '4.0.7'
 
@@ -400,19 +385,12 @@ dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-databind'
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-  implementation group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
-
-  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '9.0'
+  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.1'
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '8.0.0'
 
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
-  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.32'
-  implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.32'
   implementation group: 'com.github.hmcts', name: 'auth-checker-lib', version: '3.2.0'
-
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '10.1.54'
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '10.1.54'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.21.0'
 
@@ -424,18 +402,8 @@ dependencies {
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.23.0'
-
-  testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
-  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.23.0'
-  testImplementation 'io.rest-assured:rest-assured:5.5.5'
-  testImplementation 'net.serenity-bdd:serenity-rest-assured:5.3.9'
-  testImplementation 'net.serenity-bdd:serenity-spring:5.3.9'
-
-  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
-
-  testImplementation "org.junit.jupiter:junit-jupiter"
-  testImplementation "org.junit.jupiter:junit-jupiter-params" // optional
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: '5.3.9'
+  testImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: '5.3.9'
 
   testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.10', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
