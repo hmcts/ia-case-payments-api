@@ -11,7 +11,6 @@ import io.restassured.http.Headers;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class CcdScenarioRunnerTest {
 
     private Map<String, Object> actualResponse = null;
 
-    private Collection<String> scenarioSources;
+    private Map<String, String> scenarioSources = new HashMap<>();
 
     @BeforeAll
     public void beforeAll() throws IOException {
@@ -87,17 +86,16 @@ public class CcdScenarioRunnerTest {
             scenarioPattern = "*" + scenarioPattern + "*.json";
         }
 
-        scenarioSources =
-            StringResourceLoader
-                .load("/scenarios/" + scenarioPattern)
-                .values();
+        scenarioSources.putAll(StringResourceLoader.load("/scenarios/" + scenarioPattern));
         System.out.println((char) 27 + "[36m" + "-------------------------------------------------------------------");
         System.out.println((char) 27 + "[33m" + "RUNNING " + scenarioSources.size() + " SCENARIOS");
         System.out.println((char) 27 + "[36m" + "-------------------------------------------------------------------");
     }
 
     private Stream<Arguments> scenarioSources() {
-        return scenarioSources.stream().map(scenarioSource -> {
+        return scenarioSources.entrySet().stream().map(entry -> {
+            String fileName = entry.getKey();
+            String scenarioSource = entry.getValue();
             try {
                 Map<String, Object> scenario = MapSerializer.deserialize(scenarioSource);
 
@@ -105,7 +103,7 @@ public class CcdScenarioRunnerTest {
 
                 Object scenarioDisabled = MapValueExtractor.extractOrDefault(scenario, "disabled", false);
                 if (Boolean.parseBoolean(scenarioDisabled.toString())) {
-                    return Arguments.of("Disabled: " + description, null, null, null, null, 0, 0, null);
+                    return Arguments.of("Disabled: " + fileName, description, null, null, null, null, 0, 0, null);
                 }
 
                 Map<String, String> templatesByFilename = StringResourceLoader.load("/templates/*.json");
@@ -136,6 +134,7 @@ public class CcdScenarioRunnerTest {
                 );
                 Map<String, Object> expectedResponse = MapSerializer.deserialize(expectedResponseBody);
                 return Arguments.of(
+                    fileName,
                     description,
                     scenario,
                     authorizationHeaders,
@@ -153,9 +152,10 @@ public class CcdScenarioRunnerTest {
         });
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{0}:{1}")
     @MethodSource("scenarioSources")
-    public void scenarios_should_behave_as_specified(String description,
+    public void scenarios_should_behave_as_specified(String fileName,
+                                                     String description,
                                                      Map<String, Object> scenario,
                                                      Headers authorizationHeaders,
                                                      String requestBody,
