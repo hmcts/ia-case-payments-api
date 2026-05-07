@@ -96,7 +96,7 @@ class RefDataServiceTest {
         Assertions.assertEquals("sraReg", mockResponse.getOrganisationEntityResponse().getSraRegulated());
         Assertions.assertEquals("CO123", mockResponse.getOrganisationEntityResponse().getCompanyNumber());
         Assertions.assertEquals("some-url", mockResponse.getOrganisationEntityResponse().getCompanyUrl());
-        Assertions.assertEquals("PBA123456", mockResponse.getOrganisationEntityResponse().getPaymentAccount().get(0));
+        Assertions.assertEquals("PBA123456", mockResponse.getOrganisationEntityResponse().getPaymentAccount().getFirst());
         Assertions.assertEquals("PBA765432", mockResponse.getOrganisationEntityResponse().getPaymentAccount().get(1));
 
         AddressUk addressUk =  new AddressUk(

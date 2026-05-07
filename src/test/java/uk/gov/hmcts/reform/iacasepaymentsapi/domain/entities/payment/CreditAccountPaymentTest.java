@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

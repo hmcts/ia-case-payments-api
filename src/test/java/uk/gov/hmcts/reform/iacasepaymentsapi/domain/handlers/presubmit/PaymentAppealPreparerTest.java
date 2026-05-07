@@ -126,7 +126,7 @@ class PaymentAppealPreparerTest {
         AsylumCase asylumCaseData = callbackResponse.getData();
 
         verify(asylumCaseData, times(1))
-            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
+            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.getFirst(), valueList));
     }
 
     private PreSubmitCallbackResponse<AsylumCase> handlePaymentAppealPreparer() {
@@ -171,7 +171,7 @@ class PaymentAppealPreparerTest {
         AsylumCase asylumCaseData = callbackResponse.getData();
 
         verify(asylumCaseData, times(1))
-            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
+            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.getFirst(), valueList));
     }
 
     @Test
@@ -193,7 +193,7 @@ class PaymentAppealPreparerTest {
         AsylumCase asylumCaseData = callbackResponse.getData();
 
         verify(asylumCaseData, times(0))
-            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.get(0), valueList));
+            .write(PAYMENT_ACCOUNT_LIST, new DynamicList(valueList.getFirst(), valueList));
     }
 
     @Test

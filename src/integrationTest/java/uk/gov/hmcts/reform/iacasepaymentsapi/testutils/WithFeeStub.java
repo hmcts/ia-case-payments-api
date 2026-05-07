@@ -25,10 +25,12 @@ public interface WithFeeStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody("{\"code\": \"FEE0238\",\n"
-                              + "  \"description\": \"Appeal determined with a hearing\",\n"
-                              + "  \"fee_amount\": 140.00,\n"
-                              + "  \"version\": 2}")
+                    .withBody("""
+                              {"code": "FEE0238",
+                                "description": "Appeal determined with a hearing",
+                                "fee_amount": 140.00,
+                                "version": 2}\
+                              """)
                     .build()
             )
         );
@@ -46,10 +48,12 @@ public interface WithFeeStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody("{\"code\": \"FEE0456\",\n"
-                              + " \"description\": \"Appeal determined without a hearing\",\n"
-                              + " \"fee_amount\": 80.00,\n"
-                              + "  \"version\": 2}")
+                    .withBody("""
+                              {"code": "FEE0456",
+                               "description": "Appeal determined without a hearing",
+                               "fee_amount": 80.00,
+                                "version": 2}\
+                              """)
                     .build()
             )
         );

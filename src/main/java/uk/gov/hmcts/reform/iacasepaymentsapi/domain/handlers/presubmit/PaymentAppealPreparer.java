@@ -140,7 +140,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                     .map(idValue -> new Value(idValue, idValue))
                     .toList();
 
-                DynamicList accountList = new DynamicList(accountListElements.get(0), accountListElements);
+                DynamicList accountList = new DynamicList(accountListElements.getFirst(), accountListElements);
                 asylumCase.write(PAYMENT_ACCOUNT_LIST, accountList);
 
             } catch (FeignException fe) {

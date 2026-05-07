@@ -4,6 +4,8 @@ server:
 management:
   endpoint:
     health:
+      probes:
+        enabled: true
       show-details: "always"
   endpoints:
     web:
@@ -14,8 +16,6 @@ management:
   health:
     redis:
       enabled: false  # don't let Redis affect pod health
-    probes:
-      enabled: true
     group:
       readiness:
         include: ping
@@ -52,9 +52,13 @@ spring:
       ssl:
         enabled: true
 
+  cloud:
+    openfeign:
+      autoconfiguration:
+        jackson:
+          enabled: true
 role-assignment-service:
   url: ${ROLE_ASSIGNMENT_URL:http://localhost:8991}
-
 idam:
   baseUrl: ${IDAM_URL:http://127.0.0.1:5000}
   redirectUrl: ${IA_IDAM_REDIRECT_URI:http://localhost:3002/oauth2/callback}
@@ -170,18 +174,15 @@ security:
       - "generateServiceRequest"
     caseworker-ia-system:
       - "updatePaymentStatus"
-
 ### dependency configuration
-auth.idam.client.baseUrl: ${IDAM_URL:http://127.0.0.1:4501}
-auth.idam.client.detailsUri: "/details"
-auth.idam.client.id: ${IA_IDAM_CLIENT_ID:ia}
-auth.idam.client.secret: ${IA_IDAM_SECRET:something}
-auth.idam.client.redirectUri: ${IA_IDAM_REDIRECT_URI:http://localhost}
-auth.provider.service.client.baseUrl: ${S2S_URL:http://127.0.0.1:4502}
-idam.s2s-auth.totp_secret: ${IA_S2S_SECRET:AAAAAAAAAAAAAAAC}
-idam.s2s-auth.microservice: ${IA_S2S_MICROSERVICE:something}
-idam.s2s-auth.url: ${S2S_URL:http://127.0.0.1:4502}
-
-ia.config.validator.secret: ${IA_CONFIG_VALIDATOR_SECRET:}
-
-ia.payment.debug.logs.enabled: ${ENABLE_DEBUG_PAYMENT_LOGS:false}
+auth:
+  idam.client:
+    baseUrl: ${IDAM_URL:http://127.0.0.1:4501}
+    detailsUri: "/details"
+    id: ${IA_IDAM_CLIENT_ID:ia}
+    secret: ${IA_IDAM_SECRET:something}
+    redirectUri: ${IA_IDAM_REDIRECT_URI:http://localhost}
+  provider.service.client.baseUrl: ${S2S_URL:http://127.0.0.1:4502}
+ia:
+  config.validator.secret: ${IA_CONFIG_VALIDATOR_SECRET:}
+  payment.debug.logs.enabled: ${ENABLE_DEBUG_PAYMENT_LOGS:false}

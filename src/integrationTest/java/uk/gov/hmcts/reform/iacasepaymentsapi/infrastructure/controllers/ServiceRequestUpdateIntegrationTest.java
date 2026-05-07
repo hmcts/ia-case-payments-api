@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

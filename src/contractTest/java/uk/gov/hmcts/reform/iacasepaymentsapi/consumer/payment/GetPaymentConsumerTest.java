@@ -13,24 +13,22 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import uk.gov.hmcts.reform.iacasepaymentsapi.consumer.util.CardPaymentApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 
 @ExtendWith(PactConsumerTestExt.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @PactTestFor(providerName = "payment_cardPayment", port = "8991")
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {PaymentConsumerApplication.class})
+@SpringJUnitConfig(classes = {PaymentConsumerApplication.class})
 @TestPropertySource(properties = {"payment.api.url=localhost:8991"})
 @PactFolder("pacts")
 public class GetPaymentConsumerTest {

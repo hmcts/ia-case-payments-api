@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import com.google.common.collect.ImmutableMap;
@@ -8,14 +9,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -30,10 +33,12 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SpringAutho
 @Configuration
 @ConfigurationProperties(prefix = "security")
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration  {
 
+    @Getter
     private final List<String> anonymousPaths = new ArrayList<>();
+    @Getter
     private final Map<String, List<Event>> roleEventAccess = new HashMap<>();
     private final Converter<Jwt, Collection<GrantedAuthority>> idamAuthoritiesConverter;
     private final ServiceAuthFilter serviceAuthFilter;
@@ -48,8 +53,7 @@ public class SecurityConfiguration  {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().mvcMatchers(
-            anonymousPaths
+        return web -> web.ignoring().requestMatchers(anonymousPaths
                 .stream()
                 .toArray(String[]::new)
         );
@@ -64,21 +68,16 @@ public class SecurityConfiguration  {
 
         http
             .addFilterBefore(serviceAuthFilter, AbstractPreAuthenticatedProcessingFilter.class)
-            .sessionManagement().sessionCreationPolicy(STATELESS)
-            .and()
-            .exceptionHandling()
-            .and()
-            .csrf().disable()
-            .formLogin().disable()
-            .logout().disable()
-            .authorizeRequests().anyRequest().authenticated()
-            .and()
-            .oauth2ResourceServer()
-            .jwt()
-            .jwtAuthenticationConverter(jwtAuthenticationConverter)
-            .and()
-            .and()
-            .oauth2Client();
+            .sessionManagement(management -> management.sessionCreationPolicy(STATELESS))
+            .exceptionHandling(withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
+            .oauth2ResourceServer(server -> server
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter)))
+            .oauth2Client(withDefaults());
 
         return http.build();
     }
@@ -97,13 +96,4 @@ public class SecurityConfiguration  {
             authorizedRolesProvider
         );
     }
-
-    public Map<String, List<Event>> getRoleEventAccess() {
-        return roleEventAccess;
-    }
-
-    public List<String> getAnonymousPaths() {
-        return anonymousPaths;
-    }
-
 }
