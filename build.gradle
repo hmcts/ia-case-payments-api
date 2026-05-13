@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'info.solidsoft.pitest' version '1.15.0'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '3.5.13'
+  id 'org.springframework.boot' version '3.5.14'
   id 'uk.gov.hmcts.java' version '0.12.67'
   id 'org.owasp.dependencycheck' version '10.0.3'
   id 'com.github.ben-manes.versions' version '0.51.0'
@@ -292,6 +292,9 @@ dependencyManagement {
       entry 'junit-platform-launcher'
     }
 
+    // due to Serenity 5.3.10 forcing commons-lang3@3.18.0
+    dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
+
     dependency group: 'io.rest-assured', name: 'rest-assured', version: '5.5.7'
 
     dependencySet(group: 'org.mockito', version: '5.23.0') {
@@ -299,7 +302,20 @@ dependencyManagement {
       entry 'mockito-junit-jupiter'
     }
 
-    dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
+    // CVE-2026-34480
+    // CVE-2026-34478
+    // CVE-2026-34477
+    // CVE-2025-68161 - from spring-boot-starter-logging@3.5.14
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.25.4') {
+      entry 'log4j-to-slf4j'
+      entry 'log4j-api'
+    }
+
+    // due to Serenity 5.3.10 forcing spring-context-support@6.2.10
+    dependency group: 'org.springframework', name: 'spring-context-support', version: '6.2.18'
+
+    // CVE-2020-13956 - transitive from service-auth-provider-java-client@5.3.3
+    dependency group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
   }
 }
 
