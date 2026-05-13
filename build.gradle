@@ -275,7 +275,22 @@ dependencyManagement {
   imports {
     mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.0.2'
     mavenBom 'com.fasterxml.jackson:jackson-bom:2.21.2'
-    mavenBom "net.serenity-bdd:serenity-bom:5.3.9"
+    mavenBom "net.serenity-bdd:serenity-bom:5.3.10"
+
+    // CVE-2026-34478
+    // CVE-2026-34479
+    // CVE-2026-34480
+    // CVE-2026-34481
+    // CVE-2026-34477
+    // CVE-2025-68161
+    // CVE-2026-41417
+    // CVE-2025-55163
+    // CVE-2025-58056
+    // CVE-2025-58057
+    // CVE-2026-33870
+    // CVE-2026-33871
+    // CVE-2025-67735 - from spring-boot-starter-data-redis@3.5.14
+    mavenBom "io.netty:netty-bom:4.1.133.Final"
   }
 
   dependencies {
@@ -292,9 +307,6 @@ dependencyManagement {
       entry 'junit-platform-launcher'
     }
 
-    // due to Serenity 5.3.10 forcing commons-lang3@3.18.0
-    dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
-
     dependency group: 'io.rest-assured', name: 'rest-assured', version: '5.5.7'
 
     dependencySet(group: 'org.mockito', version: '5.23.0') {
@@ -302,8 +314,13 @@ dependencyManagement {
       entry 'mockito-junit-jupiter'
     }
 
-    // CVE-2026-34480
+    // due to Serenity 5.3.10 forcing commons-lang3@3.18.0
+    dependency group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
+
     // CVE-2026-34478
+    // CVE-2026-34479
+    // CVE-2026-34480
+    // CVE-2026-34481
     // CVE-2026-34477
     // CVE-2025-68161 - from spring-boot-starter-logging@3.5.14
     dependencySet(group: 'org.apache.logging.log4j', version: '2.25.4') {
@@ -375,8 +392,6 @@ dependencies {
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.17'
-
-  implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '4.0.7'
 
   implementation 'com.fasterxml.jackson.core:jackson-core'
   implementation 'com.fasterxml.jackson.core:jackson-annotations'
