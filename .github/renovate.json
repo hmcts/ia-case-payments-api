@@ -1,7 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>hmcts/.github:renovate-config"],
-  "labels": ["dependencies"],
+  "extends": [
+    "local>hmcts/.github:renovate-config"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -16,15 +20,27 @@
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     },
     {
-      "matchPackageNames": ["au.com.dius.pact"],
+      "matchPackageNames": [
+        "org.owasp.dependencycheck"
+      ],
       "enabled": false
     },
     {
-      "matchPackageNames": ["org.pitest:pitest"],
+      "matchPackageNames": [
+        "au.com.dius.pact"
+      ],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "org.pitest:pitest"
+      ],
       "enabled": false
     }
   ],
