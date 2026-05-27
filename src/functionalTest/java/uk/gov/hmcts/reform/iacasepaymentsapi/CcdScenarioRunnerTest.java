@@ -69,8 +69,6 @@ public class CcdScenarioRunnerTest {
     @Autowired
     private AuthorizationHeadersProvider authorizationHeadersProvider;
 
-    private Map<String, Object> actualResponse = null;
-
     private Map<String, String> scenarioSources = new HashMap<>();
 
     @BeforeAll
@@ -169,8 +167,8 @@ public class CcdScenarioRunnerTest {
                                                      long testCaseId,
                                                      Map<String, Object> expectedResponse) throws IOException {
         assumeFalse(fileName.startsWith("Disabled:"), "Test marked as disabled");
+        Map<String, Object> responseForError = null;
         try {
-            actualResponse = null;
             String actualResponseBody =
                 SerenityRest
                     .given()
@@ -186,8 +184,8 @@ public class CcdScenarioRunnerTest {
                     .body()
                     .asString();
 
-            actualResponse = MapSerializer.deserialize(actualResponseBody);
-
+            Map<String, Object> actualResponse = MapSerializer.deserialize(actualResponseBody);
+            responseForError = actualResponse;
             verifiers.forEach(verifier ->
                                   verifier.verify(
                                       testCaseId,
@@ -198,8 +196,8 @@ public class CcdScenarioRunnerTest {
             );
         } catch (Error | RetryableException | NullPointerException e) {
             System.out.println("Scenario failed with error " + e.getMessage());
-            if (actualResponse != null) {
-                System.out.println("actualResponse: " + objectMapper.writeValueAsString(actualResponse));
+            if (responseForError != null) {
+                System.out.println("actualResponse: " + objectMapper.writeValueAsString(responseForError));
                 System.out.println("expectedResponse: " + objectMapper.writeValueAsString(expectedResponse));
             }
             throw e;
