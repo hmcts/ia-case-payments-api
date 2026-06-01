@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -40,10 +39,11 @@ public interface WithIdamStub {
             new StubMapping(
                 newRequestPattern(POST, urlEqualTo("/idam/o/token"))
                     .withHeader(CONTENT_TYPE, containing(APPLICATION_FORM_URLENCODED_VALUE))
-                    .withRequestBody(matching("grant_type=password&redirect_uri=http%3A%2F%2Flocalhost%3" +
-                                                  "A3002%2Foauth2%2Fcallback&client_id=.*&client_secret=.*&username" +
-                                                  "=.*net&password=.*&scope=openid\\+profile\\+authorities\\+acr" +
-                                                  "\\+roles\\+create-user\\+manage-user\\+search-user"))
+                    .withRequestBody(equalTo("grant_type=password&redirect_uri=http%3A%2F%2Flocalhost%3"
+                                         + "A3002%2Foauth2%2Fcallback&client_id=ia&client_secret=some"
+                                         + "thing&username=ia-system-user%40fake.hmcts.net&password=s"
+                                         + "omething&scope=openid+profile+authorities+acr+roles+creat"
+                                         + "e-user+manage-user+search-user"))
                     .build(),
                 aResponse()
                     .withStatus(200)
