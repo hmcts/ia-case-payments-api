@@ -3,7 +3,7 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'info.solidsoft.pitest' version '1.15.0'
+  id 'info.solidsoft.pitest' version '1.19.0'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.springframework.boot' version '3.5.14'
   id 'uk.gov.hmcts.java' version '0.12.70'
@@ -177,7 +177,7 @@ tasks.named('sonarqube') {
 
 pitest {
   junit5PluginVersion = '1.2.3'
-  pitestVersion = "1.16.2"
+  pitestVersion = '1.19.4'
   targetClasses = ['uk.gov.hmcts.reform.iacasepaymentsapi.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.*',
@@ -425,9 +425,6 @@ dependencies {
   testImplementation 'org.springframework.security:spring-security-test'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-  testImplementation group: 'org.pitest', name: 'pitest', version: '1.16.2'
-  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.5.0'
 
   testImplementation 'net.serenity-bdd:serenity-rest-assured'
   testImplementation 'net.serenity-bdd:serenity-spring'
