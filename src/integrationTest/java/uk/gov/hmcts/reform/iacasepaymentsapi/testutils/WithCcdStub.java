@@ -26,9 +26,9 @@ public interface WithCcdStub {
     default void addCcdUpdatePaymentStatusGetTokenStub(WireMockServer server) throws JsonProcessingException {
         server.addStubMapping(
             new StubMapping(
-                newRequestPattern(GET, urlMatching("/ccd/caseworkers/*/jurisdictions/IA/case-types"
+                newRequestPattern(GET, urlMatching("/ccd/caseworkers/.*/jurisdictions/IA/case-types"
                         + "/Asylum/cases/" + CCD_CASE_NUMBER + "/event-triggers/updatePaymentStatus"
-                        + "/token?ignore-warning=true"))
+                        + "/token\\?ignore-warning=true"))
                     .build(),
                 aResponse()
                     .withStatus(200)
