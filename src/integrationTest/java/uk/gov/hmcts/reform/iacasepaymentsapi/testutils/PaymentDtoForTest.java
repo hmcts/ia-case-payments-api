@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 
-import lombok.experimental.SuperBuilder;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.CCD_CASE_NUMBER;
@@ -8,7 +7,6 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiCl
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_AMOUNT;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient.PAYMENT_CASE_REFERENCE;
 
-@SuperBuilder
 public class PaymentDtoForTest extends PaymentDto {
 
     public static PaymentDtoBuilder generateValid() {

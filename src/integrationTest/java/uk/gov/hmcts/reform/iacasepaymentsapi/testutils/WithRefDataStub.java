@@ -11,7 +11,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Map;
 import org.springframework.core.io.Resource;
 
@@ -26,7 +26,7 @@ public interface WithRefDataStub {
         );
 
         String refDataResponseJson =
-                new String(Files.readAllBytes(Paths.get(resourceFile.getURI())));
+                new String(Files.readAllBytes(Path.of(resourceFile.getURI())));
 
         server.addStubMapping(
             new StubMapping(

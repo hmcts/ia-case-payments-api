@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,10 +28,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -47,13 +47,13 @@ public class ServiceRequestRetryTest {
     private WebApplicationContext webApplicationContext;
     @Autowired
     private ServiceRequestService serviceRequestService;
-    @MockBean
+    @MockitoBean
     private ServiceRequestApi serviceRequestApi;
-    @MockBean SystemTokenGenerator systemTokenGenerator;
-    @MockBean AuthTokenGenerator serviceAuthorization;
-    @MockBean private Callback<AsylumCase> callback;
-    @MockBean private CaseDetails<AsylumCase> caseDetails;
-    @MockBean private AsylumCase asylumCase;
+    @MockitoBean SystemTokenGenerator systemTokenGenerator;
+    @MockitoBean AuthTokenGenerator serviceAuthorization;
+    @MockitoBean private Callback<AsylumCase> callback;
+    @MockitoBean private CaseDetails<AsylumCase> caseDetails;
+    @MockitoBean private AsylumCase asylumCase;
     private String token = "token";
     private String serviceToken = "Bearer serviceToken";
     private Fee fee = mock(Fee.class);

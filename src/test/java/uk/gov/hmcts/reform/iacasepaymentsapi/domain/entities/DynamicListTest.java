@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ class DynamicListTest {
         accountsFromOrg.add(codeValue2);
         accountsFromOrg.add(codeValue3);
 
-        DynamicList accountList = new DynamicList(accountsFromOrg.get(0), accountsFromOrg);
+        DynamicList accountList = new DynamicList(accountsFromOrg.getFirst(), accountsFromOrg);
 
         assertEquals(codeValue1, accountList.getValue());
-        assertEquals(codeValue1, accountList.getListItems().get(0));
+        assertEquals(codeValue1, accountList.getListItems().getFirst());
         assertEquals(codeValue2, accountList.getListItems().get(1));
         assertEquals(codeValue3, accountList.getListItems().get(2));
 

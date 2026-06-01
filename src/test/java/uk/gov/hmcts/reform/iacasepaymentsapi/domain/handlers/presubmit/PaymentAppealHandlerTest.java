@@ -321,10 +321,10 @@ class PaymentAppealHandlerTest {
             .write(PAYMENT_FAILED_FOR_DISPLAY, "Pending");
 
         verify(asylumCase, times(1))
-            .write(PAYMENT_ERROR_CODE, statusHistories.get(0).getErrorCode());
+            .write(PAYMENT_ERROR_CODE, statusHistories.getFirst().getErrorCode());
 
         verify(asylumCase, times(1))
-            .write(PAYMENT_ERROR_MESSAGE, statusHistories.get(0).getErrorMessage());
+            .write(PAYMENT_ERROR_MESSAGE, statusHistories.getFirst().getErrorMessage());
     }
 
     @Test

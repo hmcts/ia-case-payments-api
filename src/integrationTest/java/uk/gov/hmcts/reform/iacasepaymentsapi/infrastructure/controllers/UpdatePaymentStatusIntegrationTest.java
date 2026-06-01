@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithIdamStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithPaymentStub;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.WithServiceAuthStub;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
