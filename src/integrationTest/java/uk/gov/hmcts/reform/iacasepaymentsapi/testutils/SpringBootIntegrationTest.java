@@ -29,7 +29,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.Application;
     "PROF_REF_DATA_URL=http://127.0.0.1:8990/refdata",
     "ROLE_ASSIGNMENT_URL=http://127.0.0.1:8990/amRoleAssignment",
     "IA_IDAM_REDIRECT_URI=http://localhost:3002/oauth2/callback",
-    "IA_SYSTEM_USERNAME=ia-system-user@fake.hmcts.net"
+    "IA_SYSTEM_USERNAME=ia-system-user@fake.hmcts.net",
+    "IA_SYSTEM_PASSWORD=something",
+    "IA_IDAM_SECRET=something"
 })
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("integration")
@@ -39,7 +41,7 @@ public class SpringBootIntegrationTest {
     @Autowired
     protected MockMvc mockMvc;
 
-    protected static WireMockServer server;
+    protected WireMockServer server;
 
     @BeforeAll
     public void spinUp() {
