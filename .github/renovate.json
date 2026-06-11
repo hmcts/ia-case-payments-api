@@ -20,6 +20,12 @@
       "automerge": true
     },
     {
+      "matchPackageNames": [
+        "com.github.hmcts:ccd-case-document-am-client"
+      ],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": [
         "major"
       ],
@@ -27,19 +33,14 @@
     },
     {
       "matchPackageNames": [
+        "au.com.dius.pact.consumer:junit5",
+        "au.com.dius.pact.consumer:java8"
+      ],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": [
         "org.owasp.dependencycheck"
-      ],
-      "enabled": false
-    },
-    {
-      "matchPackageNames": [
-        "au.com.dius.pact"
-      ],
-      "enabled": false
-    },
-    {
-      "matchPackageNames": [
-        "org.pitest:pitest"
       ],
       "enabled": false
     }
