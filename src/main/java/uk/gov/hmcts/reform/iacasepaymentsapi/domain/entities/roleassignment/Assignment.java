@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
@@ -70,11 +72,11 @@ public class Assignment {
     }
 
     public List<String> getAuthorisations() {
-        return authorisations == null ? null : Collections.unmodifiableList(authorisations);
+        return authorisations == null ? new ArrayList<>() : Collections.unmodifiableList(authorisations);
     }
 
     public Map<String, String> getAttributes() {
-        return attributes == null ? null : Collections.unmodifiableMap(attributes);
+        return attributes == null ? new HashMap<>() : Collections.unmodifiableMap(attributes);
     }
 
 }

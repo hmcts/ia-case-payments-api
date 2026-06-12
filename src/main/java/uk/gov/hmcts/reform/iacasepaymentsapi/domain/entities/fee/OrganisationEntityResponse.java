@@ -34,7 +34,7 @@ public class OrganisationEntityResponse {
     }
 
     public List<String> getPaymentAccount() {
-        return paymentAccount == null ? null : Collections.unmodifiableList(paymentAccount);
+        return paymentAccount == null ? new ArrayList<>() : Collections.unmodifiableList(paymentAccount);
     }
 
     public List<LegRepAddressUk> getContactInformation() {
