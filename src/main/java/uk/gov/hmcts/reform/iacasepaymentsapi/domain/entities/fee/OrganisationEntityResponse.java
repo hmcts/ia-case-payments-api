@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +24,9 @@ public class OrganisationEntityResponse {
     private String companyNumber;
     private String companyUrl;
     private SuperUser superUser;
+    @Getter(lombok.AccessLevel.NONE)
     private List<String> paymentAccount;
+    @Getter(lombok.AccessLevel.NONE)
     private List<LegRepAddressUk> contactInformation;
 
     public OrganisationEntityResponse(String name) {
@@ -29,7 +34,11 @@ public class OrganisationEntityResponse {
     }
 
     public List<String> getPaymentAccount() {
-        return paymentAccount;
+        return paymentAccount == null ? null : Collections.unmodifiableList(paymentAccount);
+    }
+
+    public List<LegRepAddressUk> getContactInformation() {
+        return contactInformation == null ? new ArrayList<>() : Collections.unmodifiableList(contactInformation);
     }
 
 }

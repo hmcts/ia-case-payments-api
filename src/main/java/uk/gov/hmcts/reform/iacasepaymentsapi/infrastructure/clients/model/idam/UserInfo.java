@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,9 +24,17 @@ public class UserInfo implements Serializable {
     @JsonProperty("sub")
     private String email;
     private String uid;
-    @Setter
+    @Getter(lombok.AccessLevel.NONE)
     private List<String> roles;
     private String name;
     private String givenName;
     private String familyName;
+
+    public List<String> getRoles() {
+        return roles == null ? null : Collections.unmodifiableList(roles);
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles == null ? null : List.copyOf(roles);
+    }
 }
