@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -74,6 +76,6 @@ public class LegRepAddressUk {
     }
 
     public List<String> getDxAddress() {
-        return dxAddress;
+        return dxAddress == null ? new ArrayList<>() : Collections.unmodifiableList(dxAddress);
     }
 }
