@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment;
 import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -56,6 +57,6 @@ public class PaymentResponse {
 
     public List<StatusHistories> getStatusHistories() {
         requireNonNull(statusHistories);
-        return statusHistories;
+        return Collections.unmodifiableList(statusHistories);
     }
 }

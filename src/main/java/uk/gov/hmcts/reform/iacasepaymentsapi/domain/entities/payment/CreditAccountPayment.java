@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.ToString;
@@ -101,7 +102,7 @@ public class CreditAccountPayment {
 
     public List<Fee> getFees() {
         requireNonNull(fees);
-        return fees;
+        return Collections.unmodifiableList(fees);
     }
 
     public void setOrganisationName(String organisationName) {
