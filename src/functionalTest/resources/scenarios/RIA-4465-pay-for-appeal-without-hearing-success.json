@@ -36,7 +36,7 @@
         "feeCode": "FEE0372",
         "feeVersion": "4",
         "feeAmountGbp": "8200",
-        "feeDescription": "Appeal determined without a hearing",
+        "feeDescription": "Appeal determined without a hearing ",
         "paymentStatus": "Paid",
         "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_SHARE_CASE_A_USERNAME}"
       }
