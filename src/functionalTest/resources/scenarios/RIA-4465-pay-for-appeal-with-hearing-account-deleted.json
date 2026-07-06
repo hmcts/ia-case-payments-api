@@ -36,7 +36,7 @@
         "paymentAccountList": "PBA0087240",
         "feeCode": "FEE0238",
         "feeVersion": "3",
-        "feeAmountGbp": "14000",
+        "feeAmountGbp": "14400",
         "feeDescription": "Appeal determined with a hearing",
         "paymentStatus": "Failed"
       }
