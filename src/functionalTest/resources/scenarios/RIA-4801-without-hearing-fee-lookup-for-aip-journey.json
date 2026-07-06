@@ -25,9 +25,9 @@
       "replacements": {
         "homeOfficeReferenceNumber": "123456789",
         "feeCode": "FEE0372",
-        "feeVersion": "3",
-        "feeAmountGbp": "8000",
-        "feeDescription": "Notice of Appeal - appellant consents without hearing A"
+        "feeVersion": "4",
+        "feeAmountGbp": "8200",
+        "feeDescription": "Appeal determined without a hearing "
       }
     }
   }

@@ -25,8 +25,8 @@
       "replacements": {
         "homeOfficeReferenceNumber": "123456789",
         "feeCode": "FEE0238",
-        "feeVersion": "3",
-        "feeAmountGbp": "14000",
+        "feeVersion": "4",
+        "feeAmountGbp": "14400",
         "feeDescription": "Appeal determined with a hearing"
       }
     }
