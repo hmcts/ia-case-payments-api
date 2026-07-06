@@ -35,7 +35,7 @@
         "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_ORG_DELETED_USERNAME}",
         "paymentAccountList": "PBA0087240",
         "feeCode": "FEE0238",
-        "feeVersion": "3",
+        "feeVersion": "4",
         "feeAmountGbp": "14400",
         "feeDescription": "Appeal determined with a hearing",
         "paymentStatus": "Failed"

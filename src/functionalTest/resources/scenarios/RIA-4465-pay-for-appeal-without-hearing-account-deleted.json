@@ -35,9 +35,9 @@
         "legalRepresentativeEmailAddress": "{TEST_LAW_FIRM_ORG_DELETED_USERNAME}",
         "paymentAccountList": "PBA0087240",
         "feeCode": "FEE0372",
-        "feeVersion": "3",
+        "feeVersion": "4",
         "feeAmountGbp": "8200",
-        "feeDescription": "Notice of Appeal - appellant consents without hearing A",
+        "feeDescription": "Appeal determined without a hearing",
         "paymentStatus": "Failed"
       }
     }
