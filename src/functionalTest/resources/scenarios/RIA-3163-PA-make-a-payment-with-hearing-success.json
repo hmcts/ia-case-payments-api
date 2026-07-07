@@ -32,8 +32,8 @@
         "homeOfficeDecisionDate": "{$TODAY-14}",
         "paymentAccountList":"PBA0087412",
         "feeCode":"FEE0238",
-        "feeVersion":"3",
-        "feeAmountGbp":"14000",
+        "feeVersion":"4",
+        "feeAmountGbp":"14400",
         "feeDescription":"Appeal determined with a hearing",
         "paymentStatus":"Paid"
       }
