@@ -78,7 +78,10 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+        Fee fee = null;
+        if (!FeesHelper.feeExistsForDecisionType(asylumCase)) {
+            fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+        }
 
         YesOrNo requestFeeRemissionFlagForServiceRequest =
             asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)

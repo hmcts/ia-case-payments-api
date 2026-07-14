@@ -76,8 +76,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
 
-        final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
-
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
             && Arrays.asList(
             Event.PAYMENT_APPEAL,
@@ -151,11 +149,12 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
-        if (isNull(fee)) {
-
-            response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
-            return response;
+        if (!FeesHelper.feeExistsForDecisionType(asylumCase)) {
+            Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+            if (isNull(fee)) {
+                response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
+                return response;
+            }
         }
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);

@@ -565,4 +565,97 @@ class PaymentAppealPreparerTest {
         boolean canHandle = paymentAppealPreparer.canHandle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
         assertFalse(canHandle);
     }
+
+    @Test
+    void should_not_call_fee_service_when_fee_with_hearing_already_exists() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verifyNoInteractions(feeService);
+    }
+
+    @Test
+    void should_not_call_fee_service_when_fee_without_hearing_already_exists() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithoutHearing"));
+        when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.of("80"));
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verifyNoInteractions(feeService);
+    }
+
+    @Test
+    void should_call_fee_service_when_fee_does_not_exist_for_decision_with_hearing() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.empty());
+
+        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verify(asylumCase, times(1)).write(FEE_WITH_HEARING, feeWithHearing.getAmountAsString());
+    }
+
+    @Test
+    void should_call_fee_service_when_fee_does_not_exist_for_decision_without_hearing() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithoutHearing"));
+        when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.empty());
+
+        Fee feeWithoutHearing = new Fee("FEE0002", "Fee without hearing", "1", new BigDecimal("80"));
+        when(feeService.getFee(FeeType.FEE_WITHOUT_HEARING)).thenReturn(feeWithoutHearing);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verify(feeService, times(1)).getFee(FeeType.FEE_WITHOUT_HEARING);
+        verify(asylumCase, times(1)).write(FEE_WITHOUT_HEARING, feeWithoutHearing.getAmountAsString());
+    }
+
+    @Test
+    void should_call_fee_service_when_decision_hearing_fee_option_is_empty() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.empty());
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).contains("Cannot retrieve the fee from fees-register.");
+    }
 }

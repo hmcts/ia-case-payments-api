@@ -116,7 +116,10 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             );
         asylumCase.write(FEE_PAYMENT_APPEAL_TYPE, YesOrNo.NO);
 
-        Fee feeSelected = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+        Fee feeSelected = null;
+        if (!FeesHelper.feeExistsForDecisionType(asylumCase)) {
+            feeSelected = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+        }
 
         log.info("Selected Fee for caseId: {}, {}", caseId, feeSelected);
 

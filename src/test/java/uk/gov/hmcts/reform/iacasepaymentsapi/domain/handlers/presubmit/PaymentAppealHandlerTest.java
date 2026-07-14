@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
@@ -19,6 +20,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_GBP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITH_HEARING;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.LEGAL_REP_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
@@ -54,6 +56,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
@@ -77,6 +81,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.service.RefDataService;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.PaymentProperties;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @SuppressWarnings("unchecked")
 class PaymentAppealHandlerTest {
 
@@ -130,6 +135,9 @@ class PaymentAppealHandlerTest {
         lenient().when(caseDetails.getCaseData()).thenReturn(asylumCase);
         lenient().when(callback.getCaseDetails().getId()).thenReturn(Long.valueOf("112233445566"));
         lenient().when(asylumCase.read(JOURNEY_TYPE, JourneyType.class)).thenReturn(Optional.of(JourneyType.REP));
+        // Default stubs for feeExistsForDecisionType - fee doesn't exist
+        lenient().when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.empty());
+        lenient().when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.empty());
     }
 
     @Test
@@ -631,6 +639,36 @@ class PaymentAppealHandlerTest {
         assertThatThrownBy(() -> appealFeePaymentHandler.handle(ABOUT_TO_SUBMIT, callback))
             .isExactlyInstanceOf(IllegalStateException.class)
             .hasMessage("Legal rep reference number is not present for caseId: " + caseId);
+    }
+
+    @Test
+    void should_not_call_fee_service_when_fee_with_hearing_already_exists() {
+        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
+
+        assertThatThrownBy(() -> appealFeePaymentHandler.handle(ABOUT_TO_SUBMIT, callback))
+            .isExactlyInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register for caseId: " + caseId);
+
+        verifyNoInteractions(feeService);
+    }
+
+    @Test
+    void should_not_call_fee_service_when_fee_without_hearing_already_exists() {
+        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithoutHearing"));
+        when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.of("80"));
+
+        assertThatThrownBy(() -> appealFeePaymentHandler.handle(ABOUT_TO_SUBMIT, callback))
+            .isExactlyInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot retrieve the fee from fees-register for caseId: " + caseId);
+
+        verifyNoInteractions(feeService);
     }
 
     private OrganisationResponse getOrganisationResponse() {
