@@ -58,11 +58,12 @@ public class FeeLookupHandler implements PreSubmitCallbackHandler<AsylumCase> {
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = new PreSubmitCallbackResponse<>(asylumCase);
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
-        if (isNull(fee)) {
-
-            callbackResponse.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
-            return callbackResponse;
+        if (!FeesHelper.feeExistsForDecisionType(asylumCase)) {
+            Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+            if (isNull(fee)) {
+                callbackResponse.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
+                return callbackResponse;
+            }
         }
 
         return callbackResponse;
