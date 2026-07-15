@@ -149,7 +149,9 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        if (!FeesHelper.feeExistsForDecisionType(asylumCase)) {
+        List<Event> eventsRequiringFeeRefresh = List.of(Event.SUBMIT_APPEAL, Event.PAY_AND_SUBMIT_APPEAL);
+        if (eventsRequiringFeeRefresh.contains(callback.getEvent())
+            || !FeesHelper.feeExistsForDecisionType(asylumCase)) {
             Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
             if (isNull(fee)) {
                 response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
