@@ -76,7 +76,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
         log.info("PaymentappealPreparer callbackStage {}, callback event {}",
-                 callbackStage, callback.getEvent().toString());
+                 callbackStage, callback.getEvent());
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
             && Arrays.asList(
             Event.PAYMENT_APPEAL,
@@ -99,7 +99,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         boolean huEaEuPaAgAda = isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData());
         boolean isNonEjp = !isEjpCase(callback.getCaseDetails().getCaseData());
         log.info("PaymentappealPreparer.isWaysToPay: callbackStage {}, event {}, huEaEuPaAgAda: {}, isNonEjp: {}",
-                 callbackStage, callback.getEvent().toString(), huEaEuPaAgAda, isNonEjp);
+                 callbackStage, callback.getEvent(), huEaEuPaAgAda, isNonEjp);
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
