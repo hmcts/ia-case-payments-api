@@ -18,7 +18,7 @@ properties([
   ])
 ])
 
-@Library("Infrastructure")
+@Library("Infrastructure@DTSPO-33489/disable-sonar-scan")
 import uk.gov.hmcts.contino.GradleBuilder
 
 def type = "java"
