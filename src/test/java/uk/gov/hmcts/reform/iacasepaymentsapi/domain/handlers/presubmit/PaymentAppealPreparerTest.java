@@ -216,9 +216,7 @@ class PaymentAppealPreparerTest {
     @MethodSource("paymentStatusParameters")
     void should_write_payment_status_if_empty(
         Event event,
-        String hearingType,
-        FeeType feeType,
-        Fee fee
+        String hearingType
     ) {
 
         when(callback.getEvent()).thenReturn(event);
@@ -228,12 +226,13 @@ class PaymentAppealPreparerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(PAYMENT_STATUS)).thenReturn(Optional.empty());
         setUpDecisionStubbings(hearingType);
-        when(feeService.getFee(feeType)).thenReturn(fee);
+        // Set up existing fee so fee service is not called for RECORD_REMISSION_DECISION
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        verifyHearingInteractions(feeType, fee);
+        verifyNoInteractions(feeService);
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
@@ -255,9 +254,7 @@ class PaymentAppealPreparerTest {
     @MethodSource("paymentStatusParameters")
     void should_not_write_payment_status_if_not_empty(
         Event event,
-        String hearingType,
-        FeeType feeType,
-        Fee fee
+        String hearingType
     ) {
         when(callback.getEvent()).thenReturn(event);
 
@@ -266,12 +263,13 @@ class PaymentAppealPreparerTest {
         when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
         when(asylumCase.read(PAYMENT_STATUS)).thenReturn(Optional.of(PAID));
         setUpDecisionStubbings(hearingType);
-        when(feeService.getFee(feeType)).thenReturn(fee);
+        // Set up existing fee so fee service is not called for RECORD_REMISSION_DECISION
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
 
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
         assertThat(callbackResponse.getData()).isEqualTo(asylumCase);
 
-        verifyHearingInteractions(feeType, fee);
+        verifyNoInteractions(feeService);
         verify(asylumCase, times(0)).write(PAYMENT_STATUS, PAYMENT_PENDING);
     }
 
@@ -365,14 +363,8 @@ class PaymentAppealPreparerTest {
 
     private static Stream<Arguments> paymentStatusParameters() {
 
-        Fee feeWithHearing =
-            new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-
         return Stream.of(
-            Arguments.of(
-                Event.RECORD_REMISSION_DECISION, "decisionWithHearing",
-                FeeType.FEE_WITH_HEARING, feeWithHearing
-            )
+            Arguments.of(Event.RECORD_REMISSION_DECISION, "decisionWithHearing")
         );
     }
 
@@ -387,11 +379,7 @@ class PaymentAppealPreparerTest {
             Arguments.of(
                 Event.PAY_AND_SUBMIT_APPEAL, "decisionWithHearing", FeeType.FEE_WITH_HEARING, feeWithHearing),
             Arguments.of(
-                Event.PAY_AND_SUBMIT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING, feeWithoutHearing),
-            Arguments.of(
-                Event.PAYMENT_APPEAL, "decisionWithHearing", FeeType.FEE_WITH_HEARING, feeWithHearing),
-            Arguments.of(
-                Event.PAYMENT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING, feeWithoutHearing)
+                Event.PAY_AND_SUBMIT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING, feeWithoutHearing)
         );
     }
 
@@ -414,9 +402,7 @@ class PaymentAppealPreparerTest {
 
         return Stream.of(
             Arguments.of(Event.PAY_AND_SUBMIT_APPEAL, "decisionWithHearing", FeeType.FEE_WITH_HEARING),
-            Arguments.of(Event.PAY_AND_SUBMIT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING),
-            Arguments.of(Event.PAYMENT_APPEAL, "decisionWithHearing", FeeType.FEE_WITH_HEARING),
-            Arguments.of(Event.PAYMENT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING)
+            Arguments.of(Event.PAY_AND_SUBMIT_APPEAL, "decisionWithoutHearing", FeeType.FEE_WITHOUT_HEARING)
         );
     }
 
@@ -646,6 +632,27 @@ class PaymentAppealPreparerTest {
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).isEmpty();
         verifyNoInteractions(feeService);
+    }
+
+    @Test
+    void should_call_fee_service_for_payment_appeal_when_fee_does_not_exist() {
+        when(callback.getEvent()).thenReturn(Event.PAYMENT_APPEAL);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.empty());
+
+        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verify(asylumCase, times(1)).write(FEE_WITH_HEARING, feeWithHearing.getAmountAsString());
     }
 
     @Test
