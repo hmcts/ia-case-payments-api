@@ -43,6 +43,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
@@ -90,21 +91,17 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     // No payments for EJP Cases
     private boolean isWaysToPay(PreSubmitCallbackStage callbackStage,
                                 Callback<AsylumCase> callback) {
+
         List<Event> waysToPayEvents = List.of(
             Event.SUBMIT_APPEAL,
             Event.GENERATE_SERVICE_REQUEST,
             Event.RECORD_REMISSION_DECISION
         );
 
-        boolean huEaEuPaAgAda = isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData());
-        boolean isNonEjp = !isEjpCase(callback.getCaseDetails().getCaseData());
-        log.info("PaymentappealPreparer.isWaysToPay: callbackStage {}, event {}, huEaEuPaAgAda: {}, isNonEjp: {}",
-                 callbackStage, callback.getEvent(), huEaEuPaAgAda, isNonEjp);
-
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && waysToPayEvents.contains(callback.getEvent())
-               && huEaEuPaAgAda
-               && isNonEjp;
+               && isHuEaEuPaAgAda(callback.getCaseDetails().getCaseData())
+               && !isEjpCase(callback.getCaseDetails().getCaseData());
     }
 
     @Override
@@ -154,11 +151,8 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        List<Event> eventsNotRequiringFeeRefresh = List.of(Event.PAYMENT_APPEAL, Event.RECORD_REMISSION_DECISION);
-        boolean shouldRefreshFee = !eventsNotRequiringFeeRefresh.contains(callback.getEvent());
-        boolean feeDoesNotExist = !FeesHelper.feeExistsForDecisionType(asylumCase);
-
-        if (shouldRefreshFee || feeDoesNotExist) {
+        if (callback.getCaseDetails().getState() == State.APPEAL_STARTED
+            || !FeesHelper.feeExistsForDecisionType(asylumCase)) {
             Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
             if (isNull(fee)) {
                 response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));

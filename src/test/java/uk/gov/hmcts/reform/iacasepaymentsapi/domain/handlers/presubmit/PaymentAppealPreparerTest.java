@@ -553,7 +553,7 @@ class PaymentAppealPreparerTest {
     }
 
     @Test
-    void should_call_fee_service_for_pay_and_submit_appeal_even_when_fee_with_hearing_already_exists() {
+    void should_not_call_fee_service_for_pay_and_submit_appeal_when_fee_with_hearing_already_exists() {
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
         accountsFromOrg.add("PBA1234567");
 
@@ -563,18 +563,15 @@ class PaymentAppealPreparerTest {
             .thenReturn(Optional.of("decisionWithHearing"));
         when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
 
-        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
-
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).isEmpty();
-        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verifyNoInteractions(feeService);
     }
 
     @Test
-    void should_call_fee_service_for_pay_and_submit_appeal_even_when_fee_without_hearing_already_exists() {
+    void should_not_call_fee_service_for_pay_and_submit_appeal_when_fee_without_hearing_already_exists() {
         when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
         accountsFromOrg.add("PBA1234567");
 
@@ -584,18 +581,15 @@ class PaymentAppealPreparerTest {
             .thenReturn(Optional.of("decisionWithoutHearing"));
         when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.of("80"));
 
-        Fee feeWithoutHearing = new Fee("FEE0002", "Fee without hearing", "1", new BigDecimal("80"));
-        when(feeService.getFee(FeeType.FEE_WITHOUT_HEARING)).thenReturn(feeWithoutHearing);
-
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
 
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).isEmpty();
-        verify(feeService, times(1)).getFee(FeeType.FEE_WITHOUT_HEARING);
+        verifyNoInteractions(feeService);
     }
 
     @Test
-    void should_call_fee_service_for_submit_appeal_even_when_fee_already_exists() {
+    void should_not_call_fee_service_for_submit_appeal_when_fee_already_exists() {
         when(callback.getEvent()).thenReturn(Event.SUBMIT_APPEAL);
         accountsFromOrg.add("PBA1234567");
 
@@ -606,15 +600,12 @@ class PaymentAppealPreparerTest {
         when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
         when(asylumCase.read(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
 
-        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
-        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
-
         PreSubmitCallbackResponse<AsylumCase> callbackResponse = paymentAppealPreparer
             .handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
 
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).isEmpty();
-        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verifyNoInteractions(feeService);
     }
 
     @Test
