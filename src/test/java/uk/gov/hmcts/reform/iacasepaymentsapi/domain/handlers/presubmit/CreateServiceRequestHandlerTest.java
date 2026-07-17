@@ -10,8 +10,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_HEARING_FEE_OPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_CODE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_DESCRIPTION;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_VERSION;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITH_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.DECISION_TYPE_CHANGED_WITH_REFUND_FLAG;
@@ -479,8 +484,11 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
             .thenReturn(Optional.of("decisionWithHearing"));
         when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
+        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.of("FEE0001"));
+        when(asylumCase.read(FEE_DESCRIPTION, String.class)).thenReturn(Optional.of("Fee with hearing"));
+        when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
 
-        when(serviceRequestService.createServiceRequest(callback, null)).thenReturn(serviceRequestResponse);
+        when(serviceRequestService.createServiceRequest(eq(callback), any(Fee.class))).thenReturn(serviceRequestResponse);
         when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
@@ -488,7 +496,7 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verifyNoInteractions(feeService);
-        verify(serviceRequestService, times(1)).createServiceRequest(callback, null);
+        verify(serviceRequestService, times(1)).createServiceRequest(eq(callback), any(Fee.class));
         verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
         verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
@@ -508,8 +516,11 @@ class CreateServiceRequestHandlerTest {
         when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
             .thenReturn(Optional.of("decisionWithoutHearing"));
         when(asylumCase.read(FEE_WITHOUT_HEARING, String.class)).thenReturn(Optional.of("80"));
+        when(asylumCase.read(FEE_CODE, String.class)).thenReturn(Optional.of("FEE0002"));
+        when(asylumCase.read(FEE_DESCRIPTION, String.class)).thenReturn(Optional.of("Fee without hearing"));
+        when(asylumCase.read(FEE_VERSION, String.class)).thenReturn(Optional.of("1"));
 
-        when(serviceRequestService.createServiceRequest(callback, null)).thenReturn(serviceRequestResponse);
+        when(serviceRequestService.createServiceRequest(eq(callback), any(Fee.class))).thenReturn(serviceRequestResponse);
         when(serviceRequestResponse.getServiceRequestReference()).thenReturn("serviceRequestResponse");
 
         PreSubmitCallbackResponse callbackResponse =
@@ -517,7 +528,7 @@ class CreateServiceRequestHandlerTest {
 
         assertNotNull(callbackResponse);
         verifyNoInteractions(feeService);
-        verify(serviceRequestService, times(1)).createServiceRequest(callback, null);
+        verify(serviceRequestService, times(1)).createServiceRequest(eq(callback), any(Fee.class));
         verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
         verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }

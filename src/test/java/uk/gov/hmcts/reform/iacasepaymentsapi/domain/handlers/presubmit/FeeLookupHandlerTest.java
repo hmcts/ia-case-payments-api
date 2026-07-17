@@ -13,6 +13,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_AMOUNT_GBP;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITHOUT_HEARING;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_WITH_HEARING;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -203,5 +204,26 @@ class FeeLookupHandlerTest {
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).isEmpty();
         verifyNoInteractions(feeService);
+    }
+
+    @Test
+    void should_call_fee_service_when_state_is_appeal_started_even_if_fee_exists() {
+        Fee feeWithHearing = new Fee("FEE0123", "Fee with hearing", "1", new BigDecimal("140"));
+
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        when(caseDetails.getState()).thenReturn(State.APPEAL_STARTED);
+        when(callback.getEvent()).thenReturn(Event.START_APPEAL);
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse =
+            feeLookupHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verify(asylumCase, times(1)).write(FEE_WITH_HEARING, feeWithHearing.getAmountAsString());
     }
 }

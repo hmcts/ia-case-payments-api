@@ -61,6 +61,28 @@ public class FeesHelper {
         }
     }
 
+    public static Fee readExistingFee(AsylumCase asylumCase) {
+        Optional<String> decisionHearingFeeOption = getDecisionHearingFeeOption(asylumCase);
+
+        if (decisionHearingFeeOption.isEmpty()) {
+            return null;
+        }
+
+        Optional<String> feeAmount = isDecisionWithHearing(decisionHearingFeeOption.get())
+            ? asylumCase.read(FEE_WITH_HEARING, String.class)
+            : asylumCase.read(FEE_WITHOUT_HEARING, String.class);
+
+        if (feeAmount.isEmpty()) {
+            return null;
+        }
+
+        String code = asylumCase.read(FEE_CODE, String.class).orElse("");
+        String description = asylumCase.read(FEE_DESCRIPTION, String.class).orElse("");
+        String version = asylumCase.read(FEE_VERSION, String.class).orElse("");
+
+        return new Fee(code, description, version, new BigDecimal(feeAmount.get()));
+    }
+
     private static Optional<String> getDecisionHearingFeeOption(AsylumCase asylumCase) {
         return asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class);
     }

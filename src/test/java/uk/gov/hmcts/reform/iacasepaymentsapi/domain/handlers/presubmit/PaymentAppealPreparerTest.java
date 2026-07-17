@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
@@ -703,5 +704,28 @@ class PaymentAppealPreparerTest {
 
         assertNotNull(callbackResponse);
         assertThat(callbackResponse.getErrors()).contains("Cannot retrieve the fee from fees-register.");
+    }
+
+    @Test
+    void should_call_fee_service_when_state_is_appeal_started_even_if_fee_exists() {
+        when(callback.getEvent()).thenReturn(Event.PAY_AND_SUBMIT_APPEAL);
+        when(caseDetails.getState()).thenReturn(State.APPEAL_STARTED);
+        accountsFromOrg.add("PBA1234567");
+
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class))
+            .thenReturn(Optional.of("decisionWithHearing"));
+        when(asylumCase.read(FEE_WITH_HEARING, String.class)).thenReturn(Optional.of("140"));
+
+        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        PreSubmitCallbackResponse<AsylumCase> callbackResponse = handlePaymentAppealPreparer();
+
+        assertNotNull(callbackResponse);
+        assertThat(callbackResponse.getErrors()).isEmpty();
+        verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
+        verify(asylumCase, times(1)).write(FEE_WITH_HEARING, feeWithHearing.getAmountAsString());
     }
 }
