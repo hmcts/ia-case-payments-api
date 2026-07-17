@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.security.test.context.support.WithMockUser;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.IaCasePaymentApiClient;
 import uk.gov.hmcts.reform.iacasepaymentsapi.testutils.PreSubmitCallbackResponseForTest;
@@ -45,7 +46,7 @@ public class AppealStartFeeIntegrationTest extends SpringBootIntegrationTest
             callback()
                 .event(Event.PAY_AND_SUBMIT_APPEAL)
                 .caseDetails(someCaseDetailsWith()
-                                 .state(null)
+                                 .state(State.APPEAL_STARTED)
                                  .caseData(anAsylumCase()
                                      .with(APPEAL_REFERENCE_NUMBER, "some-appeal-reference-number")
                                      .with(APPEAL_TYPE, "refusalOfEu")
