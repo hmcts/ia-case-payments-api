@@ -29,7 +29,7 @@ public interface WithFeeStub {
                               {"code": "FEE0238",
                                 "description": "Appeal determined with a hearing",
                                 "fee_amount": 140.00,
-                                "version": 2}\
+                                "version": "2"}\
                               """)
                     .build()
             )
@@ -52,7 +52,7 @@ public interface WithFeeStub {
                               {"code": "FEE0456",
                                "description": "Appeal determined without a hearing",
                                "fee_amount": 80.00,
-                                "version": 2}\
+                                "version": "2"}\
                               """)
                     .build()
             )

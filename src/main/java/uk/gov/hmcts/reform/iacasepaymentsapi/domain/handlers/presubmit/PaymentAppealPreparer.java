@@ -43,6 +43,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
@@ -75,9 +76,8 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
-
-        final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
-
+        log.info("PaymentappealPreparer callbackStage {}, callback event {}",
+                 callbackStage, callback.getEvent());
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
             && Arrays.asList(
             Event.PAYMENT_APPEAL,
@@ -151,11 +151,13 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
-        if (isNull(fee)) {
-
-            response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
-            return response;
+        if (callback.getCaseDetails().getState() == State.APPEAL_STARTED
+            || !FeesHelper.feeExistsForDecisionType(asylumCase)) {
+            Fee fee = FeesHelper.findFeeByHearingType(feeService, asylumCase);
+            if (isNull(fee)) {
+                response.addErrors(Collections.singleton("Cannot retrieve the fee from fees-register."));
+                return response;
+            }
         }
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
