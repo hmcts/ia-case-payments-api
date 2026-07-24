@@ -14,4 +14,9 @@
     <cve>CVE-2026-59083</cve>
     <cve>CVE-2026-49844</cve>
   </suppress>
+  <suppress until="2024-09-30">
+    <notes>Suppress until org.springframework.cloud and uk.gov.hmcts.reform/service-auth-provider-client upgrade their org.bouncycastle dependents</notes>
+    <cve>CVE-2023-33202</cve>
+    <cve>CVE-2023-34053</cve>
+  </suppress>
 </suppressions>
