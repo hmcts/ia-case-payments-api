@@ -10,6 +10,8 @@ public enum State {
     APPEAL_SUBMITTED("appealSubmitted"),
     PENDING_PAYMENT("pendingPayment"),
 
+    ENDED("ended"),
+
     @JsonEnumDefaultValue
     UNKNOWN("unknown");
 
