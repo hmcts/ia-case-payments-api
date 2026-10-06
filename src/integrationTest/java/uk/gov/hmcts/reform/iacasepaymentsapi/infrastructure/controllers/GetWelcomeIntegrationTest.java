@@ -17,6 +17,8 @@ class GetWelcomeIntegrationTest extends SpringBootIntegrationTest {
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals("Welcome to Case Payment Service", response.getResponse().getContentAsString());
+        String content = response.getResponse().getContentAsString();
+        // In Spring Boot 4, plain strings may be JSON-encoded with quotes
+        assertEquals("\"Welcome to Case Payment Service\"", content);
     }
 }
