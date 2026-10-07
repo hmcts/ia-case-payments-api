@@ -27,7 +27,7 @@ public class FeignConfiguration {
     @Bean
     public HttpMessageConverterCustomizer feignJacksonConverterCustomizer(@Qualifier("feign") ObjectMapper objectMapper) {
         return converters -> {
-            log.info("feign converters BEFORE: {}", converters.stream().map(c -> c.getClass().getSimpleName()).toList());
+            log.info("feign converters BEFORE: {}", converters.stream().map(c -> c.getClass().getSimpleName()).toList()); // TODO: remove
             converters.removeIf(c -> c instanceof MappingJackson2HttpMessageConverter
                 || c instanceof MappingJackson2YamlHttpMessageConverter);
 
@@ -39,7 +39,7 @@ public class FeignConfiguration {
                 }
             }
             converters.add(idx, new MappingJackson2HttpMessageConverter(objectMapper));
-            log.info("feign converters AFTER: {}", converters.stream().map(c -> c.getClass().getSimpleName()).toList());
+            log.info("feign converters AFTER: {}", converters.stream().map(c -> c.getClass().getSimpleName()).toList());  // TODO: remove
         };
     }
 
@@ -54,7 +54,7 @@ public class FeignConfiguration {
         return builder
             .featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .featuresToEnable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-            .serializationInclusion(JsonInclude.Include.NON_NULL)
+            .serializationInclusion(JsonInclude.Include.NON_NULL) // TODO: remove Non_Null
             .modulesToInstall(
                 new Jdk8Module(),
                 new JavaTimeModule()
@@ -62,7 +62,7 @@ public class FeignConfiguration {
             .build();
     }
 
-    // TEMP for test logs
+    // TEMP for test logs TODO: remove
     @Bean
     ApplicationRunner dumpFeignConverters(ObjectProvider<FeignHttpMessageConverters> p) {
         return args -> p.ifAvailable(c ->
