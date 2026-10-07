@@ -444,8 +444,6 @@ dependencies {
   implementation 'io.github.openfeign:feign-jackson'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-  implementation 'org.springframework.security:spring-security-oauth2-client'
-  implementation 'org.springframework.security:spring-security-oauth2-resource-server'
   implementation 'org.springframework.security:spring-security-oauth2-jose'
 
   implementation 'org.springframework:spring-aspects'
@@ -501,9 +499,6 @@ dependencies {
   smokeTestImplementation sourceSets.test.runtimeClasspath
 
   contractTestImplementation 'org.springframework.boot:spring-boot-starter-test'
-  contractTestImplementation 'com.fasterxml.jackson.core:jackson-core'
-  contractTestImplementation 'com.fasterxml.jackson.core:jackson-databind'
-  contractTestImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.6.20'
   contractTestImplementation group: 'au.com.dius.pact', name: 'consumer', version: '4.6.20'
