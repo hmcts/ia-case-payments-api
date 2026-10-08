@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,17 +24,22 @@ public class RestTemplateConfiguration {
     public RestTemplate restTemplate(ObjectMapper objectMapper) {
         RestTemplate restTemplate = new RestTemplate();
 
-        restTemplate.getMessageConverters()
-            .forEach(c -> log.info("BEFORE converter: {}", c.getClass().getName()));
+        int jackson3Index = -1;
+        for (int i = 0; i < restTemplate.getMessageConverters().size(); i++) {
+            HttpMessageConverter<?> converter = restTemplate.getMessageConverters().get(i);
+            log.info("BEFORE converter: {}", converter.getClass().getName());
+            if (converter.getClass().getName()
+                .startsWith("org.springframework.http.converter.json.")
+                && converter.getClass().getSimpleName().contains("Jackson")) {
+                jackson3Index = i;
+            }
+        }
 
-        // Remove every default JSON converter (Jackson 2 or Jackson 3)
-        restTemplate.getMessageConverters().removeIf(converter ->
-                                                         converter.getClass().getName().startsWith("org.springframework.http.converter.json.")
-                                                             && converter.getClass().getSimpleName().contains("Jackson")
+        restTemplate.getMessageConverters().remove(jackson3Index);
+
+        restTemplate.getMessageConverters().add(jackson3Index,
+                                                new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter(objectMapper)
         );
-
-        // Put ours first so it is always the one used
-        restTemplate.getMessageConverters().add(0, mappingJackson2HttpMessageConverter(objectMapper));
 
         log.info("AFTER");
         log.info("modules: {}, inclusion: {}",
@@ -44,13 +50,6 @@ public class RestTemplateConfiguration {
             .forEach(c -> log.info("AFTER converter: {}", c.getClass().getName()));
 
         return restTemplate;
-    }
-
-    @Bean
-    public org.springframework.http.converter.json.MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(
-        ObjectMapper objectMapper
-    ) {
-        return new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter(objectMapper);
     }
 
 }
