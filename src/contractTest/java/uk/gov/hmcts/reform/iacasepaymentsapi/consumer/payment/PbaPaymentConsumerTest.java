@@ -42,7 +42,8 @@ public class PbaPaymentConsumerTest {
     @Autowired
     PaymentApi paymentApi;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    ObjectMapper objectMapper;
 
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";
