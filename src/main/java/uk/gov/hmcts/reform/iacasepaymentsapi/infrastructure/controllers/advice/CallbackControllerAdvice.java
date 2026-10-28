@@ -106,7 +106,7 @@ public class CallbackControllerAdvice {
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
         MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
 
-        String message = String.format("Parameter '%s' has invalid value", ex.getName());
+        String message = "Parameter '%s' has invalid value".formatted(ex.getName());
         errorResponseBuilder.logError(ex, ErrorCode.BAD_REQUEST, request);
         ErrorResponse response = errorResponseBuilder.build(ErrorCode.BAD_REQUEST, request, message);
         return new ResponseEntity<>(response, ErrorCode.BAD_REQUEST.getHttpStatus());
