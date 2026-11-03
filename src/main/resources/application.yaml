@@ -23,6 +23,9 @@ management:
         include: ping
 
 spring:
+  http:
+    converters:
+      preferred-json-mapper: jackson2
   config:
     import: "optional:configtree:/mnt/secrets/ia/"
   application:
