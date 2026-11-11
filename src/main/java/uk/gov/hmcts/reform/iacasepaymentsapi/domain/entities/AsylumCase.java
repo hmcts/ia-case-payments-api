@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import java.util.HashMap;
 import java.util.Optional;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseData;
