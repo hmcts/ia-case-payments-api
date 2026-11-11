@@ -9,10 +9,11 @@ import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.JsonMapperFactory;
 
 class AsylumCaseTest {
 
-    private final ObjectMapper objectMapper = new JsonMapper();
+    private final ObjectMapper objectMapper = JsonMapperFactory.CUSTOM_MAPPER;
     private AsylumCase asylumCase;
     private final String caseData = "{\"appealReferenceNumber\": \"PA/50222/2019\"}";
 
