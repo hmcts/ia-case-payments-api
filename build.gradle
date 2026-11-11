@@ -203,8 +203,8 @@ sonarqube {
     property 'sonar.coverage.jacoco.xmlReportPaths', layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml').get().asFile
     property 'sonar.pitest.mode', 'reuseReport'
     property 'sonar.pitest.reportsDirectory', 'build/reports/pitest'
-    property 'sonar.exclusions', 'src/main/java/uk/gov/hmcts/reform/iacasepaymentsnapi/infrastructure/config/**,' +
-      'src/main/java/uk/gov/hmcts/reform/iacasepaymentsnapi/Application.java'
+    property 'sonar.exclusions', 'src/main/java/uk/gov/hmcts/reform/iacasepaymentsapi/infrastructure/config/**,' +
+      'src/main/java/uk/gov/hmcts/reform/iacasepaymentsapi/Application.java'
   }
 }
 
@@ -424,6 +424,8 @@ dependencies {
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
+
+  integrationTestImplementation "org.springframework.boot:spring-boot-starter-webmvc-test"
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation sourceSets.test.runtimeClasspath
