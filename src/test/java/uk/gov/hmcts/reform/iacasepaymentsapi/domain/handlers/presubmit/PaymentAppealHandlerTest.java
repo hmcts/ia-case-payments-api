@@ -35,7 +35,8 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Paym
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import feign.FeignException;
 import feign.Request;
 import java.math.BigDecimal;
@@ -121,7 +122,7 @@ class PaymentAppealHandlerTest {
         );
         addresses.add(legRepAddressUk);
 
-        objectMapper = new ObjectMapper();
+        objectMapper = new JsonMapper();
         appealFeePaymentHandler =
             new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties, objectMapper);
 

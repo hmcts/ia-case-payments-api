@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,6 +38,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @SpringBootTest(classes = Application.class, webEnvironment = MOCK)
 @ActiveProfiles("integration")
+@AutoConfigureMockMvc
 public class ServiceRequestRetryTest {
     private static final String APPELLANT_GIVEN_NAMES = "Name";
     private static final String APPELLANT_FAMILY_NAMES = "Surname";

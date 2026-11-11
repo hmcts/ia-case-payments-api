@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -16,6 +17,7 @@ public enum State {
     @JsonValue
     private final String id;
 
+    @JsonCreator
     State(String id) {
         this.id = id;
     }

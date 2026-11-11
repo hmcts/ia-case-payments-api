@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.controllers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class ServiceRequestUpdateIntegrationTest extends SpringBootIntegrationTe
         assertEquals("paid", response.getData().get("service_request_status"));
         assertEquals(PAYMENT_AMOUNT.intValue(), response.getData().get("service_request_amount"));
         assertEquals(CCD_CASE_NUMBER, response.getData().get("ccd_case_number"));
-        Map<String, Object> payment = new ObjectMapper().convertValue(response.getData().get("payment"),
+        Map<String, Object> payment = new JsonMapper().convertValue(response.getData().get("payment"),
                                                                       new TypeReference<>() {});
         assertEquals(SUCCESS, payment.get("status"));
         assertEquals(PAYMENT_CASE_REFERENCE, payment.get("payment_reference"));
