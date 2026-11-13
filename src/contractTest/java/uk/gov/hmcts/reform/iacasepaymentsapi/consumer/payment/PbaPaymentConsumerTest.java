@@ -9,7 +9,8 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -42,7 +43,7 @@ public class PbaPaymentConsumerTest {
     @Autowired
     PaymentApi paymentApi;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new JsonMapper();
 
     private static final String SERVICE_AUTH_TOKEN = "someServiceAuthToken";
     private static final String AUTHORIZATION_TOKEN = "Bearer some-access-token";

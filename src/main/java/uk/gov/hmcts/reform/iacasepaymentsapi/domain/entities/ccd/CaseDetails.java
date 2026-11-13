@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd;
 
 import static java.util.Objects.requireNonNull;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CaseDetails<T extends CaseData> {

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -35,7 +36,8 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Paym
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import feign.FeignException;
 import feign.Request;
 import java.math.BigDecimal;
@@ -121,7 +123,7 @@ class PaymentAppealHandlerTest {
         );
         addresses.add(legRepAddressUk);
 
-        objectMapper = new ObjectMapper();
+        objectMapper = new JsonMapper();
         appealFeePaymentHandler =
             new PaymentAppealHandler(feeService, paymentService, refDataService, paymentProperties, objectMapper);
 
@@ -571,6 +573,35 @@ class PaymentAppealHandlerTest {
         verify(asylumCase, times(1)).write(PAYMENT_STATUS, PAYMENT_PENDING);
 
         verify(asylumCase, times(1)).clear(PAYMENT_FAILED_FOR_DISPLAY);
+    }
+
+    private FeignException.BadRequest badRequestWithBody(String body) {
+        return new FeignException.BadRequest(
+            "",
+            Request.create(Request.HttpMethod.POST, "", Collections.emptyMap(),
+                           new byte[0], Charset.defaultCharset(), null),
+            body.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+            null
+        );
+    }
+
+    @Test
+    void make_payment_should_parse_payment_response_from_feign_error_body() {
+        when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
+            .thenThrow(badRequestWithBody("{\"status\":\"Failed\"}"));
+
+        PaymentResponse result = appealFeePaymentHandler.makePayment(creditAccountPayment);
+
+        assertNotNull(result);
+        assertEquals("Failed", result.getStatus());
+    }
+
+    @Test
+    void make_payment_should_return_null_when_feign_error_body_is_not_valid_json() {
+        when(paymentService.creditAccountPayment(any(CreditAccountPayment.class)))
+            .thenThrow(badRequestWithBody("not json"));
+
+        assertNull(appealFeePaymentHandler.makePayment(creditAccountPayment));
     }
 
     @Test
