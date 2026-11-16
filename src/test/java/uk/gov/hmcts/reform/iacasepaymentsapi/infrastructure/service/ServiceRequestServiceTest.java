@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -10,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import feign.FeignException;
@@ -28,6 +31,9 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinitio
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGroupDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGroupsResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
@@ -164,5 +170,154 @@ class ServiceRequestServiceTest {
         var ex = mock(FeignException.class);
         when(ex.getMessage()).thenReturn(ERROR_TEST_MESSAGE);
         assertThrows(PaymentServiceRequestException.class, () -> serviceRequestService.recover(ex, callback, fee));
+    }
+
+    @Test
+    void should_return_existing_unpaid_service_request_when_found_with_matching_fee() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        FeeDto feeDto = FeeDto.builder().code(CODE).build();
+        PaymentGroupDto paymentGroup = PaymentGroupDto.builder()
+            .paymentGroupReference("existing-reference")
+            .serviceRequestStatus("Not paid")
+            .fees(List.of(feeDto))
+            .build();
+        PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
+            .paymentGroups(List.of(paymentGroup))
+            .build();
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(paymentGroupsResponse);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isPresent());
+        assertEquals("existing-reference", result.get().getServiceRequestReference());
+    }
+
+    @Test
+    void should_return_empty_when_no_payment_groups_exist() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(null);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_return_empty_when_payment_groups_list_is_null() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
+            .paymentGroups(null)
+            .build();
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(paymentGroupsResponse);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_return_empty_when_no_unpaid_service_request_exists() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        FeeDto feeDto = FeeDto.builder().code(CODE).build();
+        PaymentGroupDto paymentGroup = PaymentGroupDto.builder()
+            .paymentGroupReference("existing-reference")
+            .serviceRequestStatus("Paid")
+            .fees(List.of(feeDto))
+            .build();
+        PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
+            .paymentGroups(List.of(paymentGroup))
+            .build();
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(paymentGroupsResponse);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_return_empty_when_unpaid_service_request_has_no_matching_fee() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        FeeDto feeDto = FeeDto.builder().code("different-code").build();
+        PaymentGroupDto paymentGroup = PaymentGroupDto.builder()
+            .paymentGroupReference("existing-reference")
+            .serviceRequestStatus("Not paid")
+            .fees(List.of(feeDto))
+            .build();
+        PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
+            .paymentGroups(List.of(paymentGroup))
+            .build();
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(paymentGroupsResponse);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_return_empty_when_unpaid_service_request_has_empty_fees() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        PaymentGroupDto paymentGroup = PaymentGroupDto.builder()
+            .paymentGroupReference("existing-reference")
+            .serviceRequestStatus("Not paid")
+            .fees(Collections.emptyList())
+            .build();
+        PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
+            .paymentGroups(List.of(paymentGroup))
+            .build();
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenReturn(paymentGroupsResponse);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void should_return_empty_when_api_throws_feign_exception() {
+        when(callback.getCaseDetails()).thenReturn(caseDetails);
+        when(caseDetails.getId()).thenReturn(CASE_ID);
+        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(serviceAuthorization.generate()).thenReturn(serviceToken);
+
+        when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
+            .thenThrow(FeignException.FeignClientException.class);
+
+        Optional<ServiceRequestResponse> result = serviceRequestService.getExistingUnpaidServiceRequest(callback, fee);
+
+        assertTrue(result.isEmpty());
     }
 }

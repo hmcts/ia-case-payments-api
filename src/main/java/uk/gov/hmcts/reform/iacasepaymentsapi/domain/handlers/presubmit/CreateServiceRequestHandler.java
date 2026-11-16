@@ -100,7 +100,11 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
             && (paymentStatus != PaymentStatus.PAID
             || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES))
             && isAdmin != YesOrNo.YES) {
-            ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
+
+            ServiceRequestResponse serviceRequestResponse = serviceRequestService
+                .getExistingUnpaidServiceRequest(callback, fee)
+                .orElseGet(() -> serviceRequestService.createServiceRequest(callback, fee));
+
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
             //Reseting the flag after service request is made. To make another service request decision type need to

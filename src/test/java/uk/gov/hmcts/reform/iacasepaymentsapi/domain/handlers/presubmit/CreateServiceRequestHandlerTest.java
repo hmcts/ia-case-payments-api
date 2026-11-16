@@ -82,6 +82,8 @@ class CreateServiceRequestHandlerTest {
 
         lenient().when(callback.getCaseDetails()).thenReturn(caseDetails);
         lenient().when(caseDetails.getCaseData()).thenReturn(asylumCase);
+        lenient().when(serviceRequestService.getExistingUnpaidServiceRequest(any(), any()))
+            .thenReturn(Optional.empty());
     }
 
     @ParameterizedTest
@@ -562,6 +564,39 @@ class CreateServiceRequestHandlerTest {
         verify(feeService, times(1)).getFee(FeeType.FEE_WITH_HEARING);
         verify(serviceRequestService, times(1)).createServiceRequest(callback, feeWithHearing);
         verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "serviceRequestResponse");
+        verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
+    }
+
+    @Test
+    void should_return_existing_service_request_when_unpaid_exists() {
+        when(callback.getEvent()).thenReturn(Event.GENERATE_SERVICE_REQUEST);
+        when(asylumCase.read(APPEAL_TYPE, AppealType.class)).thenReturn(Optional.of(AppealType.EA));
+        when(asylumCase.read(REMISSION_TYPE, RemissionType.class)).thenReturn(Optional.of(NO_REMISSION));
+        when(asylumCase.read(REMISSION_DECISION, RemissionDecision.class)).thenReturn(Optional.empty());
+        when(asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class))
+            .thenReturn(Optional.of(YesOrNo.NO));
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+        when(asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
+        when(asylumCase.read(IS_ADMIN, YesOrNo.class)).thenReturn(Optional.of(YesOrNo.NO));
+
+        Fee feeWithHearing = new Fee("FEE0001", "Fee with hearing", "1", new BigDecimal("140"));
+        when(asylumCase.read(DECISION_HEARING_FEE_OPTION, String.class)).thenReturn(Optional.of("decisionWithHearing"));
+        when(feeService.getFee(FeeType.FEE_WITH_HEARING)).thenReturn(feeWithHearing);
+
+        ServiceRequestResponse existingResponse = ServiceRequestResponse.builder()
+            .serviceRequestReference("existing-reference")
+            .build();
+        when(serviceRequestService.getExistingUnpaidServiceRequest(callback, feeWithHearing))
+            .thenReturn(Optional.of(existingResponse));
+
+        PreSubmitCallbackResponse callbackResponse =
+            createServiceRequestHandler.handle(PreSubmitCallbackStage.ABOUT_TO_SUBMIT, callback);
+
+        assertNotNull(callbackResponse);
+        verify(serviceRequestService, times(1)).getExistingUnpaidServiceRequest(callback, feeWithHearing);
+        verify(serviceRequestService, never()).createServiceRequest(any(), any());
+        verify(asylumCase, times(1)).write(SERVICE_REQUEST_REFERENCE, "existing-reference");
         verify(asylumCase, times(1)).write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
     }
 }

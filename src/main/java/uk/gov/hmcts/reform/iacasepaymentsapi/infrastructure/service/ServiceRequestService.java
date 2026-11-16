@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service;
 
+import java.util.Optional;
+
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,8 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callba
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.Fee;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.fee.FeeDto;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.CasePaymentRequestDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGroupDto;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGroupsResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
@@ -61,6 +65,7 @@ public class ServiceRequestService {
 
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
+
         ServiceRequestResponse serviceRequestResponse;
         log.info("Calling Payment Service Request API for case reference {}", ccdCaseReferenceNumber);
         try {
@@ -105,5 +110,59 @@ public class ServiceRequestService {
     public ServiceRequestResponse recover(FeignException fe, Callback<AsylumCase> callback, Fee fee) {
         log.error("Error in calling Payment Service Request API for 3 retries \n {}", fe.getMessage());
         throw new PaymentServiceRequestException(fe.getMessage(), fe.getCause());
+    }
+
+    public Optional<ServiceRequestResponse> getExistingUnpaidServiceRequest(
+        Callback<AsylumCase> callback,
+        Fee fee
+    ) {
+        String ccdCaseReferenceNumber = String.valueOf(callback.getCaseDetails().getId());
+        String userAuth = systemTokenGenerator.generate();
+        String serviceAuth = serviceAuthorization.generate();
+
+        PaymentGroupsResponse existingPaymentGroups;
+        try {
+            existingPaymentGroups = serviceRequestApi.getServiceRequests(
+                userAuth,
+                serviceAuth,
+                ccdCaseReferenceNumber
+            );
+        } catch (FeignException e) {
+            log.warn(
+                "Failed to get existing service requests for case reference {}. Proceeding to create new service request. Error: {}",
+                ccdCaseReferenceNumber,
+                e.getMessage()
+            );
+            return Optional.empty();
+        }
+
+        if (existingPaymentGroups == null || existingPaymentGroups.getPaymentGroups() == null) {
+            return Optional.empty();
+        }
+
+        for (PaymentGroupDto paymentGroup : existingPaymentGroups.getPaymentGroups()) {
+            if ("Not paid".equals(paymentGroup.getServiceRequestStatus())
+                && hasMatchingFee(paymentGroup, fee)) {
+                log.info(
+                    "Found existing unpaid service request for case reference {} with fee code {} - {}",
+                    ccdCaseReferenceNumber,
+                    fee.getCode(),
+                    paymentGroup.getPaymentGroupReference()
+                );
+                return Optional.of(ServiceRequestResponse.builder()
+                    .serviceRequestReference(paymentGroup.getPaymentGroupReference())
+                    .build());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean hasMatchingFee(PaymentGroupDto paymentGroup, Fee fee) {
+        if (paymentGroup.getFees() == null || paymentGroup.getFees().isEmpty()) {
+            return false;
+        }
+        return paymentGroup.getFees().stream()
+            .anyMatch(feeDto -> fee.getCode().equals(feeDto.getCode()));
     }
 }
