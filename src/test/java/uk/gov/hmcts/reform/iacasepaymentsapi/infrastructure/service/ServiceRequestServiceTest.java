@@ -38,6 +38,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequ
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.RequestUserAccessTokenProvider;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.PaymentServiceRequestException;
 
@@ -58,6 +59,7 @@ class ServiceRequestServiceTest {
 
     @Mock SystemTokenGenerator systemTokenGenerator;
     @Mock AuthTokenGenerator serviceAuthorization;
+    @Mock RequestUserAccessTokenProvider userAuthorizationProvider;
     @Mock ServiceRequestApi serviceRequestApi;
 
     @Mock private Callback<AsylumCase> callback;
@@ -82,6 +84,7 @@ class ServiceRequestServiceTest {
     void setup() {
         serviceRequestService = new ServiceRequestService(systemTokenGenerator,
                                                           serviceAuthorization,
+                                                          userAuthorizationProvider,
                                                           serviceRequestApi,
                                                           CALLBACK_URL);
 
@@ -176,7 +179,7 @@ class ServiceRequestServiceTest {
     void should_return_existing_unpaid_service_request_when_found_with_matching_fee() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         FeeDto feeDto = FeeDto.builder().code(CODE).build();
@@ -202,7 +205,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_no_payment_groups_exist() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))
@@ -217,7 +220,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_payment_groups_list_is_null() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         PaymentGroupsResponse paymentGroupsResponse = PaymentGroupsResponse.builder()
@@ -236,7 +239,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_no_unpaid_service_request_exists() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         FeeDto feeDto = FeeDto.builder().code(CODE).build();
@@ -261,7 +264,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_unpaid_service_request_has_no_matching_fee() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         FeeDto feeDto = FeeDto.builder().code("different-code").build();
@@ -286,7 +289,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_unpaid_service_request_has_empty_fees() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         PaymentGroupDto paymentGroup = PaymentGroupDto.builder()
@@ -310,7 +313,7 @@ class ServiceRequestServiceTest {
     void should_return_empty_when_api_throws_feign_exception() {
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
 
         when(serviceRequestApi.getServiceRequests(token, serviceToken, String.valueOf(CASE_ID)))

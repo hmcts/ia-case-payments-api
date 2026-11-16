@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGrou
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestRequest;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.RequestUserAccessTokenProvider;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.exceptions.PaymentServiceRequestException;
 
@@ -38,13 +39,16 @@ public class ServiceRequestService {
     private final AuthTokenGenerator serviceAuthorization;
     private final ServiceRequestApi serviceRequestApi;
     private String callBackUrl;
+    private final RequestUserAccessTokenProvider userAuthorizationProvider;
 
     public ServiceRequestService(SystemTokenGenerator systemTokenGenerator,
                                  AuthTokenGenerator serviceAuthorization,
+                                 RequestUserAccessTokenProvider userAuthorizationProvider,
                                  ServiceRequestApi serviceRequestApi,
                                  @Value("${payment.api.callback-url}") String callBackUrl) {
         this.systemTokenGenerator = systemTokenGenerator;
         this.serviceAuthorization = serviceAuthorization;
+        this.userAuthorizationProvider = userAuthorizationProvider;
         this.serviceRequestApi = serviceRequestApi;
         this.callBackUrl = callBackUrl;
     }
@@ -117,15 +121,12 @@ public class ServiceRequestService {
         Fee fee
     ) {
         String ccdCaseReferenceNumber = String.valueOf(callback.getCaseDetails().getId());
-        String userAuth = systemTokenGenerator.generate();
-        String serviceAuth = serviceAuthorization.generate();
-
 
         PaymentGroupsResponse existingPaymentGroups;
         try {
             existingPaymentGroups = serviceRequestApi.getServiceRequests(
-                userAuth,
-                serviceAuth,
+                userAuthorizationProvider.getAccessToken(),
+                serviceAuthorization.generate(),
                 ccdCaseReferenceNumber
             );
         } catch (FeignException e) {
