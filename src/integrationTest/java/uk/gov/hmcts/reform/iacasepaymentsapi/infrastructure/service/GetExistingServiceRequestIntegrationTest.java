@@ -23,7 +23,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGrou
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentGroupsResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.ServiceRequestApi;
-import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.SystemTokenGenerator;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.RequestUserAccessTokenProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +55,7 @@ public class GetExistingServiceRequestIntegrationTest {
     private ServiceRequestApi serviceRequestApi;
 
     @MockitoBean
-    private SystemTokenGenerator systemTokenGenerator;
+    private RequestUserAccessTokenProvider userAuthorizationProvider;
 
     @MockitoBean
     private AuthTokenGenerator serviceAuthorization;
@@ -76,7 +76,7 @@ public class GetExistingServiceRequestIntegrationTest {
 
         when(callback.getCaseDetails()).thenReturn(caseDetails);
         when(caseDetails.getId()).thenReturn(CASE_ID);
-        when(systemTokenGenerator.generate()).thenReturn(token);
+        when(userAuthorizationProvider.getAccessToken()).thenReturn(token);
         when(serviceAuthorization.generate()).thenReturn(serviceToken);
         when(fee.getCode()).thenReturn(FEE_CODE);
     }
