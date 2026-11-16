@@ -120,6 +120,7 @@ public class ServiceRequestService {
         String userAuth = systemTokenGenerator.generate();
         String serviceAuth = serviceAuthorization.generate();
 
+
         PaymentGroupsResponse existingPaymentGroups;
         try {
             existingPaymentGroups = serviceRequestApi.getServiceRequests(
