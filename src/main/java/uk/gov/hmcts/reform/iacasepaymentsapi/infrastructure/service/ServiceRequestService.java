@@ -124,6 +124,7 @@ public class ServiceRequestService {
 
         PaymentGroupsResponse existingPaymentGroups;
         try {
+            log.info("Calling Payment Service Request API - Get Payment Groups for case reference {}", ccdCaseReferenceNumber);
             existingPaymentGroups = serviceRequestApi.getServiceRequests(
                 userAuthorizationProvider.getAccessToken(),
                 serviceAuthorization.generate(),
@@ -139,6 +140,7 @@ public class ServiceRequestService {
         }
 
         if (existingPaymentGroups == null || existingPaymentGroups.getPaymentGroups() == null) {
+            log.info("Existing Payment Groups for case reference {} is null", ccdCaseReferenceNumber);
             return Optional.empty();
         }
 
@@ -157,6 +159,7 @@ public class ServiceRequestService {
             }
         }
 
+        log.info("Payment Groups for case reference {} is empty", ccdCaseReferenceNumber);
         return Optional.empty();
     }
 

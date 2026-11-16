@@ -73,6 +73,15 @@ public class ServiceRequestHelper {
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
+        log.info("isWaysToPay: {}, hasNoRemission(asylumCase): {}, requestFeeRemissionFlagForServiceRequest: {}, "
+            + "paymentStatus: {}, isAdmin: {}",
+                 isWaysToPay(callback), hasNoRemission(asylumCase),
+                 requestFeeRemissionFlagForServiceRequest != YesOrNo.YES,
+                 (paymentStatus != PaymentStatus.PAID
+                     || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES)),
+                 isAdmin
+        );
+
         if (isWaysToPay(callback)
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
