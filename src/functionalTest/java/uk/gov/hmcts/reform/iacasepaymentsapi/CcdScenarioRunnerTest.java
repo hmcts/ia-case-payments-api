@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -78,8 +78,8 @@ public class CcdScenarioRunnerTest {
         RestAssured.useRelaxedHTTPSValidation();
         loadPropertiesIntoMapValueExpander();
         assertFalse(
-            "Verifiers are configured",
-            verifiers.isEmpty()
+            verifiers.isEmpty(),
+            "Verifiers are configured"
         );
         String scenarioPattern = System.getProperty("scenario");
         if (scenarioPattern == null) {
@@ -175,7 +175,7 @@ public class CcdScenarioRunnerTest {
                     SerenityRest
                         .given()
                         .headers(authorizationHeaders)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .body(requestBody)
                         .when()
                         .post(requestUri)

@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.ServiceTokenGeneratorConfiguration.SERVICE_AUTHORIZATION;
 
-@Slf4j
 public class IaCasePaymentApiClient {
 
     public static final String ID = "1234";
@@ -41,7 +40,9 @@ public class IaCasePaymentApiClient {
     private final String serviceRequestUpdateUrl;
 
     private final HttpHeaders httpHeaders = new HttpHeaders();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule());
 
     public IaCasePaymentApiClient(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
@@ -50,8 +51,6 @@ public class IaCasePaymentApiClient {
         this.ccdSubmittedUrl = "/asylum/ccdSubmitted";
         this.updatePaymentStatusUrl = "/payment-updates";
         this.serviceRequestUpdateUrl = "/service-request-update";
-
-        objectMapper.registerModule(new JavaTimeModule());
 
         httpHeaders.add(AUTHORIZATION, "eyJ0eXAiOiJKV1QiLCJ6aXAiOiJOT05FIiwia2lkIjoiMWVyMFdSd2dJT1RBRm9q"
                                        + "RTRyQy9mYmVLdTNJPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJpYS5sZWdhbHJlcC5hLmNjZE"
@@ -159,7 +158,6 @@ public class IaCasePaymentApiClient {
     }
 
     private String toJson(Object o) {
-        objectMapper.registerModule(new JavaTimeModule());
         return translateException(() -> objectMapper.writeValueAsString(o));
     }
 
