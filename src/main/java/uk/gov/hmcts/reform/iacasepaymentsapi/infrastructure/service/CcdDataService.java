@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDataContent
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.StartEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator;
@@ -92,6 +93,16 @@ public class CcdDataService {
             log.warn("Payment reference not found for the caseId:={}", caseId);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                               "Payment reference not found for the caseId: " + caseId);
+        }
+
+        Optional<PaymentStatus> currentStatus = startEventDetails.getCaseDetails().getCaseData()
+            .read(PAYMENT_STATUS, PaymentStatus.class);
+
+        if (currentStatus.filter(PaymentStatus.PAID::equals).isPresent()
+            && PaymentStatus.PAID.toString().equalsIgnoreCase(caseMetaData.getPaymentStatus())) {
+            log.info("Payment already Paid for caseId: {}, ignoring duplicate callback", caseId);
+            return new SubmitEventDetails(caseMetaData.getCaseId(), jurisdiction, null,
+                                          null, HttpStatus.OK.value(), "Duplicate payment callback ignored");
         }
 
         // Update case payment status
