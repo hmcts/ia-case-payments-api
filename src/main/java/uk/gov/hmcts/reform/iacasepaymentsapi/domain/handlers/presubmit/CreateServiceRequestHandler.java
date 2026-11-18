@@ -23,7 +23,6 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOpt
 
 import java.util.List;
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
@@ -53,7 +52,8 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
     public CreateServiceRequestHandler(
         ServiceRequestService serviceRequestService,
-        FeeService feeService) {
+        FeeService feeService
+    ) {
         this.serviceRequestService = serviceRequestService;
         this.feeService = feeService;
     }
@@ -62,10 +62,12 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
     public boolean canHandle(
         PreSubmitCallbackStage callbackStage, Callback<AsylumCase> callback
     ) {
+        requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-            && callback.getEvent() == Event.GENERATE_SERVICE_REQUEST;
+            && (callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
+                || callback.getEvent() == Event.SUBMIT_APPEAL);
     }
 
     @Override
@@ -87,30 +89,43 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
         YesOrNo requestFeeRemissionFlagForServiceRequest =
             asylumCase.read(REQUEST_FEE_REMISSION_FLAG_FOR_SERVICE_REQUEST, YesOrNo.class)
-            .orElse(YesOrNo.NO);
+                .orElse(YesOrNo.NO);
 
         PaymentStatus paymentStatus = asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)
             .orElse(PaymentStatus.PAYMENT_PENDING);
 
         YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
+        log.info("isWaysToPay: {}, hasNoRemission(asylumCase): {}, requestFeeRemissionFlagForServiceRequest: {}, "
+                + "paymentStatus: {}, isAdmin: {}",
+            isWaysToPay(callback), hasNoRemission(asylumCase),
+            requestFeeRemissionFlagForServiceRequest != YesOrNo.YES,
+            (paymentStatus != PaymentStatus.PAID
+                || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES)),
+            isAdmin
+        );
+
         if (isWaysToPay(callback)
             && hasNoRemission(asylumCase)
             && requestFeeRemissionFlagForServiceRequest != YesOrNo.YES
             && (paymentStatus != PaymentStatus.PAID
-            || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES))
+                || asylumCase.read(REFUND_CONFIRMATION_APPLIED, YesOrNo.class).orElse(YesOrNo.NO).equals(YesOrNo.YES))
             && isAdmin != YesOrNo.YES) {
-            ServiceRequestResponse serviceRequestResponse = serviceRequestService.createServiceRequest(callback, fee);
+
+            ServiceRequestResponse serviceRequestResponse = serviceRequestService
+                .getExistingUnpaidServiceRequest(callback, fee)
+                .orElseGet(() -> serviceRequestService.createServiceRequest(callback, fee));
+
             asylumCase.write(SERVICE_REQUEST_REFERENCE, serviceRequestResponse.getServiceRequestReference());
             asylumCase.write(HAS_SERVICE_REQUEST_ALREADY, YesOrNo.YES);
-            //Reseting the flag after service request is made. To make another service request decision type need to
+            //Resetting the flag after service request is made. To make another service request decision type need to
             //be changed and 'refund' as fee tribunal action selected.
             asylumCase.clear(DECISION_TYPE_CHANGED_WITH_REFUND_FLAG);
             asylumCase.clear(REFUND_CONFIRMATION_APPLIED);
         } else {
             log.warn("Skipping Service Request creation for the appeal. case reference: {}, paymentStatus: {}, "
-                         + "requestFeeRemissionFlagForServiceRequest: {}", callback.getCaseDetails().getId(),
-                     paymentStatus, requestFeeRemissionFlagForServiceRequest);
+                    + "requestFeeRemissionFlagForServiceRequest: {}", callback.getCaseDetails().getId(),
+                paymentStatus, requestFeeRemissionFlagForServiceRequest);
         }
 
         return new PreSubmitCallbackResponse<>(asylumCase);
@@ -119,11 +134,11 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
     private boolean isWaysToPay(Callback<AsylumCase> callback) {
 
         List<Event> waysToPayEvents = List.of(Event.SUBMIT_APPEAL,
-                                              Event.GENERATE_SERVICE_REQUEST,
-                                              Event.RECORD_REMISSION_DECISION);
+            Event.GENERATE_SERVICE_REQUEST,
+            Event.RECORD_REMISSION_DECISION);
 
         return waysToPayEvents.contains(callback.getEvent())
-               && isHuEaEuPaAg(callback.getCaseDetails().getCaseData());
+            && isHuEaEuPaAg(callback.getCaseDetails().getCaseData());
     }
 
     private boolean isHuEaEuPaAg(AsylumCase asylumCase) {
@@ -158,7 +173,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
 
     private boolean isDecisionPartiallyApprovedOrRejected(Optional<RemissionDecision> remissionDecision) {
         return remissionDecision
-            .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED
-            ).orElse(false);
+            .map(decision -> decision == RemissionDecision.PARTIALLY_APPROVED || decision == RemissionDecision.REJECTED)
+            .orElse(false);
     }
 }

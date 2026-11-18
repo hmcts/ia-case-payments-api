@@ -22,6 +22,10 @@ management:
       liveness:
         include: ping
 
+logging:
+  level:
+    io.lettuce.core: WARN
+
 spring:
   config:
     import: "optional:configtree:/mnt/secrets/ia/"
@@ -174,6 +178,7 @@ security:
       - "generateServiceRequest"
     caseworker-ia-system:
       - "updatePaymentStatus"
+      - "generateServiceRequest"
 ### dependency configuration
 auth:
   idam.client:
