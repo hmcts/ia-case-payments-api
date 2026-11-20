@@ -2,9 +2,10 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback;
 
 import static java.util.Objects.requireNonNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 import java.util.Optional;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
@@ -19,6 +20,7 @@ public class Callback<T extends CaseData> {
     private CaseDetails<T> caseDetails;
     private Optional<CaseDetails<T>> caseDetailsBefore;
 
+    @JsonCreator
     private Callback() {
         // noop -- for deserializer
     }
