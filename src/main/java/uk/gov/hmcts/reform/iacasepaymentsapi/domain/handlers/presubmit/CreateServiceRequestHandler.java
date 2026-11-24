@@ -21,6 +21,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.HelpWithFeesOption.WILL_PAY_FOR_APPEAL;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.RemissionOption.NO_REMISSION;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -66,8 +67,8 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         requireNonNull(callback, "callback must not be null");
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
-            && (callback.getEvent() == Event.GENERATE_SERVICE_REQUEST
-                || callback.getEvent() == Event.SUBMIT_APPEAL);
+            && Arrays.asList(Event.SUBMIT_APPEAL, Event.GENERATE_SERVICE_REQUEST, Event.RECORD_REMISSION_DECISION)
+            .contains(callback.getEvent());
     }
 
     @Override
