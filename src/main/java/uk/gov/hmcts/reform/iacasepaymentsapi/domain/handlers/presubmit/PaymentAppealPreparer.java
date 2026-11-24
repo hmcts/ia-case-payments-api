@@ -76,6 +76,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
+
         log.info("PaymentappealPreparer callbackStage {}, callback event {}",
                  callbackStage, callback.getEvent());
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
@@ -122,10 +123,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         PreSubmitCallbackResponse<AsylumCase> response =
             new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
 
-        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
-
-        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase) && isAdmin != YesOrNo.YES
-            && callback.getEvent() != Event.RECORD_REMISSION_DECISION) {
+        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase)) {
 
             try {
 
@@ -162,6 +160,8 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
                 return response;
             }
         }
+
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
 
         if (callback.getEvent() != Event.RECORD_REMISSION_DECISION
             || (callback.getEvent() == Event.RECORD_REMISSION_DECISION
