@@ -122,7 +122,10 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
         PreSubmitCallbackResponse<AsylumCase> response =
             new PreSubmitCallbackResponse<>(callback.getCaseDetails().getCaseData());
 
-        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase)) {
+        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
+
+        if (hasNoRemission(asylumCase) && isLegalRepJourney(asylumCase) && isAdmin != YesOrNo.YES
+            && callback.getEvent() != Event.RECORD_REMISSION_DECISION) {
 
             try {
 
@@ -160,8 +163,6 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
             }
         }
 
-        YesOrNo isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class).orElse(YesOrNo.NO);
-
         if (callback.getEvent() != Event.RECORD_REMISSION_DECISION
             || (callback.getEvent() == Event.RECORD_REMISSION_DECISION
             && asylumCase.read(PAYMENT_STATUS).isEmpty())) {
@@ -186,7 +187,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     private boolean isLegalRepJourney(AsylumCase asylumCase) {
         return asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
+            .map(journey -> journey != JourneyType.AIP)
             .orElse(true);
     }
 

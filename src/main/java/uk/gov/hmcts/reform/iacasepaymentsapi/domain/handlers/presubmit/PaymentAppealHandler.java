@@ -5,6 +5,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDe
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPELLANT_FAMILY_NAME;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.FEE_PAYMENT_APPEAL_TYPE;
+import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.IS_ADMIN;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.JOURNEY_TYPE;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.LEGAL_REP_REFERENCE_NUMBER;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.PAYMENT_ACCOUNT_LIST;
@@ -85,8 +86,11 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
 
         final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
         final boolean isLegalRepJourney = asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
+            .map(journey -> journey != JourneyType.AIP)
             .orElse(true);
+        final boolean isAdmin = asylumCase.read(IS_ADMIN, YesOrNo.class)
+            .map(admin -> admin == YesOrNo.YES)
+            .orElse(false);
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
                && Arrays.asList(
@@ -94,7 +98,8 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
                    Event.PAYMENT_APPEAL,
                    Event.PAY_FOR_APPEAL
                     ).contains(callback.getEvent())
-               && isLegalRepJourney;
+               && isLegalRepJourney
+               && !isAdmin;
     }
 
     @Override
