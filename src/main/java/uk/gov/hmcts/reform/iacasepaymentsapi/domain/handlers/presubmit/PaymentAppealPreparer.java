@@ -45,6 +45,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.DispatchPriority;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
@@ -66,6 +67,11 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     ) {
         this.feeService = feeService;
         this.refDataService = refDataService;
+    }
+
+    @Override
+    public DispatchPriority getDispatchPriority() {
+        return DispatchPriority.EARLIEST;
     }
 
     @Override
