@@ -111,8 +111,8 @@ class PaymentAppealPreparerTest {
     }
 
     @Test
-    void should_have_earliest_dispatch_priority() {
-        assertThat(paymentAppealPreparer.getDispatchPriority()).isEqualTo(DispatchPriority.EARLIEST);
+    void should_have_early_dispatch_priority() {
+        assertThat(paymentAppealPreparer.getDispatchPriority()).isEqualTo(DispatchPriority.EARLY);
     }
 
     @Test

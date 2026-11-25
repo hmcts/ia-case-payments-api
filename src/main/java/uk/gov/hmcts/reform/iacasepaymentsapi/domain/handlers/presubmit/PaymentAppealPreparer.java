@@ -71,7 +71,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     @Override
     public DispatchPriority getDispatchPriority() {
-        return DispatchPriority.EARLIEST;
+        return DispatchPriority.EARLY;
     }
 
     @Override
