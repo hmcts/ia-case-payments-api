@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -34,7 +33,7 @@ public interface WithIdamStub {
         );
     }
 
-    default void addIdamTokenStub(WireMockServer server) throws JsonProcessingException {
+    default void addIdamTokenStub(WireMockServer server) {
         server.addStubMapping(
             new StubMapping(
                 newRequestPattern(POST, urlEqualTo("/idam/o/token"))
@@ -48,7 +47,7 @@ public interface WithIdamStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                    .withBody(new ObjectMapper().writeValueAsString(TokenForTest.generateValid()))
+                    .withBody(new JsonMapper().writeValueAsString(TokenForTest.generateValid()))
                     .build()
             )
         );
