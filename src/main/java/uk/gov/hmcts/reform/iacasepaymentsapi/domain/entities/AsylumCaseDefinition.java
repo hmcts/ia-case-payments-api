@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 

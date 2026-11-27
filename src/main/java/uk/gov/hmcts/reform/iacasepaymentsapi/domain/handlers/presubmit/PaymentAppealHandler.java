@@ -20,14 +20,14 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.Paym
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAID;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus.PAYMENT_PENDING;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AppealType;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCase;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.DynamicList;
@@ -230,7 +230,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
             log.error("Payment failed: {}", fe.getMessage());
             try {
                 return objectMapper.readValue(fe.contentUTF8(), PaymentResponse.class);
-            } catch (JsonProcessingException je) {
+            } catch (JacksonException je) {
                 log.error("Error parsing the failed payment response: {}", je.getMessage());
             }
         }

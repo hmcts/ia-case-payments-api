@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.StartEventDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentStatus;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.clients.CcdDataApi;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.IdentityManagerResponseException;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.security.S2STokenValidator;
@@ -36,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -162,6 +165,32 @@ class CcdDataServiceTest {
             assertDoesNotThrow(() -> ccdDataService.updatePaymentStatus(
                 getCaseMetaData(paymentStatus, paymentReference), isWaysToPay, VALID_S2S_TOKEN));
         assertPaymentDetails(submitEventDetails);
+        verifyInteractionsWithMocks(caseDataContent);
+    }
+
+    @Test
+    void service_should_skip_submit_when_payment_already_paid() {
+        CaseDataContent caseDataContent = getCaseDataContent(PAYMENT_STATUS_PAID_VALUE);
+        setupEventAndSubmitMocks(PAYMENT_REFERENCE_VALUE, caseDataContent);
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class)).thenReturn(Optional.of(PaymentStatus.PAID));
+
+        SubmitEventDetails submitEventDetails = ccdDataService.updatePaymentStatus(
+            getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN);
+
+        assertEquals(200, submitEventDetails.getCallbackResponseStatusCode());
+        verify(ccdDataApi, never()).submitEvent(any(), any(), any(), any());
+    }
+
+    @Test
+    void service_should_submit_when_payment_not_yet_paid() {
+        CaseDataContent caseDataContent = getCaseDataContent(PAYMENT_STATUS_PAID_VALUE);
+        setupEventAndSubmitMocks(PAYMENT_REFERENCE_VALUE, caseDataContent);
+        when(asylumCase.read(PAYMENT_STATUS, PaymentStatus.class))
+            .thenReturn(Optional.of(PaymentStatus.PAYMENT_PENDING));
+
+        ccdDataService.updatePaymentStatus(
+            getCaseMetaData(PAYMENT_STATUS_PAID_VALUE, PAYMENT_REFERENCE_VALUE), true, VALID_S2S_TOKEN);
+
         verifyInteractionsWithMocks(caseDataContent);
     }
 
