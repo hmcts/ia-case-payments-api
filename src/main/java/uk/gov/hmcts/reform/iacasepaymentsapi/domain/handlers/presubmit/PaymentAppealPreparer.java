@@ -45,6 +45,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.Value;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.DispatchPriority;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
@@ -69,6 +70,11 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
     }
 
     @Override
+    public DispatchPriority getDispatchPriority() {
+        return DispatchPriority.EARLY;
+    }
+
+    @Override
     public boolean canHandle(
         PreSubmitCallbackStage callbackStage,
         Callback<AsylumCase> callback
@@ -76,6 +82,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
+
         log.info("PaymentappealPreparer callbackStage {}, callback event {}",
                  callbackStage, callback.getEvent());
         return (callbackStage == PreSubmitCallbackStage.ABOUT_TO_START
@@ -186,7 +193,7 @@ public class PaymentAppealPreparer implements PreSubmitCallbackHandler<AsylumCas
 
     private boolean isLegalRepJourney(AsylumCase asylumCase) {
         return asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
+            .map(journey -> journey != JourneyType.AIP)
             .orElse(true);
     }
 

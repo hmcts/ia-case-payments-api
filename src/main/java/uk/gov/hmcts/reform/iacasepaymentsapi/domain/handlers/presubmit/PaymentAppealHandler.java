@@ -85,7 +85,7 @@ public class PaymentAppealHandler implements PreSubmitCallbackHandler<AsylumCase
 
         final AsylumCase asylumCase = callback.getCaseDetails().getCaseData();
         final boolean isLegalRepJourney = asylumCase.read(JOURNEY_TYPE, JourneyType.class)
-            .map(journey -> journey == JourneyType.REP)
+            .map(journey -> journey != JourneyType.AIP)
             .orElse(true);
 
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT

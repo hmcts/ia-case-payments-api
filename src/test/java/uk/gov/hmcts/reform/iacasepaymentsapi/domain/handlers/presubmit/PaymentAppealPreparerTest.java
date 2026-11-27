@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.CaseDetails;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.State;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.Callback;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.DispatchPriority;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.callback.PreSubmitCallbackStage;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.field.YesOrNo;
@@ -107,6 +108,11 @@ class PaymentAppealPreparerTest {
         lenient().when(asylumCase.read(JOURNEY_TYPE, JourneyType.class)).thenReturn(Optional.of(JourneyType.REP));
         lenient().when(asylumCase.read(IS_ACCELERATED_DETAINED_APPEAL, YesOrNo.class))
             .thenReturn(Optional.of(YesOrNo.NO));
+    }
+
+    @Test
+    void should_have_early_dispatch_priority() {
+        assertThat(paymentAppealPreparer.getDispatchPriority()).isEqualTo(DispatchPriority.EARLY);
     }
 
     @Test
