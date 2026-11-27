@@ -69,11 +69,23 @@ public class UpdatePaymentStatusController {
     ) {
         String caseId = paymentDto.getCcdCaseNumber();
 
+        log.info("UpdatePaymentStatus callback received - caseId: {}, paymentReference: {}, "
+                + "paymentStatus: {}, paymentAmount: {}, paymentMethod: {}, externalReference: {}",
+            caseId,
+            paymentDto.getReference(),
+            paymentDto.getStatus(),
+            paymentDto.getAmount(),
+            paymentDto.getMethod(),
+            paymentDto.getExternalReference());
+
         CaseMetaData caseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS, JURISDICTION,
                 CASE_TYPE, Long.parseLong(caseId), paymentDto.getStatus(), paymentDto.getReference());
 
         SubmitEventDetails response = ccdDataService.updatePaymentStatus(caseMetaData, false, s2sAuthToken);
+
+        log.info("UpdatePaymentStatus response - caseId: {}, responseStatus: {}", caseId, response.getCallbackResponseStatusCode());
+
         return ResponseEntity.status(response.getCallbackResponseStatusCode()).body(response);
     }
 
