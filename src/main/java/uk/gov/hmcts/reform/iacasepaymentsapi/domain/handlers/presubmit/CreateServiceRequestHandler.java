@@ -66,6 +66,8 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
         requireNonNull(callbackStage, "callbackStage must not be null");
         requireNonNull(callback, "callback must not be null");
 
+        log.info("In handle callback CreateServiceRequestHandler for caseID: {}, caseEventID: {}",
+                 callback.getCaseDetails().getId(), callback.getEvent());
         return callbackStage == PreSubmitCallbackStage.ABOUT_TO_SUBMIT
             && Arrays.asList(Event.SUBMIT_APPEAL, Event.GENERATE_SERVICE_REQUEST, Event.RECORD_REMISSION_DECISION)
             .contains(callback.getEvent());
@@ -75,6 +77,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
     public PreSubmitCallbackResponse<AsylumCase> handle(
         PreSubmitCallbackStage callbackStage, Callback<AsylumCase> callback
     ) {
+        log.info("In handle callback CreateServiceRequestHandler for caseID: {}", callback.getCaseDetails().getId());
         if (!canHandle(callbackStage, callback)) {
             throw new IllegalStateException("Cannot handle callback");
         }

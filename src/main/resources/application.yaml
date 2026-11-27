@@ -130,8 +130,12 @@ security:
   roleEventAccess:
     citizen:
       - "startAppeal"
+      - "submitAppeal"
       - "editAppeal"
       - "paymentAppeal"
+      - "payAndSubmitAppeal"
+      - "payForAppeal"
+      - "generateServiceRequest"
     caseworker-ia-legalrep-solicitor:
       - "startAppeal"
       - "submitAppeal"
