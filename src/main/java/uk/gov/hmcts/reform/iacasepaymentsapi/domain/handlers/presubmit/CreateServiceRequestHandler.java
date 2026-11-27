@@ -79,6 +79,7 @@ public class CreateServiceRequestHandler implements PreSubmitCallbackHandler<Asy
     ) {
         log.info("In handle callback CreateServiceRequestHandler for caseID: {}", callback.getCaseDetails().getId());
         if (!canHandle(callbackStage, callback)) {
+            log.info("Can not handle callbackStage: {}, Id: {}", callbackStage, callback.getCaseDetails().getId());
             throw new IllegalStateException("Cannot handle callback");
         }
 

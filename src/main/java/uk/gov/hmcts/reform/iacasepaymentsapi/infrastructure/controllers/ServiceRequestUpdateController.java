@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.CaseMetaData;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.Event;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.ccd.SubmitEventDetails;
+import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.PaymentDto;
 import uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.payment.ServiceRequestUpdateDto;
 import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.service.CcdDataService;
 
@@ -49,9 +50,19 @@ public class ServiceRequestUpdateController {
         @RequestBody ServiceRequestUpdateDto serviceRequestUpdateDto) {
 
         String caseId = serviceRequestUpdateDto.getCcdCaseNumber();
+        PaymentDto payment = serviceRequestUpdateDto.getPayment();
 
-        log.info("Callback received for caseId {}, paymentStatus {}", caseId,
-                 serviceRequestUpdateDto.getPayment().getStatus());
+        log.info("ServiceRequestUpdate callback received - caseId: {}, serviceRequestReference: {}, "
+                + "serviceRequestStatus: {}, serviceRequestAmount: {}, paymentReference: {}, "
+                + "paymentStatus: {}, paymentAmount: {}, paymentMethod: {}",
+            caseId,
+            serviceRequestUpdateDto.getServiceRequestReference(),
+            serviceRequestUpdateDto.getServiceRequestStatus(),
+            serviceRequestUpdateDto.getServiceRequestAmount(),
+            payment.getReference(),
+            payment.getStatus(),
+            payment.getAmount(),
+            payment.getMethod());
 
         CaseMetaData updatePaymentStatusCaseMetaData =
             new CaseMetaData(Event.UPDATE_PAYMENT_STATUS,
@@ -62,6 +73,8 @@ public class ServiceRequestUpdateController {
                              serviceRequestUpdateDto.getPayment().getReference());
 
         SubmitEventDetails response = ccdDataService.updatePaymentStatus(updatePaymentStatusCaseMetaData, true, s2sAuthToken);
+
+        log.info("ServiceRequestUpdate response - caseId: {}, responseStatus: {}", caseId, response.getCallbackResponseStatusCode());
 
         return ResponseEntity
             .status(response.getCallbackResponseStatusCode())
