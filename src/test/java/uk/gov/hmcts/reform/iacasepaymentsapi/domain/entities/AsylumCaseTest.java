@@ -3,15 +3,16 @@ package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities.AsylumCaseDefinition.APPEAL_REFERENCE_NUMBER;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.iacasepaymentsapi.infrastructure.config.JsonMapperFactory;
 
 class AsylumCaseTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapperFactory.CUSTOM_MAPPER;
     private AsylumCase asylumCase;
     private final String caseData = "{\"appealReferenceNumber\": \"PA/50222/2019\"}";
 

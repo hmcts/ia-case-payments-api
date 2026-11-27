@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.testutils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -22,7 +21,7 @@ import static uk.gov.hmcts.reform.iacasepaymentsapi.testutils.SubmitEventDetails
 
 public interface WithCcdStub {
 
-    default void addCcdUpdatePaymentStatusGetTokenStub(WireMockServer server) throws JsonProcessingException {
+    default void addCcdUpdatePaymentStatusGetTokenStub(WireMockServer server) {
         server.addStubMapping(
             new StubMapping(
                 newRequestPattern(GET, urlEqualTo("/ccd/caseworkers//jurisdictions/IA/case-types"
@@ -32,7 +31,7 @@ public interface WithCcdStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody(new ObjectMapper().writeValueAsString(
+                    .withBody(new JsonMapper().writeValueAsString(
                         StartEventDetailsForTest.generateValidUpdatePaymentStatusDetail()
                     ))
                     .build()
@@ -40,7 +39,7 @@ public interface WithCcdStub {
         );
     }
 
-    default void addCcdUpdatePaymentSubmitEventStub(WireMockServer server) throws JsonProcessingException {
+    default void addCcdUpdatePaymentSubmitEventStub(WireMockServer server) {
         server.addStubMapping(
             new StubMapping(
                 newRequestPattern(POST, urlEqualTo("/ccd/cases/" + CCD_CASE_NUMBER + "/events"))
@@ -62,13 +61,13 @@ public interface WithCcdStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody(new ObjectMapper().writeValueAsString(generateValidPaymentUpdateEvent()))
+                    .withBody(new JsonMapper().writeValueAsString(generateValidPaymentUpdateEvent()))
                     .build()
             )
         );
     }
 
-    default void addCcdServiceRequestUpdateSubmitEventStub(WireMockServer server) throws JsonProcessingException {
+    default void addCcdServiceRequestUpdateSubmitEventStub(WireMockServer server) {
         server.addStubMapping(
             new StubMapping(
                 newRequestPattern(POST, urlEqualTo("/ccd/cases/" + CCD_CASE_NUMBER + "/events"))
@@ -90,7 +89,7 @@ public interface WithCcdStub {
                 aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
-                    .withBody(new ObjectMapper().writeValueAsString(generateValidServiceRequestEvent()))
+                    .withBody(new JsonMapper().writeValueAsString(generateValidServiceRequestEvent()))
                     .build()
             )
         );

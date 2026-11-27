@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.iacasepaymentsapi.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +25,7 @@ public class LegRepAddressUk {
 
     private List<String> dxAddress;
 
+    @JsonCreator
     private LegRepAddressUk() {
         // noop -- for deserializer
     }
